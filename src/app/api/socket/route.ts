@@ -2,8 +2,6 @@ import { Server as ServerIO, type Socket } from "socket.io";
 import type { NextApiRequest, NextApiResponse } from "next";
 import type { Server as HTTPServer } from "node:http";
 import type { Duplex } from "node:stream";
-
-// Extend the Next.js res.socket.server to include `io`
 interface SocketServer extends HTTPServer {
   io?: ServerIO;
 }
@@ -19,7 +17,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       path: "/api/socket",
       addTrailingSlash: false,
       cors: {
-        origin: "*", // Change this for production security
+        origin: "*",
         methods: ["GET", "POST"],
       },
     });

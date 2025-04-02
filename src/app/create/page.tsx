@@ -3,16 +3,31 @@ import Image from "next/image";
 import { Box, TextField, Grid, Typography, Button } from "@mui/material";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-type Status = "entering_team_names" | "waiting_for_host";
+import useSocket from "@/hooks/useSocket";
 
 export default function Create() {
+	const socket = useSocket();
 	const [teamNames, setTeamNames] = useState<string[]>([]);
-	const [status, setStatus] = useState<Status>("entering_team_names");
-	const statusMessage =
-		status === "entering_team_names" ? "Enter team names" : "Waiting for host";
-	const inputsDisabled = status === "waiting_for_host";
+	const [state, setState] = useState<"entering_names" | "waiting_for_host">(
+		"entering_names",
+	);
 	const router = useRouter();
+	const statusMessage =
+		state === "entering_names"
+			? "Enter team names"
+			: "Waiting for host to start the game";
+	const inputsDisabled = state === "waiting_for_host";
+
+	const startSocketListener = () => {
+		if (!socket) return;
+		socket.emit("createGame", teamNames);
+		socket.on("gameCreated", () => {
+			setState("waiting_for_host");
+		});
+		socket.on("hostJoined", () => {
+			router.push("/game");
+		});
+	};
 
 	return (
 		<>
@@ -53,7 +68,7 @@ export default function Create() {
 						variant="contained"
 						color="primary"
 						sx={{ width: 150 }}
-						onClick={() => router.push("/")}
+						onClick={startSocketListener}
 						disabled={inputsDisabled}
 					>
 						OK
