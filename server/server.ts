@@ -13,17 +13,29 @@ const io = new Server(httpServer, {
 });
 
 io.on("connection", (socket) => {
-  console.log("New client connected:", socket.id);
+  // console.log("New client connected:", socket.id);
 
   socket.on("createGame", (teamNames) => {
-    console.log("Creating game with:", teamNames);
+    // console.log("Creating game with:", teamNames);
     GameManager.createGame(teamNames);
     io.emit("gameCreated", teamNames);
+  });
+
+  socket.on("requestGames", () => {
+    io.emit("receivedGames", GameManager.getAllGames());
+  });
+
+  socket.on("joinHost", (gameId) => {
+    const game = GameManager.getGame(gameId);
+    game?.joinHost(socket.id);
+    io.emit("hostJoined", game);
   });
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");
   });
+
+  socket.onAny((evtName) => console.log("*** got evt", evtName));
 });
 
 httpServer.listen(PORT, () => {

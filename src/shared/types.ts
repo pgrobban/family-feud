@@ -1,5 +1,4 @@
 export type GameState = {
-  id: string;
   teamsAndPoints: TeamAndPoints[];
 } & (WaitingForHostGame | GameInProgress | GameFinished);
 
@@ -12,12 +11,17 @@ export type GameInProgress = {
 } & (IndeterminateGame | FamilyWarmUpGame | FaceOffGame | FastMoneyGame);
 
 export interface IndeterminateGame {
-  mode: 'indeterminate';
+  mode: "indeterminate";
 }
 
 export interface FamilyWarmUpGame {
   mode: "family_warm_up";
-  modeStatus: "waiting_for_question" | "question_in_progress" | "revealing_answers" | "gathering_team_answers" | "awarding_points";
+  modeStatus:
+    | "waiting_for_question"
+    | "question_in_progress"
+    | "revealing_answers"
+    | "gathering_team_answers"
+    | "awarding_points";
   currentTeam: number;
   question: string | null;
   answers: Answer[];
@@ -27,7 +31,10 @@ export interface FamilyWarmUpGame {
 
 export interface FaceOffGame {
   mode: "face_off";
-  modeStatus: "waiting_for_question" | "question_in_progress" | "revealing_answers";
+  modeStatus:
+    | "waiting_for_question"
+    | "question_in_progress"
+    | "revealing_answers";
   currentTeam: number;
   question: string | null;
   answers: Answer[];
@@ -35,7 +42,10 @@ export interface FaceOffGame {
 
 export interface FastMoneyGame {
   mode: "fast_money";
-  modeStatus: "waiting_for_questions" | "questions_in_progress" | "revealing_answers";
+  modeStatus:
+    | "waiting_for_questions"
+    | "questions_in_progress"
+    | "revealing_answers";
   currentTeam: number;
   questions: string[];
   answersTeam1: Answer[];
