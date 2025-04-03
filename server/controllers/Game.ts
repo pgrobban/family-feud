@@ -3,31 +3,28 @@ import type { Answer, FaceOffGame, FamilyWarmUpGame, FastMoneyGame, GameInProgre
 import { EventEmitter } from 'node:events';
 
 export default class Game {
-  private gameState: GameState | null = null;
+  private gameState: GameState;
   private gameEvents: EventEmitter<GameEventMap> = new EventEmitter<GameEventMap>();
   private playerSocketIds: string[] = [];
   private hostSocketIds: string[] = [];
 
-  constructor() {
-    this.gameState = null;
+  constructor(id: string, teamNames: string[]) {
+    this.gameState = {
+      id,
+      teamsAndPoints: teamNames.map((teamName) => ({ teamName, points: 0 })),
+      status: 'waiting_for_host',
+    };
     this.gameEvents = new EventEmitter<GameEventMap>();
   }
 
-  private get state(): GameState {
-    if (!this.gameState) {
-      throw new Error("Game state is not initialized");
-    }
-    return this.gameState;
-  }
-
-  createGame(teamNames: string[], socketId: string) {
+  createGame(gameId: string, teamNames: string[]) {
     this.gameState = {
       id: crypto.randomUUID(),
       teamsAndPoints: teamNames.map((teamName) => ({ teamName, points: 0 })),
       status: 'waiting_for_host',
     };
-    this.playerSocketIds.push(socketId);
-    this.gameEvents.emit('gameCreated', this.state);
+    //    this.playerSocketIds.push(socketId);
+    this.gameEvents.emit('gameCreated', this.gameState);
   }
 
   joinHost(socketId: string) {
@@ -36,7 +33,7 @@ export default class Game {
     }
     this.hostSocketIds.push(socketId);
     this.gameState = { ...this.gameState, status: 'in_progress', mode: 'indeterminate' };
-    this.gameEvents.emit('hostJoined', this.state);
+    this.gameEvents.emit('hostJoined', this.gameState);
   }
 
   hostPickedMode<T extends Exclude<GameInProgress['mode'], 'indeterminate'>>(mode: T) {
@@ -59,7 +56,7 @@ export default class Game {
     }
 
     this.updateGameState({ ...modeProps, status: 'in_progress' });
-    this.gameEvents.emit('modePicked', this.state);
+    this.gameEvents.emit('modePicked', this.gameState);
   }
 
   hostPickedQuestion(question: string, answers: Pick<Answer, 'answerText' | 'points'>[]) {
@@ -73,7 +70,7 @@ export default class Game {
       answers: answers.map((answer) => ({ ...answer, revealed: false })),
     });
 
-    this.gameEvents.emit('questionPicked', this.state);
+    this.gameEvents.emit('questionPicked', this.gameState);
   }
 
   revealAnswersFamilyWarmup() {
@@ -82,11 +79,11 @@ export default class Game {
     }
 
     this.updateGameState({
-      answers: (this.state as FamilyWarmUpGame).answers.map((answer) => ({ ...answer, revealed: true })),
+      answers: (this.gameState as FamilyWarmUpGame).answers.map((answer) => ({ ...answer, revealed: true })),
       modeStatus: 'revealing_answers',
     });
 
-    this.gameEvents.emit('answersRevealed', this.state);
+    this.gameEvents.emit('answersRevealed', this.gameState);
   }
 
   gatherTeamAnswersFamilyWarmup(team1Answers: string[], team2Answers: string[]) {
@@ -99,7 +96,7 @@ export default class Game {
       team2Answers,
     });
 
-    this.gameEvents.emit('teamAnswersGathered', this.state);
+    this.gameEvents.emit('teamAnswersGathered', this.gameState);
   }
 
   awardPointsFamilyWarmup() {
@@ -129,7 +126,7 @@ export default class Game {
       modeStatus: 'awarding_points',
     });
 
-    this.gameEvents.emit('pointsAwarded', this.state);
+    this.gameEvents.emit('pointsAwarded', this.gameState);
   }
 
   private validateGameStatus(expectedMode: GameInProgress['mode'], expectedStatus: string): boolean {
@@ -142,6 +139,7 @@ export default class Game {
     }
 
     if (!('modeStatus' in this.gameState) || this.gameState.modeStatus !== expectedStatus) {
+      // @ts-ignore
       throw new Error(`Game mode not in expected state (${expectedStatus}), got: ${this.gameState.modeStatus}`);
     }
 

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "outDir": "./dist"
+  },
+  "include": [
+    "server/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

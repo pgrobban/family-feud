@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { Box, TextField, Grid, Typography, Button } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useSocket from "@/hooks/useSocket";
 
@@ -12,21 +12,40 @@ export default function Create() {
 		"entering_names",
 	);
 	const router = useRouter();
+
 	const statusMessage =
 		state === "entering_names"
 			? "Enter team names"
-			: "Waiting for host to start the game";
+			: "Waiting for host to start the game...";
 	const inputsDisabled = state === "waiting_for_host";
 
-	const startSocketListener = () => {
+	useEffect(() => {
 		if (!socket) return;
-		socket.emit("createGame", teamNames);
+
+		console.log("Socket connected:", socket.connected);
+
+		socket.on("connect", () => {
+			console.log("Socket is now connected to the server");
+		});
+
 		socket.on("gameCreated", () => {
 			setState("waiting_for_host");
 		});
+
 		socket.on("hostJoined", () => {
 			router.push("/game");
 		});
+
+		return () => {
+			socket.off("gameCreated");
+			socket.off("hostJoined");
+		};
+	}, [socket, router.push]);
+
+	const startSocketListener = () => {
+		if (!socket) return;
+		console.log("Emitting createGame with:", teamNames);
+		socket.emit("createGame", teamNames);
 	};
 
 	return (
@@ -71,7 +90,7 @@ export default function Create() {
 						onClick={startSocketListener}
 						disabled={inputsDisabled}
 					>
-						OK
+						Submit
 					</Button>
 				</Box>
 			</Box>
@@ -82,7 +101,6 @@ export default function Create() {
 					color="secondary"
 					sx={{ width: 200 }}
 					onClick={() => router.push("/")}
-					disabled={inputsDisabled}
 				>
 					&larr; Back
 				</Button>
