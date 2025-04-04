@@ -1,4 +1,3 @@
-import type { GameEventMap } from "@/shared/gameEventMap";
 import type {
   Answer,
   FaceOffGame,
@@ -8,13 +7,12 @@ import type {
   GameState,
   TeamAndPoints,
 } from "@/shared/types";
-import { EventEmitter } from "node:events";
 
 export default class Game {
   public id: string;
   private _gameState: GameState;
-  private gameEvents: EventEmitter<GameEventMap> =
-    new EventEmitter<GameEventMap>();
+  /* private gameEvents: EventEmitter<GameEventMap> =
+    new EventEmitter<GameEventMap>();*/
   private playerSocketIds: string[] = [];
   private hostSocketIds: string[] = [];
 
@@ -23,10 +21,11 @@ export default class Game {
     this.playerSocketIds = [socketId];
 
     this._gameState = {
+      id,
+      teamNames,
       teamsAndPoints: teamNames.map((teamName) => ({ teamName, points: 0 })),
       status: "waiting_for_host",
     };
-    this.gameEvents = new EventEmitter<GameEventMap>();
   }
 
   get mode() {
@@ -50,7 +49,8 @@ export default class Game {
     return this._gameState.status;
   }
 
-  toJson() {
+  toJson(): GameState {
+    //@ts-expect-error AAA
     return {
       id: this.id,
       mode: this.mode,
@@ -58,8 +58,8 @@ export default class Game {
       teamsAndPoints: this.teamsAndPoints,
       status: this.status,
       playerSocketIds: this.playerSocketIds,
-      hostSocketIds: this.hostSocketIds
-    }
+      hostSocketIds: this.hostSocketIds,
+    };
   }
 
   getPlayerSocketIds() {
@@ -70,12 +70,10 @@ export default class Game {
   }
 
   createGame(teamNames: string[]) {
-    this._gameState = {
+    this.updateGameState({
       teamsAndPoints: teamNames.map((teamName) => ({ teamName, points: 0 })),
       status: "waiting_for_host",
-    };
-    //    this.playerSocketIds.push(socketId);
-    this.gameEvents.emit("gameCreated", this.gameState);
+    });
   }
 
   joinHost(socketId: string) {
@@ -89,14 +87,14 @@ export default class Game {
     this.updateGameState({
       status: "in_progress",
       mode: "indeterminate",
-    })
-    this.gameEvents.emit("hostJoined", this.gameState);
+    });
+    // this.gameEvents.emit("hostJoined", this.gameState);
   }
 
   hostPickedMode<T extends Exclude<GameInProgress["mode"], "indeterminate">>(
     mode: T
   ) {
-    if (!this.validateGameStatus("indeterminate", "waiting_for_host")) {
+    if (!this.validateGameStatus("indeterminate")) {
       return;
     }
 
@@ -134,7 +132,6 @@ export default class Game {
     }
 
     this.updateGameState({ ...modeProps, status: "in_progress" });
-    this.gameEvents.emit("modePicked", this.gameState);
   }
 
   hostPickedQuestion(
@@ -150,8 +147,6 @@ export default class Game {
       modeStatus: "question_in_progress",
       answers: answers.map((answer) => ({ ...answer, revealed: false })),
     });
-
-    this.gameEvents.emit("questionPicked", this.gameState);
   }
 
   revealAnswersFamilyWarmup() {
@@ -166,8 +161,6 @@ export default class Game {
       })),
       modeStatus: "revealing_answers",
     });
-
-    this.gameEvents.emit("answersRevealed", this.gameState);
   }
 
   gatherTeamAnswersFamilyWarmup(
@@ -182,8 +175,6 @@ export default class Game {
       team1Answers,
       team2Answers,
     });
-
-    this.gameEvents.emit("teamAnswersGathered", this.gameState);
   }
 
   awardPointsFamilyWarmup() {
@@ -222,13 +213,11 @@ export default class Game {
       teamsAndPoints: newTeamsAndPoints,
       modeStatus: "awarding_points",
     });
-
-    this.gameEvents.emit("pointsAwarded", this.gameState);
   }
 
   private validateGameStatus(
     expectedMode: GameInProgress["mode"],
-    expectedStatus: string
+    expectedStatus?: string
   ): boolean {
     if (!this.gameState || this.gameState.status !== "in_progress") {
       throw new Error(`Game not in progress, got: ${this.gameState?.status}`);
@@ -238,6 +227,10 @@ export default class Game {
       throw new Error(
         `Wrong game mode, expected ${expectedMode}, got: ${this.gameState.mode}`
       );
+    }
+
+    if (!expectedStatus) {
+      return true;
     }
 
     if (

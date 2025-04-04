@@ -1,69 +1,92 @@
 // server.ts
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { createServer } from "node:http";
 import GameManager from "./controllers/GameManager";
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from "@/shared/gameEventMap";
 
 const PORT = 3002; // Dedicated WebSocket server port
 const httpServer = createServer();
-const io = new Server(httpServer, {
+const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
-    origin: "http://localhost:3001", // Allow Next.js frontend
+    origin: "http://localhost:3001",
     methods: ["GET", "POST"],
   },
 });
 
-io.on("connection", (socket) => {
-  // console.log("New client connected:", socket.id);
+io.on(
+  "connection",
+  (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
+    // console.log("New client connected:", socket.id);
 
-  socket.on("createGame", (teamNames) => {
-    // console.log("Creating game with:", teamNames);
-    GameManager.createGame(socket.id, teamNames);
-    io.emit("gameCreated", teamNames);
-  });
+    socket.on("createGame", (teamNames) => {
+      GameManager.createGame(socket.id, teamNames);
 
-  socket.on("requestGames", () => {
-    io.emit("receivedGames", GameManager.getAllGames());
-  });
+      const game = GameManager.getGameBySocketId(socket.id);
+      if (game) {
+        io.emit("gameCreated", game.toJson());
+      }
 
-  socket.on("requestGameState", () => {
-    const game = GameManager.getGameBySocketId(socket.id);
-    if (game) {
-      socket.emit("receivedGameState", game.toJson());
-    } else {
-      socket.emit("receivedGameState", null);
-    }
-  });
+      io.emit("receivedGames", GameManager.getAllGames());
+    });
 
-  socket.on("joinHost", (gameId) => {
-    const game = GameManager.getGame(gameId);
-    game?.joinHost(socket.id);
-    io.emit("hostJoined", game);
-  });
+    socket.on("requestGames", () => {
+      io.emit("receivedGames", GameManager.getAllGames());
+    });
 
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
-  });
-  socket.on("reconnect", () => {
-    console.log(`🔄 Reconnected: ${socket.id}`);
+    socket.on("requestGame", () => {
+      const game = GameManager.getGameBySocketId(socket.id);
+      if (game) {
+        socket.emit("receivedGame", game.toJson());
+      } else {
+        socket.emit("receivedGame", null);
+      }
+    });
 
-    // Find the game that was using the old socket ID
-    // @ts-expect-error TODO
-    const game = GameManager.getGameBySocketId(socket.handshake.query.oldSocketId);
-    if (game) {
-      console.log(`Updating socket ID from ${socket.handshake.query.oldSocketId} to ${socket.id}`);
-      // @ts-expect-error TODO
-      game.playerSocketIds = game.playerSocketIds.map(id =>
-        id === socket.handshake.query.oldSocketId ? socket.id : id
-      );
-      // @ts-expect-error TODO
-      game.hostSocketIds = game.hostSocketIds.map(id =>
-        id === socket.handshake.query.oldSocketId ? socket.id : id
-      );
-    }
-  });
+    socket.on("modePicked", (mode) => {
+      const game = GameManager.getGameBySocketId(socket.id);
+      if (game) {
+        game.hostPickedMode(mode);
+        io.emit("receivedGame", game.toJson());
+      }
+    });
 
-  socket.onAny((evtName) => console.log("*** got evt", evtName));
-});
+    socket.on("joinHost", (gameId) => {
+      const game = GameManager.getGame(gameId);
+      if (game) {
+        game.joinHost(socket.id);
+        io.emit("hostJoined", game.toJson());
+        io.emit("receivedGame", game.toJson());
+      }
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Client disconnected");
+    });
+    socket.on("reconnect", (payload) => {
+      const { oldSocketId } = payload;
+
+      const game = GameManager.getGameBySocketId(oldSocketId);
+      if (game) {
+        console.log(`Updating socket ID from ${oldSocketId} to ${socket.id}`);
+
+        // @ts-expect-error TODO
+        game.playerSocketIds = game.playerSocketIds.map((id) =>
+          id === oldSocketId ? socket.id : id
+        );
+
+        // @ts-expect-error TODO
+        game.hostSocketIds = game.hostSocketIds.map((id) =>
+          id === oldSocketId ? socket.id : id
+        );
+      }
+    });
+
+    socket.onAny((evtName) => console.log("*** got evt", evtName));
+  }
+);
 
 httpServer.listen(PORT, () => {
   console.log(`✅ Socket.IO server running on http://localhost:${PORT}`);

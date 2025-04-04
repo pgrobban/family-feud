@@ -1,4 +1,6 @@
 export type GameState = {
+  id: string;
+  teamNames: string[];
   teamsAndPoints: TeamAndPoints[];
 } & (WaitingForHostGame | GameInProgress | GameFinished);
 

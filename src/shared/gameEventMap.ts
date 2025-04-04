@@ -1,16 +1,21 @@
-import type { GameState } from "./types";
+import { GameInProgress, GameState } from "./types";
 
-export interface GameEventMap {
-  gameCreated: [gameState: GameState];
-  hostJoined: [gameState: GameState];
-  modePicked: [gameState: GameState];
-  questionPicked: [gameState: GameState];
-  answersRevealed: [gameState: GameState];
-  teamAnswersGathered: [gameState: GameState];
-  pointsAwarded: [gameState: GameState];
-  requestGameState: [];
-  requestGames: [];
-  receivedGameState: [gameState: GameState];
-  receivedGames: [games: GameState[]];
-  joinHost: [gameId: string];
+export interface ClientToServerEvents {
+  createGame: (teamNames: string[]) => void;
+  requestGames: () => void;
+  requestGame: () => void;
+  modePicked: (mode: Exclude<GameInProgress["mode"], "indeterminate">) => void;
+  joinHost: (gameId: string) => void;
+  reconnect: (payload: { oldSocketId: string }) => void;
+}
+
+export interface ServerToClientEvents {
+  gameCreated: (gameState: GameState) => void;
+  hostJoined: (gameState: GameState) => void;
+  questionPicked: (gameState: GameState) => void;
+  answersRevealed: (gameState: GameState) => void;
+  teamAnswersGathered: (gameState: GameState) => void;
+  pointsAwarded: (gameState: GameState) => void;
+  receivedGame: (gameState: GameState | null) => void;
+  receivedGames: (games: GameState[]) => void;
 }
