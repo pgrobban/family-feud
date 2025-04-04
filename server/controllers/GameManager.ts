@@ -7,18 +7,29 @@ class GameManager {
     this.games = new Map();
   }
 
-  createGame(teamNames: string[]) {
+  createGame(socketId: string, teamNames: string[]) {
     const gameId = this.generateGameId();
-    const newGame = new Game(gameId, teamNames);
+    const newGame = new Game(gameId, socketId, teamNames);
     this.games.set(gameId, newGame);
   }
 
   getAllGames() {
-    return Array.from(this.games.values());
+    return Array.from(this.games.values()).map((game) => game.toJson());
   }
 
   getGame(gameId: string) {
     return this.games.get(gameId);
+  }
+
+  getGameBySocketId(socketId: string) {
+    // console.log("Searching for game with socketId:", socketId);
+    for (const game of this.games.values()) {
+      // console.log("Checking game:", game);
+      if (game.getHostSocketIds().includes(socketId) || game.getPlayerSocketIds().includes(socketId)) {
+        return game;
+      }
+    }
+    return null;
   }
 
   deleteGame(gameId: string) {

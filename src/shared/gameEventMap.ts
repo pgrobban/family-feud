@@ -8,4 +8,9 @@ export interface GameEventMap {
   answersRevealed: [gameState: GameState];
   teamAnswersGathered: [gameState: GameState];
   pointsAwarded: [gameState: GameState];
+  requestGameState: [];
+  requestGames: [];
+  receivedGameState: [gameState: GameState];
+  receivedGames: [games: GameState[]];
+  joinHost: [gameId: string];
 }

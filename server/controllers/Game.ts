@@ -12,32 +12,65 @@ import { EventEmitter } from "node:events";
 
 export default class Game {
   public id: string;
-  private gameState: GameState;
+  private _gameState: GameState;
   private gameEvents: EventEmitter<GameEventMap> =
     new EventEmitter<GameEventMap>();
   private playerSocketIds: string[] = [];
   private hostSocketIds: string[] = [];
 
-  constructor(id: string, teamNames: string[]) {
+  constructor(id: string, socketId: string, teamNames: string[]) {
     this.id = id;
-    this.gameState = {
+    this.playerSocketIds = [socketId];
+
+    this._gameState = {
       teamsAndPoints: teamNames.map((teamName) => ({ teamName, points: 0 })),
       status: "waiting_for_host",
     };
     this.gameEvents = new EventEmitter<GameEventMap>();
   }
 
+  get mode() {
+    if (!this._gameState) throw new Error("Game not created yet");
+    // @ts-expect-error TODO
+    return (this as GameInProgress)._gameState.mode;
+  }
+
+  get gameState() {
+    return this._gameState;
+  }
+
   get teamNames() {
-    console.log("*** getter", this.gameState);
-    return this.gameState.teamsAndPoints.map(({ teamName }) => teamName);
+    return this._gameState.teamsAndPoints.map((team) => team.teamName);
+  }
+  get teamsAndPoints() {
+    return this._gameState.teamsAndPoints;
   }
 
   get status() {
-    return this.gameState.status;
+    return this._gameState.status;
+  }
+
+  toJson() {
+    return {
+      id: this.id,
+      mode: this.mode,
+      teamNames: this.teamNames,
+      teamsAndPoints: this.teamsAndPoints,
+      status: this.status,
+      playerSocketIds: this.playerSocketIds,
+      hostSocketIds: this.hostSocketIds
+    }
+  }
+
+  getPlayerSocketIds() {
+    return this.playerSocketIds;
+  }
+  getHostSocketIds() {
+    return this.hostSocketIds;
   }
 
   createGame(teamNames: string[]) {
-    this.gameState = {
+    this._gameState = {
       teamsAndPoints: teamNames.map((teamName) => ({ teamName, points: 0 })),
       status: "waiting_for_host",
     };
@@ -49,12 +82,14 @@ export default class Game {
     if (!this.gameState) {
       throw new Error("Game not created yet");
     }
-    this.hostSocketIds.push(socketId);
-    this.gameState = {
-      ...this.gameState,
+    if (!this.hostSocketIds.includes(socketId)) {
+      this.hostSocketIds.push(socketId);
+    }
+
+    this.updateGameState({
       status: "in_progress",
       mode: "indeterminate",
-    };
+    })
     this.gameEvents.emit("hostJoined", this.gameState);
   }
 
@@ -220,6 +255,6 @@ export default class Game {
 
   private updateGameState(updates: Partial<GameState>) {
     if (!this.gameState) return;
-    this.gameState = { ...this.gameState, ...updates } as GameState;
+    this._gameState = { ...this.gameState, ...updates } as GameState;
   }
 }

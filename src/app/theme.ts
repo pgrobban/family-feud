@@ -47,7 +47,7 @@ const theme = createTheme({
   },
   typography: {
     fontSize: 20,
-    fontFamily: 'var(--font-geist)',
+    fontFamily: 'var(--font-anton)',
   },
 });
 

@@ -6,45 +6,42 @@ import Game from "../../../server/controllers/Game";
 import { Box, Button, Grid, Typography } from "@mui/material";
 
 export default function Create() {
-  const socket = useSocket();
-  // const router = useRouter();
-  const [games, setGames] = useState<Game[]>([]);
+	const socket = useSocket();
+	// const router = useRouter();
+	const [games, setGames] = useState<Game[]>([]);
 
-  useEffect(() => {
-    if (!socket) {
-      return;
-    }
+	useEffect(() => {
+		if (!socket) {
+			return;
+		}
 
-    socket.emit("requestGames");
-    socket.on("receivedGames", (games: Game[]) => setGames(games));
-  }, [socket]);
+		socket.emit("requestGames");
+		socket.on("receivedGames", (games: Game[]) => setGames(games));
+	}, [socket]);
 
-  const onJoin = (id: string) => socket?.emit("joinHost", id);
+	const onJoin = (gameId: string) => socket?.emit("joinHost", gameId);
 
-  return (
-    <Box display="flex" flexDirection="column" alignItems="center">
-      <Typography variant="h3">Select a game to join</Typography>
-      {games.map(({ id, gameState }) => {
-        const teamNames = gameState.teamsAndPoints.map(
-          ({ teamName }) => teamName
-        );
-        return (
-          <Grid container spacing={2} key={id}>
-            <Grid>{id}</Grid>
-            <Grid>{teamNames.join(", ")}</Grid>
-            <Grid>{gameState.status}</Grid>
-            <Grid>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => onJoin(id)}
-              >
-                Join
-              </Button>
-            </Grid>
-          </Grid>
-        );
-      })}
-    </Box>
-  );
+	return (
+		<Box display="flex" flexDirection="column" alignItems="center">
+			<Typography variant="h3">Select a game to join</Typography>
+			{games.map(({ id, teamNames, status }) => {
+				return (
+					<Grid container spacing={2} key={id}>
+						<Grid>{id}</Grid>
+						<Grid>{teamNames.join(", ")}</Grid>
+						<Grid>{status}</Grid>
+						<Grid>
+							<Button
+								variant="contained"
+								color="primary"
+								onClick={() => onJoin(id)}
+							>
+								Join
+							</Button>
+						</Grid>
+					</Grid>
+				);
+			})}
+		</Box>
+	);
 }

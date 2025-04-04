@@ -13,7 +13,8 @@ const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {
-      noNonNullAssertion: "off"
+      noNonNullAssertion: "off",
+      "suspicious/noConfusingVoidType": "off"
     }
   }
 ];
