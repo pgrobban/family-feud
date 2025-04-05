@@ -18,15 +18,15 @@ export default function Create() {
     }
 
     const handleReceivedGames = (games: Game[]) => setGames(games);
-    const handleReceivedGame = () => router.push("/host");
+    const handleReceivedGameState = () => router.push("/host");
 
     socket.emit("requestGames");
     socket.on("receivedGames", handleReceivedGames);
-    socket.on("receivedGame", handleReceivedGame);
+    socket.on("receivedGameState", handleReceivedGameState);
 
     return () => {
       socket.off("receivedGames", handleReceivedGames);
-      socket.off("receivedGame", handleReceivedGame);
+      socket.off("receivedGameState", handleReceivedGameState);
     };
   }, [socket, router]);
 

@@ -36,12 +36,12 @@ io.on(
       io.emit("receivedGames", GameManager.getAllGames());
     });
 
-    socket.on("requestGame", () => {
+    socket.on("requestGameState", () => {
       const game = GameManager.getGameBySocketId(socket.id);
       if (game) {
-        socket.emit("receivedGame", game.toJson());
+        socket.emit("receivedGameState", game.toJson());
       } else {
-        socket.emit("receivedGame", null);
+        socket.emit("receivedGameState", null);
       }
     });
 
@@ -49,7 +49,7 @@ io.on(
       const game = GameManager.getGameBySocketId(socket.id);
       if (game) {
         game.hostPickedMode(mode);
-        io.emit("receivedGame", game.toJson());
+        io.emit("receivedGameState", game.toJson());
       }
     });
 
@@ -57,7 +57,7 @@ io.on(
       const game = GameManager.getGameBySocketId(socket.id);
       if (game) {
         game.hostPickedQuestion(question);
-        io.emit("receivedGame", game.toJson());
+        io.emit("receivedGameState", game.toJson());
       }
     });
 
@@ -66,7 +66,7 @@ io.on(
       if (game) {
         game.joinHost(socket.id);
         io.emit("hostJoined", game.toJson());
-        io.emit("receivedGame", game.toJson());
+        io.emit("receivedGameState", game.toJson());
       }
     });
 

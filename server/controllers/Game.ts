@@ -53,7 +53,7 @@ export default class Game {
   }
 
   toJson(): GameState {
-    //@ts-expect-error AAA
+    //@ts-expect-error TODO
     return {
       id: this.id,
       mode: this.mode,
@@ -61,8 +61,7 @@ export default class Game {
       teamNames: this.teamNames,
       teamsAndPoints: this.teamsAndPoints,
       status: this.status,
-      playerSocketIds: this.playerSocketIds,
-      hostSocketIds: this.hostSocketIds,
+      question: this.gameState.question,
     };
   }
 

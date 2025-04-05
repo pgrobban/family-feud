@@ -1,18 +1,25 @@
 "use client";
 import useSocket from "@/hooks/useSocket";
-import Game from "../../../server/controllers/Game";
 import QuestionPicker from "./QuestionPicker";
+import { GameState } from "@/shared/types";
 
-export default function FamilyWarmupControls({ game }: { game: Game }) {
+export default function FamilyWarmupControls({
+  gameState,
+}: {
+  gameState: GameState;
+}) {
   const socket = useSocket();
   const setQuestion = (question: string) =>
     socket?.emit("questionPicked", question);
 
-  if (game?.status !== "in_progress" || game?.mode !== "family_warm_up") {
+  if (
+    gameState?.status !== "in_progress" ||
+    gameState?.mode !== "family_warm_up"
+  ) {
     return null;
   }
 
-  if (game.modeStatus === "waiting_for_question") {
+  if (gameState.modeStatus === "waiting_for_question") {
     return <QuestionPicker onQuestionPicked={setQuestion} />;
   }
 

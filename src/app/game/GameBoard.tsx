@@ -1,13 +1,13 @@
 import { Typography } from "@mui/material";
-import type Game from "../../../server/controllers/Game";
 import FamilyWarmupGameBoard from "./FamilyWarmupGameBoard";
+import { GameState } from "@/shared/types";
 
-export default function GameBoard({ game }: { game: Game }) {
-  switch (game.mode) {
+export default function GameBoard({ gameState }: { gameState: GameState }) {
+  switch (gameState.mode) {
     case "indeterminate":
       return <Typography>Waiting for host to pick a game mode...</Typography>;
     case "family_warm_up":
-      return <FamilyWarmupGameBoard game={game} />;
+      return <FamilyWarmupGameBoard gameState={gameState} />;
   }
   return null;
 }

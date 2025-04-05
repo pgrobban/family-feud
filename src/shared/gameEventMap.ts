@@ -3,7 +3,7 @@ import { GameInProgress, GameState } from "./types";
 export interface ClientToServerEvents {
   createGame: (teamNames: string[]) => void;
   requestGames: () => void;
-  requestGame: () => void;
+  requestGameState: () => void;
   modePicked: (mode: Exclude<GameInProgress["mode"], "indeterminate">) => void;
   questionPicked: (question: string) => void;
   joinHost: (gameId: string) => void;
@@ -17,6 +17,6 @@ export interface ServerToClientEvents {
   answersRevealed: (gameState: GameState) => void;
   teamAnswersGathered: (gameState: GameState) => void;
   pointsAwarded: (gameState: GameState) => void;
-  receivedGame: (gameState: GameState | null) => void;
+  receivedGameState: (gameState: GameState | null) => void;
   receivedGames: (games: GameState[]) => void;
 }

@@ -4,38 +4,41 @@ import { useEffect, useState } from "react";
 import { isSocketDefined } from "@/shared/utils";
 import { Box } from "@mui/material";
 import GameBoardWithScores from "../game/GameBoardWithScores";
-import Game from "../../../server/controllers/Game";
 import GameModePicker from "./GameModePicker";
 import FamilyWarmupControls from "./FamilyWarmupControls";
+import { GameState } from "@/shared/types";
 
 export default function Host() {
   const socket = useSocket();
-  const [game, setGame] = useState<Game | null>(null);
+  const [gameState, setGameState] = useState<GameState | null>(null);
 
   useEffect(() => {
     if (!isSocketDefined(socket)) {
       return;
     }
 
-    const handleGameState = (game: Game | null) => setGame(game);
+    const handleGameState = (gameState: GameState | null) =>
+      setGameState(gameState);
 
-    socket.emit("requestGame");
-    socket.on("receivedGame", handleGameState);
+    socket.emit("requestGameState");
+    socket.on("receivedGameState", handleGameState);
 
     return () => {
-      socket.off("receivedGame", handleGameState);
+      socket.off("receivedGameState", handleGameState);
     };
   }, [socket]);
 
-  if (!game) {
+  if (!gameState) {
     return <Box>Connecting...</Box>;
   }
 
   return (
     <Box>
-      <GameBoardWithScores game={game} />
-      {game.mode === "indeterminate" && <GameModePicker />}
-      {game.mode === "family_warm_up" && <FamilyWarmupControls game={game} />}
+      <GameBoardWithScores gameState={gameState} />
+      {gameState.mode === "indeterminate" && <GameModePicker />}
+      {gameState.mode === "family_warm_up" && (
+        <FamilyWarmupControls gameState={gameState} />
+      )}
     </Box>
   );
 }

@@ -2,11 +2,17 @@ export type GameState = {
   id: string;
   teamNames: string[];
   teamsAndPoints: TeamAndPoints[];
+  mode?:
+    | FamilyWarmUpGame["mode"]
+    | FaceOffGame["mode"]
+    | FastMoneyGame["mode"]
+    | IndeterminateGame["mode"];
   modeStatus?:
     | FamilyWarmUpGame["modeStatus"]
     | FaceOffGame["modeStatus"]
     | FastMoneyGame["modeStatus"]
     | null;
+  question?: GameQuestion | null;
 } & (WaitingForHostGame | GameInProgress | GameFinished);
 
 export interface WaitingForHostGame {

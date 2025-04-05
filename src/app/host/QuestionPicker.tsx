@@ -13,10 +13,10 @@ export default function GameModePicker({
     <Box p={2}>
       <Typography>Pick a question...</Typography>
       {storedQuestions.map(({ questionText, answers }) => (
-        <Grid container key={questionText} spacing={2}>
-          <Grid>{questionText}</Grid>
-          <Grid>{answers.length} answers</Grid>
-          <Grid>
+        <Grid container key={questionText} spacing={2} sx={{ display: "flex" }}>
+          <div style={{ flex: 1 }}>{questionText}</div>
+          <div style={{ flex: 1 }}>{answers.length} answers</div>
+          <div style={{ flex: 1 }}>
             <Button
               variant="contained"
               color="primary"
@@ -24,7 +24,7 @@ export default function GameModePicker({
             >
               Pick
             </Button>
-          </Grid>
+          </div>
         </Grid>
       ))}
     </Box>

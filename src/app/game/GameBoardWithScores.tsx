@@ -1,8 +1,12 @@
 import { Box, Typography } from "@mui/material";
-import GameBoard from "./GameBioard";
-import Game from "../../../server/controllers/Game";
+import GameBoard from "./GameBoard";
+import { GameState } from "@/shared/types";
 
-export default function GameBoardWithScores({ game }: { game: Game }) {
+export default function GameBoardWithScores({
+  gameState,
+}: {
+  gameState: GameState;
+}) {
   return (
     <Box>
       <Box
@@ -26,15 +30,15 @@ export default function GameBoardWithScores({ game }: { game: Game }) {
             textTransform={"uppercase"}
           >
             <Typography variant="h6">
-              {game.teamsAndPoints[0].teamName || "team Awesome"}
+              {gameState.teamsAndPoints[0].teamName || "team Awesome"}
             </Typography>
             <Typography variant="h3">
-              {game.teamsAndPoints[0].points ?? 235}
+              {gameState.teamsAndPoints[0].points ?? 235}
             </Typography>
           </Box>
         </Box>
         <Box flexGrow={1} p={2}>
-          <GameBoard game={game} />
+          <GameBoard gameState={gameState} />
         </Box>
         <Box width={220} flex={"0 0 220px"}>
           <Box
@@ -50,10 +54,10 @@ export default function GameBoardWithScores({ game }: { game: Game }) {
             textTransform={"uppercase"}
           >
             <Typography variant="h6">
-              {game.teamsAndPoints[1].teamName || "team Nice"}
+              {gameState.teamsAndPoints[1].teamName || "team Nice"}
             </Typography>
             <Typography variant="h3">
-              {game.teamsAndPoints[0].points ?? 69}
+              {gameState.teamsAndPoints[0].points ?? 69}
             </Typography>
           </Box>
         </Box>

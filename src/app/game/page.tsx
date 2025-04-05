@@ -1,36 +1,35 @@
 "use client";
 import useSocket from "@/hooks/useSocket";
 import { useEffect, useState } from "react";
-// import { useRouter } from "next/navigation";
-import type { Game } from "@/shared/types";
+import type { GameState } from "@/shared/types";
 import { isSocketDefined } from "@/shared/utils";
 import { Box } from "@mui/material";
 import GameBoardWithScores from "./GameBoardWithScores";
 
 export default function Create() {
   const socket = useSocket();
-  const [game, setGame] = useState<Game | null>(null);
+  const [gameState, setGameState] = useState<GameState | null>(null);
 
   useEffect(() => {
     if (!isSocketDefined(socket)) {
       return;
     }
 
-    const handleReceivedGame = (game: Game | null) => {
-      setGame(game);
+    const handleReceivedGameState = (gameState: GameState | null) => {
+      setGameState(gameState);
     };
 
-    socket.emit("requestGame");
-    socket.on("receivedGame", handleReceivedGame);
+    socket.emit("requestGameState");
+    socket.on("receivedGameState", handleReceivedGameState);
 
     return () => {
-      socket.off("receivedGame", handleReceivedGame);
+      socket.off("receivedGameState", handleReceivedGameState);
     };
   }, [socket]);
 
-  if (!game) {
+  if (!gameState) {
     return <Box>Connecting...</Box>;
   }
 
-  return <GameBoardWithScores game={game} />;
+  return <GameBoardWithScores gameState={gameState} />;
 }

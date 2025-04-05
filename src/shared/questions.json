@@ -56,5 +56,121 @@
         "points": 3
       }
     ]
+  },
+  {
+    "questionText": "Name a type of professional that you seldom see joking around.",
+    "answers": [
+      {
+        "answerText": "Lawyer",
+        "points": 31
+      },
+      {
+        "answerText": "Doctor",
+        "points": 27
+      },
+      {
+        "answerText": "Politician",
+        "points": 19
+      },
+      {
+        "answerText": "Judge",
+        "points": 9
+      },
+      {
+        "answerText": "Police",
+        "points": 4
+      },
+      {
+        "answerText": "Teacher",
+        "points": 4
+      },
+      {
+        "answerText": "Accountant",
+        "points": 3
+      }
+    ]
+  },
+  {
+    "questionText": "Name something you wouldn't be able to go without for a day.",
+    "answers": [
+      {
+        "answerText": "Cell phone",
+        "points": 50
+      },
+      {
+        "answerText": "TV",
+        "points": 16
+      },
+      {
+        "answerText": "Snacks/food",
+        "points": 11
+      },
+      {
+        "answerText": "Video games/computer",
+        "points": 8
+      },
+      {
+        "answerText": "Listening to music",
+        "points": 3
+      }
+    ]
+  },
+  {
+    "questionText": "Name an animal with a terrifying bite.",
+    "answers": [
+      {
+        "answerText": "Snake",
+        "points": 23
+      },
+      {
+        "answerText": "Dog",
+        "points": 18
+      },
+      {
+        "answerText": "Shark",
+        "points": 18
+      },
+      {
+        "answerText": "Lion",
+        "points": 17
+      },
+      {
+        "answerText": "Tiger",
+        "points": 11
+      },
+      {
+        "answerText": "Alligator",
+        "points": 5
+      },
+      {
+        "answerText": "Bear",
+        "points": 11
+      }
+    ]
+  },
+  {
+    "questionText": "Name something that parents are always telling their kids to clean.",
+    "answers": [
+      {
+        "answerText": "Their rooms",
+        "points": 49
+      },
+      {
+        "answerText": "Their teeth",
+        "points": 17
+      },
+      {
+        "answerText": "Their hands",
+        "points": 13
+      },
+      {
+        "answerText": "Behind their ears",
+        "points": 10
+      },
+      {
+        "answerText": "Their plates",
+        "points": 8
+      }
+    ]
   }
 ]
