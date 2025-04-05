@@ -1,16 +1,19 @@
 import type {
-  Answer,
   FaceOffGame,
   FamilyWarmUpGame,
   FastMoneyGame,
   GameInProgress,
+  GameQuestion,
   GameState,
+  StoredQuestion,
   TeamAndPoints,
 } from "@/shared/types";
+import questions from "../../src/shared/questions.json";
+const storedQuestions: StoredQuestion[] = questions;
 
 export default class Game {
   public id: string;
-  private _gameState: GameState;
+  private gameState: GameState;
   /* private gameEvents: EventEmitter<GameEventMap> =
     new EventEmitter<GameEventMap>();*/
   private playerSocketIds: string[] = [];
@@ -20,7 +23,7 @@ export default class Game {
     this.id = id;
     this.playerSocketIds = [socketId];
 
-    this._gameState = {
+    this.gameState = {
       id,
       teamNames,
       teamsAndPoints: teamNames.map((teamName) => ({ teamName, points: 0 })),
@@ -29,24 +32,24 @@ export default class Game {
   }
 
   get mode() {
-    if (!this._gameState) throw new Error("Game not created yet");
+    if (!this.gameState) throw new Error("Game not created yet");
     // @ts-expect-error TODO
-    return (this as GameInProgress)._gameState.mode;
+    return (this as GameInProgress).gameState.mode;
   }
 
-  get gameState() {
-    return this._gameState;
+  get modeStatus() {
+    return this.gameState.modeStatus;
   }
 
   get teamNames() {
-    return this._gameState.teamsAndPoints.map((team) => team.teamName);
+    return this.gameState.teamsAndPoints.map((team) => team.teamName);
   }
   get teamsAndPoints() {
-    return this._gameState.teamsAndPoints;
+    return this.gameState.teamsAndPoints;
   }
 
   get status() {
-    return this._gameState.status;
+    return this.gameState.status;
   }
 
   toJson(): GameState {
@@ -54,6 +57,7 @@ export default class Game {
     return {
       id: this.id,
       mode: this.mode,
+      modeStatus: this.gameState.modeStatus,
       teamNames: this.teamNames,
       teamsAndPoints: this.teamsAndPoints,
       status: this.status,
@@ -106,7 +110,6 @@ export default class Game {
           mode,
           modeStatus: "waiting_for_question",
           question: null,
-          answers: [],
           currentTeam: 0,
         } as FamilyWarmUpGame;
         break;
@@ -115,7 +118,6 @@ export default class Game {
           mode,
           modeStatus: "waiting_for_question",
           question: null,
-          answers: [],
           currentTeam: 0,
         } as FaceOffGame;
         break;
@@ -134,18 +136,29 @@ export default class Game {
     this.updateGameState({ ...modeProps, status: "in_progress" });
   }
 
-  hostPickedQuestion(
-    question: string,
-    answers: Pick<Answer, "answerText" | "points">[]
-  ) {
+  hostPickedQuestion(pickedQuestionText: string) {
     if (!this.validateGameStatus("family_warm_up", "waiting_for_question")) {
       return;
     }
 
+    const stored = storedQuestions.find(
+      ({ questionText }) => questionText === pickedQuestionText
+    );
+    if (!stored) {
+      return;
+    }
+
+    const gameQuestion: GameQuestion = {
+      questionText: stored.questionText,
+      answers: stored.answers.map((answer) => ({
+        ...answer,
+        revealed: false,
+      })),
+    };
+
     this.updateGameState({
-      question,
+      question: gameQuestion,
       modeStatus: "question_in_progress",
-      answers: answers.map((answer) => ({ ...answer, revealed: false })),
     });
   }
 
@@ -154,11 +167,20 @@ export default class Game {
       return;
     }
 
+    const typedState = this.gameState as FamilyWarmUpGame;
+
+    if (!typedState.question) {
+      throw new Error("No question selected");
+    }
+
     this.updateGameState({
-      answers: (this.gameState as FamilyWarmUpGame).answers.map((answer) => ({
-        ...answer,
-        revealed: true,
-      })),
+      question: {
+        ...typedState.question,
+        answers: typedState.question.answers.map((answer) => ({
+          ...answer,
+          revealed: true,
+        })),
+      },
       modeStatus: "revealing_answers",
     });
   }
@@ -190,9 +212,13 @@ export default class Game {
       );
     }
 
+    if (!gameState.question) {
+      throw new Error("Question is missing");
+    }
+
     const calculatePoints = (teamAnswers: string[]) =>
       teamAnswers.reduce((total, answerText) => {
-        const foundAnswer = gameState.answers.find(
+        const foundAnswer = gameState.question!.answers.find(
           (a) => a.answerText === answerText
         );
         return total + (foundAnswer ? foundAnswer.points : 0);
@@ -238,7 +264,6 @@ export default class Game {
       this.gameState.modeStatus !== expectedStatus
     ) {
       throw new Error(
-        // @ts-expect-error aaa
         `Game mode not in expected state (${expectedStatus}), got: ${this.gameState.modeStatus}`
       );
     }
@@ -247,7 +272,9 @@ export default class Game {
   }
 
   private updateGameState(updates: Partial<GameState>) {
-    if (!this.gameState) return;
-    this._gameState = { ...this.gameState, ...updates } as GameState;
+    if (!this.gameState) {
+      return;
+    }
+    this.gameState = { ...this.gameState, ...updates } as GameState;
   }
 }

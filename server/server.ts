@@ -53,6 +53,14 @@ io.on(
       }
     });
 
+    socket.on("questionPicked", (question) => {
+      const game = GameManager.getGameBySocketId(socket.id);
+      if (game) {
+        game.hostPickedQuestion(question);
+        io.emit("receivedGame", game.toJson());
+      }
+    });
+
     socket.on("joinHost", (gameId) => {
       const game = GameManager.getGame(gameId);
       if (game) {

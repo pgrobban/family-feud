@@ -6,6 +6,7 @@ import { Box } from "@mui/material";
 import GameBoardWithScores from "../game/GameBoardWithScores";
 import Game from "../../../server/controllers/Game";
 import GameModePicker from "./GameModePicker";
+import FamilyWarmupControls from "./FamilyWarmupControls";
 
 export default function Host() {
   const socket = useSocket();
@@ -34,6 +35,7 @@ export default function Host() {
     <Box>
       <GameBoardWithScores game={game} />
       {game.mode === "indeterminate" && <GameModePicker />}
+      {game.mode === "family_warm_up" && <FamilyWarmupControls game={game} />}
     </Box>
   );
 }

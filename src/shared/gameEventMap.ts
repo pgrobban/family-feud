@@ -5,6 +5,7 @@ export interface ClientToServerEvents {
   requestGames: () => void;
   requestGame: () => void;
   modePicked: (mode: Exclude<GameInProgress["mode"], "indeterminate">) => void;
+  questionPicked: (question: string) => void;
   joinHost: (gameId: string) => void;
   reconnect: (payload: { oldSocketId: string }) => void;
 }

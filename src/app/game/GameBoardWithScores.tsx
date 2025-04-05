@@ -1,5 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import GameBoard from "./GameBioard";
+import Game from "../../../server/controllers/Game";
 
 export default function GameBoardWithScores({ game }: { game: Game }) {
   return (

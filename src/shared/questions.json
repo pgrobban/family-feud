@@ -1,0 +1,60 @@
+[
+  {
+    "questionText": "Name something you can do legally (in the US) when you turn 18.",
+    "answers": [
+      {
+        "answerText": "Drink booze",
+        "points": 43
+      },
+      {
+        "answerText": "Nookie",
+        "points": 14
+      },
+      {
+        "answerText": "Drive",
+        "points": 12
+      },
+      {
+        "answerText": "Hit the club",
+        "points": 10
+      },
+      {
+        "answerText": "Smoke",
+        "points": 9
+      },
+      {
+        "answerText": "Gamble",
+        "points": 9
+      }
+    ]
+  },
+  {
+    "questionText": "Name something that millionaires would shop for fun.",
+    "answers": [
+      {
+        "answerText": "Cars",
+        "points": 71
+      },
+      {
+        "answerText": "Clothes",
+        "points": 10
+      },
+      {
+        "answerText": "Houses",
+        "points": 9
+      },
+      {
+        "answerText": "Jewelry",
+        "points": 3
+      },
+      {
+        "answerText": "Plane",
+        "points": 3
+      },
+      {
+        "answerText": "Boat",
+        "points": 3
+      }
+    ]
+  }
+]
