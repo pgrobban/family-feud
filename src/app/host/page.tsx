@@ -2,7 +2,7 @@
 import useSocket from "@/hooks/useSocket";
 import { useEffect, useState } from "react";
 import { isSocketDefined } from "@/shared/utils";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import GameBoardWithScores from "../game/GameBoardWithScores";
 import GameModePicker from "./GameModePicker";
 import FamilyWarmupControls from "./FamilyWarmupControls";
@@ -28,6 +28,8 @@ export default function Host() {
     };
   }, [socket]);
 
+  const cancelQuestion = () => socket?.emit("questionOrModeCancelled");
+
   if (!gameState) {
     return <Box>Connecting...</Box>;
   }
@@ -38,6 +40,11 @@ export default function Host() {
       {gameState.mode === "indeterminate" && <GameModePicker />}
       {gameState.mode === "family_warm_up" && (
         <FamilyWarmupControls gameState={gameState} />
+      )}
+      {gameState.mode !== "indeterminate" && (
+        <Button onClick={cancelQuestion} variant="contained" color="secondary">
+          Cancel question
+        </Button>
       )}
     </Box>
   );

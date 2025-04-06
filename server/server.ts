@@ -70,6 +70,14 @@ io.on(
       }
     });
 
+    socket.on("questionOrModeCancelled", () => {
+      const game = GameManager.getGameBySocketId(socket.id);
+      if (game) {
+        game.cancelQuestionOrMode();
+        io.emit("receivedGameState", game.toJson());
+      }
+    });
+
     socket.on("disconnect", () => {
       console.log("Client disconnected");
     });

@@ -91,7 +91,6 @@ export default class Game {
       status: "in_progress",
       mode: "indeterminate",
     });
-    // this.gameEvents.emit("hostJoined", this.gameState);
   }
 
   hostPickedMode<T extends Exclude<GameInProgress["mode"], "indeterminate">>(
@@ -133,6 +132,12 @@ export default class Game {
     }
 
     this.updateGameState({ ...modeProps, status: "in_progress" });
+  }
+
+  cancelQuestionOrMode() {
+    this.updateGameState({
+      mode: "indeterminate",
+    });
   }
 
   hostPickedQuestion(pickedQuestionText: string) {
