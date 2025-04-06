@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import { Anton } from "next/font/google";
+import "./globals.css";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme";
 import { Box } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
-
-const antonSans = Anton({
-  variable: "--font-anton",
-  subsets: ["latin"],
-  weight: "400",
-});
 
 export const metadata: Metadata = {
   title: "Robban's Family Feud",
@@ -23,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${antonSans.variable}`}>
+      <body>
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
             <CssBaseline />

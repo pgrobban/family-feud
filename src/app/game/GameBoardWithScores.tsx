@@ -52,12 +52,13 @@ export default function GameBoardWithScores({
               background: "linear-gradient(135deg, #00aaff, #0044cc)", // Blue gradient
             }}
             textTransform={"uppercase"}
+            fontWeight={"bold"}
           >
             <Typography variant="h6">
-              {gameState.teamsAndPoints[1].teamName || "team Nice"}
+              {gameState.teamsAndPoints[1].teamName}
             </Typography>
             <Typography variant="h3">
-              {gameState.teamsAndPoints[0].points ?? 69}
+              {gameState.teamsAndPoints[0].points}
             </Typography>
           </Box>
         </Box>

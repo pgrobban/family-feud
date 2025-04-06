@@ -1,5 +1,6 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import type { GameState, FamilyWarmUpGame } from "@/shared/types";
+import AnswerCard from "./AnswerCard";
 
 export default function FamilyWarmupGameBoard({
   gameState,
@@ -26,15 +27,46 @@ export default function FamilyWarmupGameBoard({
 
       return (
         <Box>
-          <Box p={2} border={"1px solid #ccc"} textTransform={"uppercase"}>
+          <Box
+            sx={{
+              background: "linear-gradient(to bottom, #3964c9, #1b2d6d)",
+              color: "#fff",
+              fontWeight: "bold",
+              fontSize: 48,
+              textAlign: "center",
+              mx: "auto",
+              border: "4px solid #fff",
+              borderRadius: 2,
+              mb: 3,
+              p: 2,
+              textTransform: "uppercase",
+            }}
+          >
             <Typography variant="h5">
               {typedGameState.question.questionText}
             </Typography>
           </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              width: "100%", // important
+              height: "100%", // optional, but helps if parent is full height
+              gap: 1,
+              textTransform: "uppercase",
+            }}
+          >
+            {typedGameState.question.answers.map((answer, index) => (
+              <AnswerCard
+                key={answer.answerText}
+                answer={answer}
+                index={index}
+              />
+            ))}
+          </Box>
         </Box>
       );
-
-    // Add other states as needed
   }
 
   return null;
