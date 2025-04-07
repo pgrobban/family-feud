@@ -47,7 +47,7 @@ const theme = createTheme({
   },
   typography: {
     fontSize: 20,
-    fontFamily: "Helvetica Condensed",
+    fontFamily: "Helvetica Neue Heavy Condensed",
   },
 });
 
