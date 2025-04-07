@@ -1,19 +1,25 @@
-export type GameState = {
+export interface BaseGameState {
   id: string;
   teamNames: string[];
   teamsAndPoints: TeamAndPoints[];
-  mode?:
-    | FamilyWarmUpGame["mode"]
-    | FaceOffGame["mode"]
-    | FastMoneyGame["mode"]
-    | IndeterminateGame["mode"];
-  modeStatus?:
-    | FamilyWarmUpGame["modeStatus"]
-    | FaceOffGame["modeStatus"]
-    | FastMoneyGame["modeStatus"]
-    | null;
+  status: WaitingForHostGame["status"]
+  | GameInProgress["status"]
+  | GameFinished["status"];
   question?: GameQuestion | null;
-} & (WaitingForHostGame | GameInProgress | GameFinished);
+  questions?: GameQuestion[];
+  mode?:
+  | FamilyWarmUpGame["mode"]
+  | FaceOffGame["mode"]
+  | FastMoneyGame["mode"]
+  | IndeterminateGame["mode"];
+  modeStatus?:
+  | FamilyWarmUpGame["modeStatus"]
+  | FaceOffGame["modeStatus"]
+  | FastMoneyGame["modeStatus"]
+  | null;
+}
+
+export type GameState = BaseGameState & (WaitingForHostGame | GameInProgress | GameFinished);
 
 export interface WaitingForHostGame {
   status: "waiting_for_host";
@@ -30,11 +36,12 @@ export interface IndeterminateGame {
 export interface FamilyWarmUpGame {
   mode: "family_warm_up";
   modeStatus:
-    | "waiting_for_question"
-    | "question_in_progress"
-    | "revealing_answers"
-    | "gathering_team_answers"
-    | "awarding_points";
+  | "waiting_for_question"
+  | "question_in_progress"
+  | "gathering_team_answers"
+  | "revealing_stored_answers"
+  | "revealing_team_answers"
+  | "awarding_points";
   currentTeam: number;
   question: GameQuestion | null;
   team1Answers?: string[];
@@ -44,9 +51,9 @@ export interface FamilyWarmUpGame {
 export interface FaceOffGame {
   mode: "face_off";
   modeStatus:
-    | "waiting_for_question"
-    | "question_in_progress"
-    | "revealing_answers";
+  | "waiting_for_question"
+  | "question_in_progress"
+  | "revealing_answers";
   currentTeam: number;
   question: GameQuestion | null;
 }
@@ -54,9 +61,9 @@ export interface FaceOffGame {
 export interface FastMoneyGame {
   mode: "fast_money";
   modeStatus:
-    | "waiting_for_questions"
-    | "questions_in_progress"
-    | "revealing_answers";
+  | "waiting_for_questions"
+  | "questions_in_progress"
+  | "revealing_answers";
   currentTeam: number;
   questions: GameQuestion[];
   answersTeam1: string[];

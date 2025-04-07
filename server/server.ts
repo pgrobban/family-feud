@@ -1,8 +1,7 @@
-// server.ts
-import { Server, Socket } from "socket.io";
+import { Server, type Socket } from "socket.io";
 import { createServer } from "node:http";
 import GameManager from "./controllers/GameManager";
-import {
+import type {
   ClientToServerEvents,
   ServerToClientEvents,
 } from "@/shared/gameEventMap";
@@ -77,6 +76,46 @@ io.on(
         io.emit("receivedGameState", game.toJson());
       }
     });
+
+    socket.on("hostRequestedTeamAnswers", () => {
+      const game = GameManager.getGameBySocketId(socket.id);
+      if (game) {
+        game.hostRequestedTeamAnswers();
+        io.emit("receivedGameState", game.toJson());
+      }
+    });
+
+    socket.on("hostGatheredTeamAnswers", (team1Answers, team2Answers) => {
+      const game = GameManager.getGameBySocketId(socket.id);
+      if (game) {
+        game.hostGatheredTeamAnswersFamilyWarmup(team1Answers, team2Answers);
+        io.emit("receivedGameState", game.toJson());
+      }
+    });
+
+    socket.on("requestRevealTeamAnswers", () => {
+      const game = GameManager.getGameBySocketId(socket.id);
+      if (game) {
+        game.revealTeamAnswersFamilyWarmup();
+        io.emit("receivedGameState", game.toJson());
+      }
+    });
+
+    socket.on("awardTeamPoints", () => {
+      const game = GameManager.getGameBySocketId(socket.id);
+      if (game) {
+        game.awardPointsFamilyWarmup();
+        io.emit("receivedGameState", game.toJson());
+      }
+    })
+
+    socket.on("requestNewQuestion", () => {
+      const game = GameManager.getGameBySocketId(socket.id);
+      if (game) {
+        game.requestNewQuestion();
+        io.emit("receivedGameState", game.toJson());
+      }
+    })
 
     socket.on("disconnect", () => {
       console.log("Client disconnected");

@@ -1,6 +1,7 @@
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import type { GameState, FamilyWarmUpGame } from "@/shared/types";
-import AnswerCard from "./AnswerCard";
+import AnswerCardWithTeamPoints from "./AnswerCardWithTeamPoints";
+import TotalPointsBox from "./TotalPointsBox";
 
 const sideBoxStyles = {
 	mt: 1,
@@ -27,12 +28,17 @@ export default function FamilyWarmupGameBoard({
 	}
 
 	const typedGameState = gameState as GameState & FamilyWarmUpGame;
+	console.log("***", gameState);
 
 	switch (typedGameState.modeStatus) {
 		case "waiting_for_question":
 			return <Typography>Waiting for host to pick question...</Typography>;
 
 		case "question_in_progress":
+		case "gathering_team_answers":
+		case "revealing_stored_answers":
+		case "revealing_team_answers":
+		case "awarding_points":
 			if (!typedGameState.question) {
 				return null;
 			}
@@ -71,20 +77,25 @@ export default function FamilyWarmupGameBoard({
 							}}
 						>
 							{typedGameState.question.answers.map((answer, index) => (
-								<Box key={answer.answerText} display={"flex"} gap={1}>
-									<Box sx={sideBoxStyles}>99</Box>
-									<AnswerCard answer={answer} index={index} />
-									<Box sx={sideBoxStyles}>99</Box>
-								</Box>
+								<AnswerCardWithTeamPoints
+									key={answer.answerText}
+									answer={answer}
+									index={index}
+									sideBoxStyles={sideBoxStyles}
+									modeStatus={typedGameState.modeStatus}
+									team1Answers={typedGameState.team1Answers || []}
+									team2Answers={typedGameState.team2Answers || []}
+								/>
 							))}
 							<Box m={1} />
-							<Box display={"flex"} gap={1}>
-								<Box sx={sideBoxStyles}>99</Box>
-								<Box width="100%" textAlign={"center"} p={2}>
-									Total points for this question
-								</Box>
-								<Box sx={sideBoxStyles}>99</Box>
-							</Box>
+							{typedGameState.modeStatus === "awarding_points" && (
+								<TotalPointsBox
+									answers={typedGameState.question.answers}
+									team1Answers={typedGameState.team1Answers || []}
+									team2Answers={typedGameState.team2Answers || []}
+									sideBoxStyles={sideBoxStyles}
+								/>
+							)}
 						</Box>
 					</Box>
 				</Box>

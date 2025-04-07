@@ -1,11 +1,11 @@
+import type { ClientToServerEvents } from "@/shared/gameEventMap";
 import { useEffect, useState } from "react";
 import { io, type Socket } from "socket.io-client";
-import type { GameEventMap } from "@/shared/gameEventMap";
 
 // Store the socket instance outside of the component scope
-let socketInstance: Socket<GameEventMap> | null = null;
+let socketInstance: Socket<ClientToServerEvents> | null = null;
 
-export default function useSocket(): Socket<GameEventMap> | null {
+export default function useSocket(): Socket<ClientToServerEvents> | null {
   const [socket, setSocket] = useState<Socket | null>(socketInstance);
 
   useEffect(() => {

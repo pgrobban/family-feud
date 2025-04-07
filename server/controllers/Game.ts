@@ -1,12 +1,15 @@
 import type {
+  BaseGameState,
   FaceOffGame,
   FamilyWarmUpGame,
   FastMoneyGame,
+  GameFinished,
   GameInProgress,
   GameQuestion,
   GameState,
   StoredQuestion,
   TeamAndPoints,
+  WaitingForHostGame,
 } from "@/shared/types";
 import questions from "../../src/shared/questions.json";
 const storedQuestions: StoredQuestion[] = questions;
@@ -14,8 +17,6 @@ const storedQuestions: StoredQuestion[] = questions;
 export default class Game {
   public id: string;
   private gameState: GameState;
-  /* private gameEvents: EventEmitter<GameEventMap> =
-    new EventEmitter<GameEventMap>();*/
   private playerSocketIds: string[] = [];
   private hostSocketIds: string[] = [];
 
@@ -37,6 +38,10 @@ export default class Game {
     return (this as GameInProgress).gameState.mode;
   }
 
+  get question() {
+    return this.gameState.question;
+  }
+
   get modeStatus() {
     return this.gameState.modeStatus;
   }
@@ -53,16 +58,37 @@ export default class Game {
   }
 
   toJson(): GameState {
-    //@ts-expect-error TODO
-    return {
+    const state: BaseGameState = {
       id: this.id,
       mode: this.mode,
       modeStatus: this.gameState.modeStatus,
       teamNames: this.teamNames,
       teamsAndPoints: this.teamsAndPoints,
       status: this.status,
-      question: this.gameState.question,
     };
+
+    switch (this.status) {
+      case 'waiting_for_host': {
+        const waitingForHostState = state as (GameState & WaitingForHostGame);
+        return waitingForHostState;
+      }
+      case 'finished': {
+        const waitingForHostState = state as (GameState & GameFinished);
+        return waitingForHostState;
+      }
+      case 'in_progress': {
+        const inProgressGameState = { ...state, teamNames: this.teamNames, teamsAndPoints: this.teamsAndPoints } as (GameState & GameInProgress);
+        const { team1Answers, team2Answers, currentTeam, question } = this.gameState as FamilyWarmUpGame;
+
+        switch (this.mode) {
+          case 'family_warm_up':
+            return { ...inProgressGameState, team1Answers, team2Answers, currentTeam, question } as (BaseGameState & GameInProgress & FamilyWarmUpGame);
+        }
+      }
+    }
+
+    // @ts-expect-error TODO
+    return state;
   }
 
   getPlayerSocketIds() {
@@ -93,34 +119,35 @@ export default class Game {
     });
   }
 
-  hostPickedMode<T extends Exclude<GameInProgress["mode"], "indeterminate">>(
-    mode: T
-  ) {
+  hostPickedMode(mode: Exclude<GameInProgress['mode'], "indeterminate">) {
     if (!this.validateGameStatus("indeterminate")) {
       return;
     }
 
-    let modeProps: Omit<GameInProgress, "status">;
+    const stateProps = this.getNewQuestionState(mode);
+    this.updateGameState({ ...stateProps, status: "in_progress" });
+  }
 
+  private getNewQuestionState(mode: Exclude<GameInProgress['mode'], "indeterminate">) {
     switch (mode) {
       case "family_warm_up":
-        modeProps = {
+        return {
           mode,
           modeStatus: "waiting_for_question",
           question: null,
           currentTeam: 0,
+          team1Answers: [],
+          team2Answers: []
         } as FamilyWarmUpGame;
-        break;
       case "face_off":
-        modeProps = {
+        return {
           mode,
           modeStatus: "waiting_for_question",
           question: null,
           currentTeam: 0,
         } as FaceOffGame;
-        break;
       case "fast_money":
-        modeProps = {
+        return {
           mode,
           modeStatus: "waiting_for_questions",
           questions: [],
@@ -128,10 +155,14 @@ export default class Game {
           answersTeam2: [],
           currentTeam: 0,
         } as FastMoneyGame;
-        break;
     }
+  }
 
-    this.updateGameState({ ...modeProps, status: "in_progress" });
+  hostRequestedTeamAnswers() {
+    if (!this.validateGameStatus("family_warm_up", "question_in_progress")) {
+      return;
+    }
+    this.updateGameState({ modeStatus: "gathering_team_answers" });
   }
 
   cancelQuestionOrMode() {
@@ -166,8 +197,8 @@ export default class Game {
     });
   }
 
-  revealAnswersFamilyWarmup() {
-    if (!this.validateGameStatus("family_warm_up", "question_in_progress")) {
+  revealTeamAnswersFamilyWarmup() {
+    if (!this.validateGameStatus("family_warm_up", "revealing_stored_answers")) {
       return;
     }
 
@@ -185,26 +216,40 @@ export default class Game {
           revealed: true,
         })),
       },
-      modeStatus: "revealing_answers",
+      modeStatus: "revealing_team_answers",
     });
   }
 
-  gatherTeamAnswersFamilyWarmup(
+  hostGatheredTeamAnswersFamilyWarmup(
     team1Answers: string[],
     team2Answers: string[]
   ) {
-    if (!this.validateGameStatus("family_warm_up", "revealing_answers")) {
+    if (!this.validateGameStatus("family_warm_up", "gathering_team_answers") || !this.question) {
       return;
     }
+
+    const questionWithRevealedAnswers = { ...this.question, answers: this.question.answers.map((answer) => ({ ...answer, revealed: true })) };
 
     this.updateGameState({
       team1Answers,
       team2Answers,
+      question: questionWithRevealedAnswers,
+      modeStatus: 'revealing_stored_answers'
     });
   }
 
+  hostRevealedTeamAnswersFamilyWarmup() {
+    if (!this.validateGameStatus("family_warm_up", "revealing_stored_answers")) {
+      return;
+    }
+
+    this.updateGameState({
+      modeStatus: 'revealing_team_answers'
+    })
+  }
+
   awardPointsFamilyWarmup() {
-    if (!this.validateGameStatus("family_warm_up", "gathering_team_answers")) {
+    if (!this.validateGameStatus("family_warm_up", "revealing_team_answers")) {
       return;
     }
 
@@ -222,7 +267,7 @@ export default class Game {
 
     const calculatePoints = (teamAnswers: string[]) =>
       teamAnswers.reduce((total, answerText) => {
-        const foundAnswer = gameState.question!.answers.find(
+        const foundAnswer = this.question!.answers.find(
           (a) => a.answerText === answerText
         );
         return total + (foundAnswer ? foundAnswer.points : 0);
@@ -243,6 +288,11 @@ export default class Game {
       teamsAndPoints: newTeamsAndPoints,
       modeStatus: "awarding_points",
     });
+  }
+
+  requestNewQuestion() {
+    const newQuestionStateProps = this.getNewQuestionState(this.mode);
+    this.updateGameState(newQuestionStateProps);
   }
 
   private validateGameStatus(
