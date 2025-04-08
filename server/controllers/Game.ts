@@ -12,6 +12,8 @@ import type {
   WaitingForHostGame,
 } from "@/shared/types";
 import questions from "../../src/shared/questions.json";
+import type { Server } from "socket.io";
+
 const storedQuestions: StoredQuestion[] = questions;
 
 export default class Game {
@@ -19,10 +21,12 @@ export default class Game {
   private gameState: GameState;
   private playerSocketIds: string[] = [];
   private hostSocketIds: string[] = [];
+  private io: Server;
 
-  constructor(id: string, socketId: string, teamNames: string[]) {
+  constructor(id: string, socketId: string, teamNames: string[], io: Server) {
     this.id = id;
     this.playerSocketIds = [socketId];
+    this.io = io;
 
     this.gameState = {
       id,
@@ -220,21 +224,26 @@ export default class Game {
     });
   }
 
-  hostGatheredTeamAnswersFamilyWarmup(
-    team1Answers: string[],
-    team2Answers: string[]
-  ) {
-    if (!this.validateGameStatus("family_warm_up", "gathering_team_answers") || !this.question) {
-      return;
-    }
-
-    const questionWithRevealedAnswers = { ...this.question, answers: this.question.answers.map((answer) => ({ ...answer, revealed: true })) };
+  hostGatheredTeamAnswersFamilyWarmup(team1Answers: string[], team2Answers: string[]) {
+    if (!this.validateGameStatus("family_warm_up", "gathering_team_answers") || !this.question) return;
 
     this.updateGameState({
       team1Answers,
       team2Answers,
-      question: questionWithRevealedAnswers,
-      modeStatus: 'revealing_stored_answers'
+      modeStatus: "revealing_stored_answers"
+    });
+
+    this.question.answers.forEach((_, index) => {
+      setTimeout(() => {
+        this.question!.answers[index].revealed = true;
+        this.io.to(this.id).emit("answerRevealed", { index });
+
+        if (index === this.question!.answers.length - 1) {
+          setTimeout(() => {
+            this.io.to(this.id).emit("receivedGameState", this.toJson());
+          }, 500);
+        }
+      }, index * 800);
     });
   }
 

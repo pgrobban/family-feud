@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import GameBoard from "./GameBoard";
-import { GameState } from "@/shared/types";
+import type { GameState } from "@/shared/types";
 
 export default function GameBoardWithScores({
 	gameState,
@@ -30,10 +30,10 @@ export default function GameBoardWithScores({
 						textTransform={"uppercase"}
 					>
 						<Typography variant="h6">
-							{gameState.teamsAndPoints[0].teamName || "team Awesome"}
+							{gameState.teamsAndPoints[0].teamName}
 						</Typography>
 						<Typography variant="h3">
-							{gameState.teamsAndPoints[0].points ?? 235}
+							{gameState.teamsAndPoints[0].points}
 						</Typography>
 					</Box>
 				</Box>

@@ -8,3 +8,8 @@
 body {
 	font-family: "Helvetica Neue Heavy Condensed", "Arial", sans-serif;
 }
+
+.flip-card.flipped .flip-card-inner,
+.flip-card.animate .flip-card-inner {
+	transform: rotateX(180deg);
+}

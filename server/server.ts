@@ -5,6 +5,7 @@ import type {
   ServerToClientEvents,
 } from "@/shared/gameEventMap";
 import registerSocketHandlers from "./registerSocketHandlers";
+import GameManager from "./controllers/GameManager";
 
 const PORT = 3002; // Dedicated WebSocket server port
 const httpServer = createServer();
@@ -14,11 +15,12 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
     methods: ["GET", "POST"],
   },
 });
+const gameManager = new GameManager(io);
 
 io.on(
   "connection",
   (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
-    registerSocketHandlers(socket, io);
+    registerSocketHandlers(socket, io, gameManager);
     socket.onAny((evtName) => console.log("*** got evt", evtName));
   }
 );

@@ -28,7 +28,6 @@ export default function FamilyWarmupGameBoard({
 	}
 
 	const typedGameState = gameState as GameState & FamilyWarmUpGame;
-	console.log("***", gameState);
 
 	switch (typedGameState.modeStatus) {
 		case "waiting_for_question":

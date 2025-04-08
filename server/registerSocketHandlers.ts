@@ -1,29 +1,31 @@
 import type { ClientToServerEvents, ServerToClientEvents } from "@/shared/gameEventMap";
 import type { Server, Socket } from "socket.io";
-import GameManager from "./controllers/GameManager";
+import type GameManager from "./controllers/GameManager";
 import type Game from "./controllers/Game";
 
 
-export default function registerSocketHandlers(socket: Socket<ClientToServerEvents, ServerToClientEvents>, io: Server) {
+
+export default function registerSocketHandlers(socket: Socket<ClientToServerEvents, ServerToClientEvents>, io: Server, gameManager: GameManager) {
+
   function updateGame(s: Socket, updateFn: (game: Game) => void) {
-    const game = GameManager.getGameBySocketId(s.id);
+    const game = gameManager.getGameBySocketId(s.id);
     if (!game) return;
     updateFn(game);
     io.to(game.id).emit("receivedGameState", game.toJson());
   }
 
   socket.on("createGame", (teamNames) => {
-    GameManager.createGame(socket.id, teamNames);
-    const game = GameManager.getGameBySocketId(socket.id);
+    gameManager.createGame(socket.id, teamNames);
+    const game = gameManager.getGameBySocketId(socket.id);
     if (game) {
       socket.join(game.id);
       io.to(game.id).emit("gameCreated", game.toJson());
-      io.to(game.id).emit("receivedGames", GameManager.getAllGames());
+      io.emit("receivedGames", gameManager.getAllGames());
     }
   });
 
   socket.on("requestGames", () => {
-    socket.emit("receivedGames", GameManager.getAllGames());
+    socket.emit("receivedGames", gameManager.getAllGames());
   });
 
   socket.on("requestGameState", () => updateGame(socket, (game) => game));
@@ -33,7 +35,7 @@ export default function registerSocketHandlers(socket: Socket<ClientToServerEven
   socket.on("questionPicked", (question) => updateGame(socket, (game) => game.hostPickedQuestion(question)));
 
   socket.on("joinHost", (gameId) => {
-    const game = GameManager.getGame(gameId);
+    const game = gameManager.getGame(gameId);
     if (game) {
       game.joinHost(socket.id);
       socket.join(game.id);
@@ -60,7 +62,7 @@ export default function registerSocketHandlers(socket: Socket<ClientToServerEven
   socket.on("reconnect", (payload) => {
     const { oldSocketId } = payload;
 
-    const game = GameManager.getGameBySocketId(oldSocketId);
+    const game = gameManager.getGameBySocketId(oldSocketId);
     if (game) {
       console.log(`Updating socket ID from ${oldSocketId} to ${socket.id}`);
 
