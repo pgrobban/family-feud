@@ -65,7 +65,7 @@ export default class Game {
     const state: BaseGameState = {
       id: this.id,
       mode: this.mode,
-      modeStatus: this.gameState.modeStatus,
+      modeStatus: this.modeStatus,
       teamNames: this.teamNames,
       teamsAndPoints: this.teamsAndPoints,
       status: this.status,
@@ -92,8 +92,8 @@ export default class Game {
             const typedState = inProgressGameState as FamilyWarmUpGame;
             return {
               ...typedState,
-              team1Answers: typedState.team1Answers,
-              team2Answers: typedState.team2Answers,
+              team1Answers: (this.gameState as FamilyWarmUpGame).team1Answers,
+              team2Answers: (this.gameState as FamilyWarmUpGame).team2Answers,
               question: this.question,
             } as BaseGameState & GameInProgress & FamilyWarmUpGame;
           }
