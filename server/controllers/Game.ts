@@ -82,11 +82,16 @@ export default class Game {
       }
       case 'in_progress': {
         const inProgressGameState = { ...state, teamNames: this.teamNames, teamsAndPoints: this.teamsAndPoints } as (GameState & GameInProgress);
-        const { team1Answers, team2Answers, currentTeam, question } = this.gameState as FamilyWarmUpGame;
 
         switch (this.mode) {
-          case 'family_warm_up':
-            return { ...inProgressGameState, team1Answers, team2Answers, currentTeam, question } as (BaseGameState & GameInProgress & FamilyWarmUpGame);
+          case 'family_warm_up': {
+            const typedState = inProgressGameState as FamilyWarmUpGame;
+            return { ...typedState, team1Answers: typedState.team1Answers, team2Answers: typedState.team2Answers, question: this.question } as (BaseGameState & GameInProgress & FamilyWarmUpGame);
+          }
+          case 'face_off': {
+            const typedState = inProgressGameState as FaceOffGame;
+            return { ...typedState, question: this.question, buzzOrder: typedState.buzzOrder, isStolen: typedState.isStolen, strikes: typedState.strikes } as (BaseGameState & GameInProgress & FaceOffGame);
+          }
         }
       }
     }
@@ -139,7 +144,6 @@ export default class Game {
           mode,
           modeStatus: "waiting_for_question",
           question: null,
-          currentTeam: 0,
           team1Answers: [],
           team2Answers: []
         } as FamilyWarmUpGame;
@@ -148,7 +152,6 @@ export default class Game {
           mode,
           modeStatus: "waiting_for_question",
           question: null,
-          currentTeam: 0,
         } as FaceOffGame;
       case "fast_money":
         return {
@@ -175,8 +178,8 @@ export default class Game {
     });
   }
 
-  hostPickedQuestion(pickedQuestionText: string) {
-    if (!this.validateGameStatus("family_warm_up", "waiting_for_question")) {
+  hostPickedQuestionForCurrentMode(pickedQuestionText: string) {
+    if (!this.validateGameStatus(['family_warm_up', 'face_off', 'fast_money'], "waiting_for_question")) {
       return;
     }
 
@@ -197,7 +200,7 @@ export default class Game {
 
     this.updateGameState({
       question: gameQuestion,
-      modeStatus: "question_in_progress",
+      modeStatus: this.mode === 'family_warm_up' ? 'question_in_progress' : 'face_off_started'
     });
   }
 
@@ -305,33 +308,75 @@ export default class Game {
   }
 
   private validateGameStatus(
-    expectedMode: GameInProgress["mode"],
-    expectedStatus?: string
+    expectedModeOrModes: GameInProgress["mode"] | GameInProgress["mode"][],
+    expectedStatusOrStatuses?: string | string[]
   ): boolean {
     if (!this.gameState || this.gameState.status !== "in_progress") {
       throw new Error(`Game not in progress, got: ${this.gameState?.status}`);
     }
 
-    if (!("mode" in this.gameState) || this.gameState.mode !== expectedMode) {
+    if (!("mode" in this.gameState) || (typeof expectedModeOrModes === "string" && this.mode !== expectedModeOrModes) || (Array.isArray(expectedModeOrModes) && !expectedModeOrModes.includes(this.mode))) {
       throw new Error(
-        `Wrong game mode, expected ${expectedMode}, got: ${this.gameState.mode}`
+        `Wrong game mode, expected ${expectedModeOrModes}, got: ${this.mode}`
       );
     }
 
-    if (!expectedStatus) {
+    if (!expectedStatusOrStatuses) {
       return true;
+    }
+
+    if (!this.modeStatus) {
+      return false;
     }
 
     if (
       !("modeStatus" in this.gameState) ||
-      this.gameState.modeStatus !== expectedStatus
+      (typeof expectedStatusOrStatuses === "string" && this.gameState.modeStatus !== expectedStatusOrStatuses) ||
+      (Array.isArray(expectedStatusOrStatuses) && !expectedStatusOrStatuses.includes(this.modeStatus))
     ) {
       throw new Error(
-        `Game mode not in expected state (${expectedStatus}), got: ${this.gameState.modeStatus}`
+        `Game mode not in expected status (${expectedStatusOrStatuses}), got: ${this.modeStatus}`
       );
     }
 
     return true;
+  }
+
+  submitBuzzInAnswer(team: 1 | 2, answerText: string) {
+    if (!this.validateGameStatus("face_off", "face_off_started") &&
+      !this.validateGameStatus("face_off", "getting_other_buzzed_in_answer")) {
+      return;
+    }
+
+    const game = this.gameState as Extract<GameState, { mode: "face_off" }>;
+
+    // Prevent duplicate buzz-ins
+    if (game.buzzOrder.includes(team)) return;
+
+    const updatedBuzzOrder = [...game.buzzOrder, team];
+
+    // Store answer somewhere or evaluate it right away:
+    const answerIndex = game.question?.answers.findIndex(
+      (a) => a.answerText.toLowerCase() === answerText.toLowerCase()
+    );
+
+    const revealed = answerIndex !== -1;
+
+    if (revealed) {
+      game.question!.answers[answerIndex!].revealed = true;
+    }
+
+    const isFirstBuzz = updatedBuzzOrder.length === 1;
+    const newStatus = isFirstBuzz
+      ? "reveal_buzzed_in_answer"
+      : "reveal_other_buzzed_in_answer";
+
+    this.updateGameState({
+      question: game.question,
+      buzzOrder: updatedBuzzOrder,
+      currentTeam: team,
+      modeStatus: newStatus,
+    });
   }
 
   private updateGameState(updates: Partial<GameState>) {

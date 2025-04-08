@@ -21,17 +21,17 @@ export default function Create() {
 
 	useEffect(() => {
 		if (!socket) return;
-		socket.on("gameCreated", () => {
-			setState("waiting_for_host");
-		});
 
-		socket.on("hostJoined", () => {
-			router.push("/game");
-		});
+		const onGameCreated = () => setState("waiting_for_host");
+
+		const onHostJoined = () => router.push("/game");
+
+		socket.on("gameCreated", onGameCreated);
+		socket.on("hostJoined", onHostJoined);
 
 		return () => {
-			socket.off("gameCreated");
-			socket.off("hostJoined");
+			socket.off("gameCreated", onGameCreated);
+			socket.off("hostJoined", onHostJoined);
 		};
 	}, [socket, router]);
 

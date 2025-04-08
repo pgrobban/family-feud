@@ -11,8 +11,6 @@ export default function FamilyWarmupControls({
 	gameState: GameState;
 }) {
 	const socket = useSocket();
-	const setQuestion = (question: string) =>
-		socket?.emit("questionPicked", question);
 
 	if (
 		gameState?.status !== "in_progress" ||
@@ -29,7 +27,7 @@ export default function FamilyWarmupControls({
 
 	switch (gameState.modeStatus) {
 		case "waiting_for_question":
-			return <QuestionPicker onQuestionPicked={setQuestion} />;
+			return <QuestionPicker />;
 		case "question_in_progress":
 			return (
 				<>

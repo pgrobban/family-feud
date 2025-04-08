@@ -9,7 +9,6 @@ interface Props {
 
 export default function AnswerCard({ answer, index }: Props) {
 	const { answerText, points, revealed } = answer;
-	const [animate, setAnimate] = useState(false);
 	const [flipped, setFlipped] = useState(revealed);
 
 	const socket = useSocket();
@@ -30,7 +29,9 @@ export default function AnswerCard({ answer, index }: Props) {
 		};
 
 		socket.on("answerRevealed", doAnimation);
-		return () => socket.off("answerRevealed", doAnimation);
+		return () => {
+			socket.off("answerRevealed", doAnimation);
+		};
 	}, [socket, index]);
 
 	return (

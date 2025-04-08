@@ -8,12 +8,18 @@ export interface ClientToServerEvents {
   questionOrModeCancelled: () => void;
   questionPicked: (question: string) => void;
   joinHost: (gameId: string) => void;
+  requestNewQuestion: () => void;
+  reconnect: (payload: { oldSocketId: string }) => void;
+
+  // family warmup events
   hostRequestedTeamAnswers: () => void;
   hostGatheredTeamAnswers: (team1Answers: string[], team2Answers: string[]) => void;
   requestRevealTeamAnswers: () => void;
   awardTeamPoints: () => void;
-  requestNewQuestion: () => void;
-  reconnect: (payload: { oldSocketId: string }) => void;
+
+  // faceoff events
+  submitBuzzInAnswer: (team: 1 | 2, answerText: string) => void;
+
 }
 
 export interface ServerToClientEvents {

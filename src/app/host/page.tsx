@@ -7,6 +7,7 @@ import GameBoardWithScores from "../game/GameBoardWithScores";
 import GameModePicker from "./GameModePicker";
 import FamilyWarmupControls from "./FamilyWarmupControls";
 import type { GameState } from "@/shared/types";
+import FaceOffControls from "./FaceOffControls";
 
 export default function Host() {
 	const socket = useSocket();
@@ -38,9 +39,8 @@ export default function Host() {
 		<Box>
 			<GameBoardWithScores gameState={gameState} />
 			{gameState.mode === "indeterminate" && <GameModePicker />}
-			{gameState.mode === "family_warm_up" && (
-				<FamilyWarmupControls gameState={gameState} />
-			)}
+			<FamilyWarmupControls gameState={gameState} />
+			<FaceOffControls gameState={gameState} />
 			{gameState.mode !== "indeterminate" && (
 				<Box mt={10}>
 					<Button

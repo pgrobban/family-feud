@@ -5,8 +5,9 @@ import type { GameInProgress } from "@/shared/types";
 
 export default function GameModePicker() {
 	const socket = useSocket();
-	const setGameMode = (mode: GameInProgress["mode"]) =>
-		socket?.emit("modePicked", mode);
+	const setGameMode = (
+		mode: Exclude<GameInProgress["mode"], "indeterminate">,
+	) => socket?.emit("modePicked", mode);
 
 	return (
 		<Box p={2}>
@@ -22,7 +23,11 @@ export default function GameModePicker() {
 					</Button>
 				</Grid>
 				<Grid>
-					<Button variant="contained" color="primary">
+					<Button
+						variant="contained"
+						color="primary"
+						onClick={() => setGameMode("face_off")}
+					>
 						Face-off
 					</Button>
 				</Grid>
