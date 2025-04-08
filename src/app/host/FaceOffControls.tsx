@@ -4,34 +4,34 @@ import QuestionPicker from "./QuestionPicker";
 import BuzzedInTeamAndAnswerPicker from "./BuzzedInTeamAndAnswerPicker";
 
 export default function FaceOffControls({
-	gameState,
+  gameState,
 }: {
-	gameState: GameState;
+  gameState: GameState;
 }) {
-	if (gameState?.status !== "in_progress" || gameState?.mode !== "face_off") {
-		return null;
-	}
+  if (gameState?.status !== "in_progress" || gameState?.mode !== "face_off") {
+    return null;
+  }
 
-	if (gameState.modeStatus === "waiting_for_question") {
-		<QuestionPicker />;
-	}
+  if (gameState.modeStatus === "waiting_for_question") {
+    return <QuestionPicker />;
+  }
 
-	if (!gameState.question) {
-		return null;
-	}
+  if (!gameState.question) {
+    return null;
+  }
 
-	switch (gameState.modeStatus) {
-		case "waiting_for_question":
-			return <QuestionPicker />;
-		case "face_off_started":
-			return (
-				<BuzzedInTeamAndAnswerPicker
-					question={gameState.question}
-					teamNames={gameState.teamNames}
-				/>
-			);
+  console.log("***", gameState);
 
-		default:
-			return null;
-	}
+  switch (gameState.modeStatus) {
+    case "face_off_started":
+      return (
+        <BuzzedInTeamAndAnswerPicker
+          question={gameState.question}
+          teamNames={gameState.teamNames}
+        />
+      );
+
+    default:
+      return null;
+  }
 }
