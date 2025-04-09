@@ -1,4 +1,4 @@
 import type { Socket } from "socket.io-client";
-import type { GameEventMap } from "./gameEventMap";
+import type { ClientToServerEvents, ServerToClientEvents } from "./gameEventMap";
 
-export const isSocketDefined = (s: Socket | null): s is Socket<GameEventMap> => s !== null;
+export const isSocketDefined = (s: Socket | null): s is Socket<ClientToServerEvents & ServerToClientEvents> => s !== null;

@@ -102,9 +102,10 @@ export default class Game {
             return {
               ...typedState,
               question: this.question,
-              buzzOrder: typedState.buzzOrder,
-              isStolen: typedState.isStolen,
-              strikes: typedState.strikes,
+              buzzOrder: (this.gameState as FaceOffGame).buzzOrder,
+              currentTeam: (this.gameState as FaceOffGame).currentTeam,
+              isStolen: (this.gameState as FaceOffGame).isStolen,
+              strikes: (this.gameState as FaceOffGame).strikes,
             } as BaseGameState & GameInProgress & FaceOffGame;
           }
         }
@@ -390,7 +391,10 @@ export default class Game {
     return true;
   }
 
-  submitBuzzInAnswer(team: 1 | 2, answerText: string) {
+  submitBuzzInAnswer(
+    team: 1 | 2,
+    answerText: string
+  ): true | undefined {
     if (
       !this.validateGameStatus("face_off", "face_off_started") &&
       !this.validateGameStatus("face_off", "getting_other_buzzed_in_answer")
@@ -418,9 +422,9 @@ export default class Game {
       const answer = game.question!.answers[answerIndex!];
       answer.revealed = true;
       answer.revealedByControlTeam = true;
+
       this.io.to(this.id).emit("answerRevealed", { index: answerIndex });
 
-      // Delay game state update
       setTimeout(() => {
         this.updateGameState({
           question: game.question,
@@ -428,20 +432,20 @@ export default class Game {
           currentTeam: team,
           modeStatus: nextStatus,
         });
+        this.io.to(this.id).emit("receivedGameState", this.toJson());
       }, 800);
-    } else {
-      // Trigger a red X animation
-      this.io.to(this.id).emit("answerIncorrect", { team });
 
-      // Delay game state update so the X has time to animate
-      setTimeout(() => {
-        this.updateGameState({
-          buzzOrder: updatedBuzzOrder,
-          currentTeam: team,
-          modeStatus: nextStatus,
-        });
-      }, 800);
+      return;
     }
+    this.io.to(this.id).emit("answerIncorrect", { strikes: 1 });
+
+    this.updateGameState({
+      buzzOrder: updatedBuzzOrder,
+      currentTeam: team,
+      modeStatus: nextStatus,
+    });
+
+    return true;
   }
 
   private updateGameState(updates: Partial<GameState>) {

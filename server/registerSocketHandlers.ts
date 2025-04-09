@@ -1,7 +1,6 @@
 import type { ClientToServerEvents, ServerToClientEvents } from "@/shared/gameEventMap";
 import type { Server, Socket } from "socket.io";
 import type GameManager from "./controllers/GameManager";
-import type Game from "./controllers/Game";
 import familyWarmupHandlers from './eventHandlers/familyWarmupHandlers';
 import faceOffHandlers from './eventHandlers/faceOffHandlers';
 import { makeUpdateGame } from "./eventHandlers/helpers";

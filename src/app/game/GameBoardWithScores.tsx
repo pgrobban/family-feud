@@ -37,7 +37,7 @@ export default function GameBoardWithScores({
 						</Typography>
 					</Box>
 				</Box>
-				<Box flexGrow={1} p={2}>
+				<Box flexGrow={1}>
 					<GameBoard gameState={gameState} />
 				</Box>
 				<Box width={220} flex={"0 0 220px"}>

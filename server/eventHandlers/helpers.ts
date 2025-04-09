@@ -9,6 +9,7 @@ export function makeUpdateGame(io: Server, gameManager: GameManager) {
   ): void {
     const game = gameManager.getGameBySocketId(socket.id);
     if (!game) return;
+
     updateFn(game);
     io.to(game.id).emit("receivedGameState", game.toJson());
   };

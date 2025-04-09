@@ -6,5 +6,13 @@ import { makeUpdateGame } from "./helpers";
 export default function registerFaceOffSocketEvents(socket: Socket<ClientToServerEvents, ServerToClientEvents>, io: Server, gameManager: GameManager) {
   const updateGame = makeUpdateGame(io, gameManager);
 
-  socket.on("submitBuzzInAnswer", (team, answerText) => updateGame(socket, (game) => game.submitBuzzInAnswer(team, answerText)));
+  socket.on("submitBuzzInAnswer", (team, answerText) => {
+    const game = gameManager.getGameBySocketId(socket.id);
+    if (!game) return;
+
+    const emitNow = game.submitBuzzInAnswer(team, answerText);
+    if (emitNow) {
+      io.to(game.id).emit("receivedGameState", game.toJson());
+    }
+  });
 }

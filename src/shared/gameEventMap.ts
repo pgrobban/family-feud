@@ -28,4 +28,5 @@ export interface ServerToClientEvents {
   receivedGameState: (gameState: GameState | null) => void;
   receivedGames: (games: GameState[]) => void;
   answerRevealed: (payload: { index: number }) => void;
+  answerIncorrect: (payload: { strikes: number }) => void;
 }
