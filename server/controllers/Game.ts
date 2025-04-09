@@ -477,7 +477,12 @@ export default class Game {
       throw new Error('No current team!');
     }
 
-    const inControlTeam = choice === 'play' ? typedState.currentTeam : (typedState.currentTeam === 1 ? 2 : 1);
+    let inControlTeam: 1 | 2;
+    if (choice === "play") {
+      inControlTeam = typedState.currentTeam;
+    } else {
+      inControlTeam = typedState.currentTeam === 1 ? 2 : 1;
+    }
 
     this.updateGameState({
       inControlTeam,

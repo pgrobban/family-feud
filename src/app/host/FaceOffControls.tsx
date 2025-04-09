@@ -4,6 +4,7 @@ import QuestionPicker from "./QuestionPicker";
 import BuzzedInTeamAndAnswerPicker from "./BuzzedInTeamAndAnswerPicker";
 import AfterBuzzedInAnswer from "./AfterBuzzedInAnswer";
 import AskTeamToPlay from "./AskTeamToPlay";
+import InControlTeamAnswerSelector from "./InControlTeamAnswerSelector";
 
 export default function FaceOffControls({
 	gameState,
@@ -46,6 +47,12 @@ export default function FaceOffControls({
 				<AskTeamToPlay
 					teamNames={gameState.teamNames}
 					currentTeam={gameState.currentTeam}
+				/>
+			);
+		case "in_control_team_guesses":
+			return (
+				<InControlTeamAnswerSelector
+					storedAnswers={gameState.question.answers}
 				/>
 			);
 		default:

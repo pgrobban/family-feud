@@ -3,6 +3,7 @@ import useSocket from "@/hooks/useSocket";
 import type { StoredAnswer } from "@/shared/types";
 import { Box, Button, Grid, Typography } from "@mui/material";
 import { useState } from "react";
+import StoredAnswerSelector from "./StoredAnswerSelector";
 
 function TeamAnswerPicker({
 	teamNumber,
@@ -18,19 +19,15 @@ function TeamAnswerPicker({
 	return (
 		<Box p={2}>
 			<Typography>Team {teamNumber} answers</Typography>
-			<Grid container spacing={2}>
-				{storedAnswers.map(({ answerText }) => (
-					<Grid key={answerText}>
-						<Button
-							color={teamAnswers.includes(answerText) ? "success" : "primary"}
-							variant="contained"
-							onClick={() => toggleAnswerText(teamNumber, answerText)}
-						>
-							{answerText}
-						</Button>
-					</Grid>
-				))}
-			</Grid>
+			<StoredAnswerSelector
+				storedAnswers={storedAnswers}
+				buttonColor={(answerText: string) =>
+					teamAnswers.includes(answerText) ? "success" : "primary"
+				}
+				onAnswerPicked={(answerText) =>
+					toggleAnswerText(teamNumber, answerText)
+				}
+			/>
 		</Box>
 	);
 }
