@@ -1,12 +1,12 @@
-import { Typography } from "@mui/material";
 import FamilyWarmupGameBoard from "./FamilyWarmupGameBoard";
 import type { FaceOffGame, FamilyWarmUpGame, GameState } from "@/shared/types";
 import FaceOffGameBoard from "./FaceOffGameBoard";
+import LogoAndRoundBox from "./LogoAndRoundBox";
 
 export default function GameBoard({ gameState }: { gameState: GameState }) {
   switch (gameState.mode) {
     case "indeterminate":
-      return <Typography>Waiting for host to pick a game mode...</Typography>;
+      return <LogoAndRoundBox round="" text="Waiting for host..." />;
     case "family_warm_up":
       return (
         <FamilyWarmupGameBoard

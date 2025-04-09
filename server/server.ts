@@ -11,7 +11,11 @@ const PORT = 3002; // Dedicated WebSocket server port
 const httpServer = createServer();
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
-    origin: "http://localhost:3001",
+    origin: [
+      "http://localhost:3001",
+      "http://98.128.172.254:3001",
+      "http://192.168.11.75:3001",
+    ],
     methods: ["GET", "POST"],
   },
 });
