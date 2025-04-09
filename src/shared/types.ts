@@ -65,7 +65,7 @@ export interface FaceOffGame {
   | "reveal_stolen_answer" // If correct, points go to them. Else, back to...
   | "revealing_answers" // Reveal remaining hidden answers.
   | "awarding_points"; // Award points to the correct team based if the steal was successful.
-  currentTeam: number | null; // for buzzing in
+  currentTeam: 1 | 2 | null; // for buzzing in
   inControlTeam?: number; // optional until a team is in control
   question: GameQuestion<FaceOffGameAnswer> | null;
   buzzOrder: (1 | 2)[];

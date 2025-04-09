@@ -88,7 +88,12 @@ export default function FaceOffGameBoard({
 	}, [socket]);
 
 	if (gameState.modeStatus === "waiting_for_question") {
-		return <LogoAndRoundBox round={"Family face-off round"} />;
+		return (
+			<LogoAndRoundBox
+				round={"Family face-off round"}
+				text={"Please select one person of each team to stand by the buzzers"}
+			/>
+		);
 	}
 
 	const question = gameState.question as GameQuestion<FaceOffGameAnswer>;

@@ -1,7 +1,10 @@
 import Image from "next/image";
 import { Box, Typography } from "@mui/material";
 
-export default function LogoAndRoundBox({ round }: { round: string }) {
+export default function LogoAndRoundBox({
+	round,
+	text,
+}: { round: string; text?: string }) {
 	return (
 		<Box
 			height={"100%"}
@@ -17,6 +20,7 @@ export default function LogoAndRoundBox({ round }: { round: string }) {
 			<Image src="/logo.png" alt="Logo" width={560} height={320} />
 			<Box width={700}>
 				<Typography variant="h2">{round}</Typography>
+				{text && <Typography pt={8}>{text}</Typography>}
 			</Box>
 		</Box>
 	);

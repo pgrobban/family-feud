@@ -21,6 +21,7 @@ export interface ClientToServerEvents {
   submitBuzzInAnswer: (team: 1 | 2, answerText: string) => void;
   requestOtherTeamBuzzInAnswer: () => void;
   requestAskTeamToPlayOrPass: () => void;
+  receivedPlayOrPass: (choice: 'play' | 'pass') => void;
 }
 
 export interface ServerToClientEvents {

@@ -454,6 +454,37 @@ export default class Game {
     })
   }
 
+  requestAskTeamToPlayOrPass() {
+    if (
+      !this.validateGameStatus("face_off", ["reveal_buzzed_in_answer", "reveal_other_buzzed_in_answer"])
+    ) {
+      return;
+    }
+    this.updateGameState({
+      modeStatus: 'team_asked_to_play'
+    });
+  }
+
+  receivedPlayOrPass(choice: 'play' | 'pass') {
+    if (
+      !this.validateGameStatus("face_off", ["team_asked_to_play"])
+    ) {
+      return;
+    }
+
+    const typedState = this.gameState as FaceOffGame;
+    if (!typedState.currentTeam) {
+      throw new Error('No current team!');
+    }
+
+    const inControlTeam = choice === 'play' ? typedState.currentTeam : (typedState.currentTeam === 1 ? 2 : 1);
+
+    this.updateGameState({
+      inControlTeam,
+      modeStatus: 'in_control_team_guesses'
+    })
+  }
+
   private updateGameState(updates: Partial<GameState>) {
     if (!this.gameState) {
       return;

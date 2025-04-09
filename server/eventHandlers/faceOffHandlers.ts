@@ -17,4 +17,6 @@ export default function registerFaceOffSocketEvents(socket: Socket<ClientToServe
   });
 
   socket.on('requestOtherTeamBuzzInAnswer', () => updateGame(socket, (game) => game.requestOtherTeamToBuzzInAnswer()));
+  socket.on('receivedPlayOrPass', (choice) => updateGame(socket, (game) => game.receivedPlayOrPass(choice)));
+  socket.on('requestAskTeamToPlayOrPass', () => updateGame(socket, (game) => game.requestAskTeamToPlayOrPass()));
 }

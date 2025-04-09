@@ -3,6 +3,7 @@ import type { GameState } from "@/shared/types";
 import QuestionPicker from "./QuestionPicker";
 import BuzzedInTeamAndAnswerPicker from "./BuzzedInTeamAndAnswerPicker";
 import AfterBuzzedInAnswer from "./AfterBuzzedInAnswer";
+import AskTeamToPlay from "./AskTeamToPlay";
 
 export default function FaceOffControls({
 	gameState,
@@ -34,7 +35,19 @@ export default function FaceOffControls({
 				/>
 			);
 		case "reveal_buzzed_in_answer":
+		case "reveal_other_buzzed_in_answer":
 			return <AfterBuzzedInAnswer gameState={gameState} />;
+		case "team_asked_to_play":
+			if (!gameState.currentTeam) {
+				return null;
+			}
+
+			return (
+				<AskTeamToPlay
+					teamNames={gameState.teamNames}
+					currentTeam={gameState.currentTeam}
+				/>
+			);
 		default:
 			return null;
 	}
