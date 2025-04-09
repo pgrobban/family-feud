@@ -93,6 +93,10 @@ export default function FaceOffGameBoard({
 
 	const question = gameState.question as GameQuestion<FaceOffGameAnswer>;
 
+	if (!question) {
+		return null;
+	}
+
 	const pointsToBeAwarded = question.answers
 		.filter((a) => a.revealed && a.revealedByControlTeam)
 		.reduce((sum, a) => sum + a.points, 0);
@@ -131,7 +135,7 @@ export default function FaceOffGameBoard({
 							textTransform: "uppercase",
 						}}
 					>
-						{gameState.question.answers.map((answer, index) => (
+						{question.answers.map((answer, index) => (
 							<AnswerCard
 								key={answer.answerText}
 								answer={answer}

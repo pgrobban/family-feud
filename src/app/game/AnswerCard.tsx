@@ -37,7 +37,7 @@ export default function AnswerCard({ answer, index }: Props) {
 	return (
 		<Box
 			className={`flip-card ${flipped ? "flipped" : ""}`}
-			sx={{ perspective: 1000, width: "100%", height: 80 }}
+			sx={{ perspective: 1000, width: "100%", height: 81, fontSize: 50 }}
 		>
 			<Box
 				className="flip-card-inner"
@@ -61,14 +61,23 @@ export default function AnswerCard({ answer, index }: Props) {
 						alignItems: "center",
 						justifyContent: "center",
 						background: "radial-gradient(circle at center, #0b3c9c, #021c44)",
-						borderRadius: 1,
+						borderRadius: 2,
 						color: "#fff",
 						fontWeight: "bold",
-						fontSize: 28,
 						border: "3px solid #fff",
 					}}
 				>
-					{index + 1}
+					<Box
+						sx={{
+							width: 80,
+							height: 75,
+							background: "#021c44",
+							borderRadius: "100% 100%",
+							textAlign: "center",
+						}}
+					>
+						{index + 1}
+					</Box>
 				</Box>
 
 				{/* Back (revealed answer) */}
@@ -79,31 +88,28 @@ export default function AnswerCard({ answer, index }: Props) {
 						width: "100%",
 						height: "100%",
 						backfaceVisibility: "hidden",
-						background: "linear-gradient(to bottom, #3e83f8, #2249a3)",
+						background: "linear-gradient(to left, #2249a3, #3e83f8, #2249a3)",
 						transform: "rotateX(180deg)",
 						display: "flex",
 						justifyContent: "space-between",
 						alignItems: "center",
-						px: 3,
-						border: "4px solid black",
-						borderRadius: 1,
+						pl: 3,
+						border: "3px solid #fff",
+						borderRadius: 2,
 						color: "#fff",
-						fontSize: 28,
 						boxShadow: "inset 0 0 6px #000",
 					}}
 				>
-					<Typography sx={{ fontSize: 28 }}>{answerText}</Typography>
+					<Typography fontSize={50}>{answerText}</Typography>
 					<Box
 						sx={{
-							backgroundColor: "#1b3c93",
-							width: 65,
+							width: 100,
 							height: "100%",
 							display: "flex",
 							alignItems: "center",
 							justifyContent: "center",
-							border: "3px solid #fff",
-							fontWeight: "bold",
-							fontSize: 28,
+							background: "linear-gradient(to bottom, #3e83f8, #2249a3)",
+							borderLeft: "2px solid #fff",
 						}}
 					>
 						{points}

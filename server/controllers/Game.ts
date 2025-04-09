@@ -396,8 +396,7 @@ export default class Game {
     answerText: string
   ): true | undefined {
     if (
-      !this.validateGameStatus("face_off", "face_off_started") &&
-      !this.validateGameStatus("face_off", "getting_other_buzzed_in_answer")
+      !this.validateGameStatus("face_off", ["face_off_started", "getting_other_buzzed_in_answer"])
     ) {
       return;
     }
@@ -446,6 +445,13 @@ export default class Game {
     });
 
     return true;
+  }
+
+  requestOtherTeamToBuzzInAnswer() {
+    this.updateGameState({
+      currentTeam: (this.gameState as FaceOffGame).currentTeam === 1 ? 2 : 1,
+      modeStatus: 'getting_other_buzzed_in_answer'
+    })
   }
 
   private updateGameState(updates: Partial<GameState>) {

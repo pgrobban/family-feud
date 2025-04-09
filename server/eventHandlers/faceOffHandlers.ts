@@ -15,4 +15,6 @@ export default function registerFaceOffSocketEvents(socket: Socket<ClientToServe
       io.to(game.id).emit("receivedGameState", game.toJson());
     }
   });
+
+  socket.on('requestOtherTeamBuzzInAnswer', () => updateGame(socket, (game) => game.requestOtherTeamToBuzzInAnswer()));
 }

@@ -19,7 +19,8 @@ export interface ClientToServerEvents {
 
   // faceoff events
   submitBuzzInAnswer: (team: 1 | 2, answerText: string) => void;
-
+  requestOtherTeamBuzzInAnswer: () => void;
+  requestAskTeamToPlayOrPass: () => void;
 }
 
 export interface ServerToClientEvents {
