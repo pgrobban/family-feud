@@ -4,11 +4,13 @@ import { Button, type ButtonOwnProps, Grid } from "@mui/material";
 interface Props {
 	storedAnswers: StoredAnswer[];
 	buttonColor?: (answerText: string) => ButtonOwnProps["color"];
+	disabled?: (answerText: string) => boolean;
 	onAnswerPicked: (answerText: string) => void;
 	includeInvalidOption?: boolean;
 }
 
 export default function StoredAnswerSelector({
+	disabled,
 	storedAnswers,
 	buttonColor,
 	onAnswerPicked,
@@ -19,6 +21,7 @@ export default function StoredAnswerSelector({
 			{storedAnswers.map(({ answerText }) => (
 				<Grid key={answerText}>
 					<Button
+						disabled={disabled?.(answerText)}
 						color={buttonColor?.(answerText)}
 						variant="contained"
 						onClick={() => onAnswerPicked(answerText)}

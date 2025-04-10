@@ -63,7 +63,7 @@ export interface FaceOffGame {
   | "reveal_in_control_team_answer" // Reveal answer or give a strike. If 3 strikes → go to steal phase. If all answers revealed → go to awarding points.
   | "ask_other_team_for_guess_for_steal" // Other team confers and gives 1 steal guess.
   | "reveal_stolen_answer" // If correct, points go to them. Else, back to...
-  | "revealing_answers" // Reveal remaining hidden answers.
+  | "revealing_stored_answers" // Reveal remaining hidden answers.
   | "awarding_points"; // Award points to the correct team based if the steal was successful.
   currentTeam: 1 | 2 | null; // for buzzing in
   inControlTeam?: number; // optional until a team is in control

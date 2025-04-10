@@ -4,6 +4,7 @@ import type GameManager from "./controllers/GameManager";
 import familyWarmupHandlers from './eventHandlers/familyWarmupHandlers';
 import faceOffHandlers from './eventHandlers/faceOffHandlers';
 import { makeUpdateGame } from "./eventHandlers/helpers";
+import type { GameState } from "@/shared/types";
 
 
 export default function registerSocketHandlers(socket: Socket<ClientToServerEvents, ServerToClientEvents>, io: Server, gameManager: GameManager) {
@@ -20,9 +21,7 @@ export default function registerSocketHandlers(socket: Socket<ClientToServerEven
     }
   });
 
-  socket.on("requestGames", () => {
-    socket.emit("receivedGames", gameManager.getAllGames());
-  });
+  socket.on("requestGames", () => socket.emit("receivedGames", gameManager.getAllGames() as GameState[]));
 
   socket.on("requestGameState", () => updateGame(socket, (game) => game));
 

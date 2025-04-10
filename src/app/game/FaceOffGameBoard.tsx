@@ -130,24 +130,18 @@ export default function FaceOffGameBoard({
 					<Typography variant="h3">{pointsToBeAwarded}</Typography>
 				</Box>
 
-				<Box>
-					<Box
-						sx={{
-							display: "flex",
-							flexDirection: "column",
-							width: "100%",
-							gap: 1,
-							textTransform: "uppercase",
-						}}
-					>
-						{question.answers.map((answer, index) => (
-							<AnswerCard
-								key={answer.answerText}
-								answer={answer}
-								index={index}
-							/>
-						))}
-					</Box>
+				<Box
+					sx={{
+						display: "flex",
+						flexDirection: "column",
+						width: "100%",
+						gap: 1,
+						textTransform: "uppercase",
+					}}
+				>
+					{question.answers.map((answer, index) => (
+						<AnswerCard key={answer.answerText} answer={answer} index={index} />
+					))}
 				</Box>
 			</Box>
 		</Box>

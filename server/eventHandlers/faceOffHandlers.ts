@@ -19,4 +19,14 @@ export default function registerFaceOffSocketEvents(socket: Socket<ClientToServe
   socket.on('requestOtherTeamBuzzInAnswer', () => updateGame(socket, (game) => game.requestOtherTeamToBuzzInAnswer()));
   socket.on('receivedPlayOrPass', (choice) => updateGame(socket, (game) => game.receivedPlayOrPass(choice)));
   socket.on('requestAskTeamToPlayOrPass', () => updateGame(socket, (game) => game.requestAskTeamToPlayOrPass()));
+
+  socket.on("receivedAnswer", (answerText) => {
+    const game = gameManager.getGameBySocketId(socket.id);
+    if (!game) return;
+
+    const emitNow = game.receivedFaceOffAnswer(answerText);
+    if (emitNow) {
+      io.to(game.id).emit("receivedGameState", game.toJson());
+    }
+  });
 }

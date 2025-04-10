@@ -1,20 +1,19 @@
 import type {
-  BaseGameState,
   FaceOffGame,
   FamilyWarmUpGame,
   FastMoneyGame,
-  GameFinished,
   GameInProgress,
   GameQuestion,
   GameState,
   StoredQuestion,
   TeamAndPoints,
-  WaitingForHostGame,
 } from "@/shared/types";
 import questions from "../../src/shared/questions.json";
 import type { Server } from "socket.io";
 
 const storedQuestions: StoredQuestion[] = questions;
+
+const MAX_STRIKES = 3;
 
 export default class Game {
   public id: string;
@@ -61,59 +60,43 @@ export default class Game {
     return this.gameState.status;
   }
 
-  toJson(): GameState {
-    const state: BaseGameState = {
+  get currentTeam() {
+    return (this.gameState as FaceOffGame).currentTeam;
+  }
+
+  get inControlTeam() {
+    return (this.gameState as FaceOffGame).inControlTeam;
+  }
+
+  get buzzOrder() {
+    return (this.gameState as FaceOffGame).buzzOrder;
+  }
+
+  get isStolen() {
+    return (this.gameState as FaceOffGame).isStolen;
+  }
+
+  get strikes() {
+    return (this.gameState as FaceOffGame).strikes;
+  }
+
+  toJson() {
+    const serializableState = {
       id: this.id,
       mode: this.mode,
       modeStatus: this.modeStatus,
       teamNames: this.teamNames,
       teamsAndPoints: this.teamsAndPoints,
       status: this.status,
+      question: this.question,
+      isStolen: this.isStolen,
+      buzzOrder: this.buzzOrder,
+      currentTeam: this.currentTeam,
+      inControlTeam: this.inControlTeam,
+      strikes: this.strikes
     };
 
-    switch (this.status) {
-      case "waiting_for_host": {
-        const waitingForHostState = state as GameState & WaitingForHostGame;
-        return waitingForHostState;
-      }
-      case "finished": {
-        const waitingForHostState = state as GameState & GameFinished;
-        return waitingForHostState;
-      }
-      case "in_progress": {
-        const inProgressGameState = {
-          ...state,
-          teamNames: this.teamNames,
-          teamsAndPoints: this.teamsAndPoints,
-        } as GameState & GameInProgress;
-
-        switch (this.mode) {
-          case "family_warm_up": {
-            const typedState = inProgressGameState as FamilyWarmUpGame;
-            return {
-              ...typedState,
-              team1Answers: (this.gameState as FamilyWarmUpGame).team1Answers,
-              team2Answers: (this.gameState as FamilyWarmUpGame).team2Answers,
-              question: this.question,
-            } as BaseGameState & GameInProgress & FamilyWarmUpGame;
-          }
-          case "face_off": {
-            const typedState = inProgressGameState as FaceOffGame;
-            return {
-              ...typedState,
-              question: this.question,
-              buzzOrder: (this.gameState as FaceOffGame).buzzOrder,
-              currentTeam: (this.gameState as FaceOffGame).currentTeam,
-              isStolen: (this.gameState as FaceOffGame).isStolen,
-              strikes: (this.gameState as FaceOffGame).strikes,
-            } as BaseGameState & GameInProgress & FaceOffGame;
-          }
-        }
-      }
-    }
-
-    // @ts-expect-error TODO
-    return state;
+    return serializableState;
   }
 
   getPlayerSocketIds() {
@@ -394,7 +377,7 @@ export default class Game {
   submitBuzzInAnswer(
     team: 1 | 2,
     answerText: string
-  ): true | undefined {
+  ) {
     if (
       !this.validateGameStatus("face_off", ["face_off_started", "getting_other_buzzed_in_answer"])
     ) {
@@ -460,6 +443,7 @@ export default class Game {
     ) {
       return;
     }
+
     this.updateGameState({
       modeStatus: 'team_asked_to_play'
     });
@@ -488,6 +472,53 @@ export default class Game {
       inControlTeam,
       modeStatus: 'in_control_team_guesses'
     })
+  }
+
+  receivedFaceOffAnswer(answerText: string) {
+    if (
+      !this.validateGameStatus("face_off", "in_control_team_guesses")
+    ) {
+      return;
+    }
+
+    const game = this.gameState as FaceOffGame;
+    if (!game.question) return;
+
+    const answerIndex = game.question.answers.findIndex(
+      (a) => a.answerText.toLowerCase() === answerText.toLowerCase()
+    );
+
+    const isCorrect = answerIndex !== -1;
+
+    if (isCorrect) {
+      const answer = game.question.answers[answerIndex];
+      answer.revealed = true;
+      answer.revealedByControlTeam = true;
+      const allAnswersFound = game.question.answers.every(({ revealedByControlTeam }) => revealedByControlTeam);
+      const nextStatus = allAnswersFound ? 'revealing_stored_answers' : 'in_control_team_guesses';
+
+      this.io.to(this.id).emit("answerRevealed", { index: answerIndex });
+
+      setTimeout(() => {
+        this.updateGameState({
+          question: game.question,
+          modeStatus: nextStatus
+        });
+        this.io.to(this.id).emit("receivedGameState", this.toJson());
+      }, 800);
+
+      return;
+    }
+
+    const newStrikes = this.strikes + 1;
+    this.io.to(this.id).emit("answerIncorrect", { strikes: newStrikes });
+    const nextStatus = newStrikes === MAX_STRIKES ? 'ask_other_team_for_guess_for_steal' : 'in_control_team_guesses';
+
+    this.updateGameState({
+      strikes: newStrikes,
+      modeStatus: nextStatus
+    });
+    return true;
   }
 
   private updateGameState(updates: Partial<GameState>) {

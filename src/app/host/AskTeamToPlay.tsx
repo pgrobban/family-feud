@@ -21,7 +21,7 @@ export default function AskTeamToPlay({
 					</Button>
 				</Grid>
 				<Grid>
-					<Button variant="contained" onClick={() => emitPlayOrPass("play")}>
+					<Button variant="contained" onClick={() => emitPlayOrPass("pass")}>
 						Pass
 					</Button>
 				</Grid>
