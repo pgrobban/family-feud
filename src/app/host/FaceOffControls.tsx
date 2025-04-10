@@ -7,6 +7,10 @@ import AskTeamToPlay from "./AskTeamToPlay";
 import InControlTeamAnswerSelector from "./InControlTeamAnswerSelector";
 import { Box, Typography } from "@mui/material";
 import { useCallback } from "react";
+import AwardPointsButton from "./AwardPointsButton";
+import QuestionOverControls from "./QuestionOverControls";
+import StealAnswerSelector from "./StealAnswerSelector";
+import { getOpposingTeam } from "@/shared/utils";
 
 export default function FaceOffControls({
 	gameState,
@@ -55,6 +59,27 @@ export default function FaceOffControls({
 						teamName={gameState.teamNames[gameState.inControlTeam - 1]}
 					/>
 				);
+			case "revealing_stored_answers":
+				return <AwardPointsButton />;
+			case "awarding_points":
+				return <QuestionOverControls />;
+			case "ask_other_team_for_guess_for_steal": {
+				if (!gameState.inControlTeam) {
+					return null;
+				}
+
+				const opposingTeamIndex = getOpposingTeam(gameState.inControlTeam) - 1;
+				const opposingTeamName = gameState.teamNames[opposingTeamIndex];
+
+				return (
+					<StealAnswerSelector
+						gameAnswers={gameState.question.answers}
+						teamName={opposingTeamName}
+					/>
+				);
+			}
+			case "reveal_stolen_answer":
+				return <AfterStolenAnswerRevealButton />;
 			default:
 				return null;
 		}

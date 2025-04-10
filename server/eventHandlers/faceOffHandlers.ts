@@ -29,4 +29,14 @@ export default function registerFaceOffSocketEvents(socket: Socket<ClientToServe
       io.to(game.id).emit("receivedGameState", game.toJson());
     }
   });
+
+  socket.on("receivedStealAnswer", (answerText) => {
+    const game = gameManager.getGameBySocketId(socket.id);
+    if (!game) return;
+
+    const emitNow = game.receivedStealAnswer(answerText);
+    if (emitNow) {
+      io.to(game.id).emit("receivedGameState", game.toJson());
+    }
+  });
 }

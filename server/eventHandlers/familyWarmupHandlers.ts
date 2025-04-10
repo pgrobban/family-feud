@@ -26,7 +26,7 @@ export default function familyWarmupHandlers(socket: Socket<ClientToServerEvents
 
   socket.on("requestRevealTeamAnswers", () => updateGame(socket, (game) => game.revealTeamAnswersFamilyWarmup()));
 
-  socket.on("awardTeamPoints", () => updateGame(socket, (game) => game.awardPointsFamilyWarmup()));
+  socket.on("awardTeamPoints", () => updateGame(socket, (game) => game.awardPoints()));
 
   socket.on("requestNewQuestion", () => updateGame(socket, (game) => game.requestNewQuestion()));
 

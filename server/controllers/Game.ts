@@ -1,5 +1,6 @@
 import type {
   FaceOffGame,
+  FaceOffGameAnswer,
   FamilyWarmUpGame,
   FastMoneyGame,
   GameInProgress,
@@ -10,6 +11,7 @@ import type {
 } from "@/shared/types";
 import questions from "../../src/shared/questions.json";
 import type { Server } from "socket.io";
+import { getAnswerIndex, getOpposingTeam } from "../../src/shared/utils";
 
 const storedQuestions: StoredQuestion[] = questions;
 
@@ -36,9 +38,7 @@ export default class Game {
   }
 
   get mode() {
-    if (!this.gameState) throw new Error("Game not created yet");
-    // @ts-expect-error TODO
-    return (this as GameInProgress).gameState.mode;
+    return this.gameState.mode;
   }
 
   get question() {
@@ -58,6 +58,14 @@ export default class Game {
 
   get status() {
     return this.gameState.status;
+  }
+
+  get team1Answers() {
+    return (this.gameState as FamilyWarmUpGame).team1Answers;
+  }
+
+  get team2Answers() {
+    return (this.gameState as FamilyWarmUpGame).team2Answers;
   }
 
   get currentTeam() {
@@ -87,6 +95,8 @@ export default class Game {
       modeStatus: this.modeStatus,
       teamNames: this.teamNames,
       teamsAndPoints: this.teamsAndPoints,
+      team1Answers: this.team1Answers,
+      team2Answers: this.team2Answers,
       status: this.status,
       question: this.question,
       isStolen: this.isStolen,
@@ -247,10 +257,12 @@ export default class Game {
     team2Answers: string[]
   ) {
     if (
-      !this.validateGameStatus("family_warm_up", "gathering_team_answers") ||
-      !this.question
+      !this.validateGameStatus("family_warm_up", "gathering_team_answers")
     )
       return;
+
+    const question = this.question;
+    if (!question) return;
 
     this.updateGameState({
       team1Answers,
@@ -258,12 +270,12 @@ export default class Game {
       modeStatus: "revealing_stored_answers",
     });
 
-    this.question.answers.forEach((_, index) => {
+    question.answers.forEach((_, index) => {
       setTimeout(() => {
-        this.question!.answers[index].revealed = true;
+        question.answers[index].revealed = true;
         this.io.to(this.id).emit("answerRevealed", { index });
 
-        if (index === this.question!.answers.length - 1) {
+        if (index === question.answers.length - 1) {
           setTimeout(() => {
             this.io.to(this.id).emit("receivedGameState", this.toJson());
           }, 500);
@@ -284,11 +296,25 @@ export default class Game {
     });
   }
 
-  awardPointsFamilyWarmup() {
-    if (!this.validateGameStatus("family_warm_up", "revealing_team_answers")) {
+  awardPoints() {
+    if (!this.validateGameStatus(['family_warm_up', 'face_off'])) {
       return;
     }
 
+    if (this.mode === 'family_warm_up') {
+      if (this.modeStatus !== 'revealing_team_answers') {
+        throw new Error(`Wrong modeStatus, got: ${this.modeStatus}`)
+      }
+      this.awardPointsFamilyWarmup();
+    }
+
+    if (this.modeStatus !== 'revealing_stored_answers') {
+      throw new Error(`Wrong modeStatus, got: ${this.modeStatus}`)
+    }
+    this.awardPointsFaceOff();
+  }
+
+  awardPointsFamilyWarmup() {
     const gameState = this.gameState as GameState & FamilyWarmUpGame;
 
     if (!gameState.team1Answers || !gameState.team2Answers) {
@@ -297,13 +323,14 @@ export default class Game {
       );
     }
 
-    if (!gameState.question) {
-      throw new Error("Question is missing");
+    const { question, team1Answers, team2Answers } = this as FamilyWarmUpGame;
+    if (!question || !team1Answers || !team2Answers) {
+      throw new Error("Question or team answers is missing");
     }
 
     const calculatePoints = (teamAnswers: string[]) =>
       teamAnswers.reduce((total, answerText) => {
-        const foundAnswer = this.question!.answers.find(
+        const foundAnswer = question.answers.find(
           (a) => a.answerText === answerText
         );
         return total + (foundAnswer ? foundAnswer.points : 0);
@@ -315,7 +342,7 @@ export default class Game {
         points:
           team.points +
           calculatePoints(
-            index === 0 ? gameState.team1Answers! : gameState.team2Answers!
+            index === 0 ? team1Answers : team2Answers
           ),
       })
     );
@@ -326,7 +353,32 @@ export default class Game {
     });
   }
 
+  awardPointsFaceOff() {
+    const { question, currentTeam, isStolen } = this;
+    if (!question || !currentTeam) {
+      throw new Error("Cannot award points: missing question or currentTeam");
+    }
+
+    const answers = question.answers as FaceOffGameAnswer[];
+    const totalRevealedPoints = answers.reduce(
+      (acc, answer) => acc + (answer.revealedByControlTeam ? answer.points : 0),
+      0
+    );
+
+    const newTeamsAndPoints = [...this.teamsAndPoints];
+    const teamToAward = isStolen ? getOpposingTeam(currentTeam) : currentTeam;
+
+    newTeamsAndPoints[teamToAward - 1].points += totalRevealedPoints;
+
+    this.updateGameState({
+      teamsAndPoints: newTeamsAndPoints,
+      modeStatus: "awarding_points",
+    });
+  }
+
   requestNewQuestion() {
+    if (!this.mode || this.mode === 'indeterminate') return;
+
     const newQuestionStateProps = this.getNewQuestionState(this.mode);
     this.updateGameState(newQuestionStateProps);
   }
@@ -335,12 +387,12 @@ export default class Game {
     expectedModeOrModes: GameInProgress["mode"] | GameInProgress["mode"][],
     expectedStatusOrStatuses?: string | string[]
   ): boolean {
-    if (!this.gameState || this.gameState.status !== "in_progress") {
-      throw new Error(`Game not in progress, got: ${this.gameState?.status}`);
+    if (this.status !== "in_progress") {
+      throw new Error(`Game not in progress, got: ${this.status}`);
     }
 
     if (
-      !("mode" in this.gameState) ||
+      !this.mode ||
       (typeof expectedModeOrModes === "string" &&
         this.mode !== expectedModeOrModes) ||
       (Array.isArray(expectedModeOrModes) &&
@@ -362,7 +414,7 @@ export default class Game {
     if (
       !("modeStatus" in this.gameState) ||
       (typeof expectedStatusOrStatuses === "string" &&
-        this.gameState.modeStatus !== expectedStatusOrStatuses) ||
+        this.modeStatus !== expectedStatusOrStatuses) ||
       (Array.isArray(expectedStatusOrStatuses) &&
         !expectedStatusOrStatuses.includes(this.modeStatus))
     ) {
@@ -386,14 +438,11 @@ export default class Game {
 
     const game = this.gameState as Extract<GameState, { mode: "face_off" }>;
 
-    if (game.buzzOrder.includes(team)) return;
+    if (!game.question || game.buzzOrder.includes(team)) return;
 
     const updatedBuzzOrder = [...game.buzzOrder, team];
 
-    const answerIndex = game.question?.answers.findIndex(
-      (a) => a.answerText.toLowerCase() === answerText.toLowerCase()
-    );
-
+    const answerIndex = getAnswerIndex(game.question.answers, answerText);
     const isCorrect = answerIndex !== -1;
     const isFirstBuzz = updatedBuzzOrder.length === 1;
     const nextStatus = isFirstBuzz
@@ -401,7 +450,7 @@ export default class Game {
       : "reveal_other_buzzed_in_answer";
 
     if (isCorrect) {
-      const answer = game.question!.answers[answerIndex!];
+      const answer = game.question.answers[answerIndex];
       answer.revealed = true;
       answer.revealedByControlTeam = true;
 
@@ -484,10 +533,7 @@ export default class Game {
     const game = this.gameState as FaceOffGame;
     if (!game.question) return;
 
-    const answerIndex = game.question.answers.findIndex(
-      (a) => a.answerText.toLowerCase() === answerText.toLowerCase()
-    );
-
+    const answerIndex = getAnswerIndex(game.question.answers, answerText);
     const isCorrect = answerIndex !== -1;
 
     if (isCorrect) {
@@ -517,6 +563,45 @@ export default class Game {
     this.updateGameState({
       strikes: newStrikes,
       modeStatus: nextStatus
+    });
+    return true;
+  }
+
+  receivedStealAnswer(answerText: string) {
+    if (
+      !this.validateGameStatus("face_off", "ask_other_team_for_guess_for_steal")
+    ) {
+      return;
+    }
+
+    const game = this.gameState as FaceOffGame;
+    if (!game.question) return;
+
+    const answerIndex = getAnswerIndex(game.question.answers, answerText);
+    const isCorrect = answerIndex !== -1;
+    if (isCorrect) {
+      const answer = game.question.answers[answerIndex];
+      answer.revealed = true;
+      answer.revealedByControlTeam = true;
+
+      this.io.to(this.id).emit("answerRevealed", { index: answerIndex });
+
+      setTimeout(() => {
+        this.updateGameState({
+          question: game.question,
+          isStolen: true,
+          modeStatus: 'revealing_stored_answers'
+        });
+        this.io.to(this.id).emit("receivedGameState", this.toJson());
+      }, 800);
+
+      return;
+    }
+
+    this.io.to(this.id).emit("answerIncorrect", { strikes: 1 });
+
+    this.updateGameState({
+      modeStatus: "revealing_stored_answers"
     });
     return true;
   }

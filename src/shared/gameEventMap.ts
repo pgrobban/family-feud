@@ -23,6 +23,7 @@ export interface ClientToServerEvents {
   requestAskTeamToPlayOrPass: () => void;
   receivedPlayOrPass: (choice: 'play' | 'pass') => void;
   receivedAnswer: (answerText: string) => void;
+  receivedStealAnswer: (answerText: string) => void;
 }
 
 export interface ServerToClientEvents {

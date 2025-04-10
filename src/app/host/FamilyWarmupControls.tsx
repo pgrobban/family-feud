@@ -4,6 +4,8 @@ import QuestionPicker from "./QuestionPicker";
 import type { GameState } from "@/shared/types";
 import { Button } from "@mui/material";
 import TeamAnswerSelector from "./TeamAnswerSelector";
+import QuestionOverControls from "./QuestionOverControls";
+import AwardPointsButton from "./AwardPointsButton";
 
 export default function FamilyWarmupControls({
 	gameState,
@@ -22,8 +24,6 @@ export default function FamilyWarmupControls({
 	const requestTeamAnswers = () => socket?.emit("hostRequestedTeamAnswers");
 	const requestRevealTeamAnswers = () =>
 		socket?.emit("requestRevealTeamAnswers");
-	const requestAwardPoints = () => socket?.emit("awardTeamPoints");
-	const requestNewQuestion = () => socket?.emit("requestNewQuestion");
 
 	switch (gameState.modeStatus) {
 		case "waiting_for_question":
@@ -56,24 +56,8 @@ export default function FamilyWarmupControls({
 				</Button>
 			);
 		case "revealing_team_answers":
-			return (
-				<Button
-					variant="contained"
-					color="primary"
-					onClick={requestAwardPoints}
-				>
-					Award points
-				</Button>
-			);
+			return <AwardPointsButton />;
 		case "awarding_points":
-			return (
-				<Button
-					variant="contained"
-					color="primary"
-					onClick={requestNewQuestion}
-				>
-					New question
-				</Button>
-			);
+			return <QuestionOverControls />;
 	}
 }
