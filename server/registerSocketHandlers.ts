@@ -3,13 +3,13 @@ import type { Server, Socket } from "socket.io";
 import type GameManager from "./controllers/GameManager";
 import familyWarmupHandlers from './eventHandlers/familyWarmupHandlers';
 import faceOffHandlers from './eventHandlers/faceOffHandlers';
-import { makeUpdateGame } from "./eventHandlers/helpers";
+import bindUpdateGame from "./eventHandlers/bindUpdateGame";
 import type { GameState } from "@/shared/types";
 
 
 export default function registerSocketHandlers(socket: Socket<ClientToServerEvents, ServerToClientEvents>, io: Server, gameManager: GameManager) {
 
-  const updateGame = makeUpdateGame(io, gameManager);
+  const updateGame = bindUpdateGame(socket, io, gameManager);
 
   socket.on("createGame", (teamNames) => {
     gameManager.createGame(socket.id, teamNames);
@@ -23,9 +23,9 @@ export default function registerSocketHandlers(socket: Socket<ClientToServerEven
 
   socket.on("requestGames", () => socket.emit("receivedGames", gameManager.getAllGames() as GameState[]));
 
-  socket.on("requestGameState", () => updateGame(socket, (game) => game));
+  socket.on("requestGameState", () => updateGame((game) => game));
 
-  socket.on("modePicked", (mode) => updateGame(socket, (game) => game.hostPickedMode(mode)));
+  socket.on("modePicked", (mode) => updateGame((game) => game.hostPickedMode(mode)));
 
   familyWarmupHandlers(socket, io, gameManager);
   faceOffHandlers(socket, io, gameManager);

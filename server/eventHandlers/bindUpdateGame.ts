@@ -2,11 +2,8 @@ import type { Server, Socket } from "socket.io";
 import type Game from "../controllers/Game";
 import type GameManager from "../controllers/GameManager";
 
-export function makeUpdateGame(io: Server, gameManager: GameManager) {
-  return function updateGame(
-    socket: Socket,
-    updateFn: (game: Game) => void
-  ): void {
+export default function bindUpdateGame(socket: Socket, io: Server, gameManager: GameManager) {
+  return function updateGame(updateFn: (game: Game) => void): void {
     const game = gameManager.getGameBySocketId(socket.id);
     if (!game) return;
 

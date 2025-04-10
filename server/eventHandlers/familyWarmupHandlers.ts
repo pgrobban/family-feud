@@ -1,12 +1,12 @@
 import type { ClientToServerEvents, ServerToClientEvents } from "@/shared/gameEventMap";
 import type { Server, Socket } from "socket.io";
 import type GameManager from "../controllers/GameManager";
-import { makeUpdateGame } from "./helpers";
+import bindUpdateGame from "./bindUpdateGame";
 
 export default function familyWarmupHandlers(socket: Socket<ClientToServerEvents, ServerToClientEvents>, io: Server, gameManager: GameManager) {
-  const updateGame = makeUpdateGame(io, gameManager);
+  const updateGame = bindUpdateGame(socket, io, gameManager);
 
-  socket.on("questionPicked", (question) => updateGame(socket, (game) => game.hostPickedQuestionForCurrentMode(question)));
+  socket.on("questionPicked", (question) => updateGame((game) => game.hostPickedQuestionForCurrentMode(question)));
 
   socket.on("joinHost", (gameId) => {
     const game = gameManager.getGame(gameId);
@@ -18,17 +18,17 @@ export default function familyWarmupHandlers(socket: Socket<ClientToServerEvents
     }
   });
 
-  socket.on("questionOrModeCancelled", () => updateGame(socket, (game) => game.cancelQuestionOrMode()));
+  socket.on("questionOrModeCancelled", () => updateGame((game) => game.cancelQuestionOrMode()));
 
-  socket.on("hostRequestedTeamAnswers", () => updateGame(socket, (game) => game.hostRequestedTeamAnswers()));
+  socket.on("hostRequestedTeamAnswers", () => updateGame((game) => game.hostRequestedTeamAnswers()));
 
-  socket.on("hostGatheredTeamAnswers", (team1Answers, team2Answers) => updateGame(socket, (game) => game.hostGatheredTeamAnswersFamilyWarmup(team1Answers, team2Answers)));
+  socket.on("hostGatheredTeamAnswers", (team1Answers, team2Answers) => updateGame((game) => game.hostGatheredTeamAnswersFamilyWarmup(team1Answers, team2Answers)));
 
-  socket.on("requestRevealTeamAnswers", () => updateGame(socket, (game) => game.revealTeamAnswersFamilyWarmup()));
+  socket.on("requestRevealTeamAnswers", () => updateGame((game) => game.revealTeamAnswersFamilyWarmup()));
 
-  socket.on("awardTeamPoints", () => updateGame(socket, (game) => game.awardPoints()));
+  socket.on("awardTeamPoints", () => updateGame((game) => game.awardPoints()));
 
-  socket.on("requestNewQuestion", () => updateGame(socket, (game) => game.requestNewQuestion()));
+  socket.on("requestNewQuestion", () => updateGame((game) => game.requestNewQuestion()));
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");
