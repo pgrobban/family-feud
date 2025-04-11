@@ -12,6 +12,8 @@ export interface ClientToServerEvents {
   requestNewQuestion: () => void;
   reconnect: (payload: { oldSocketId: string }) => void;
   hostRequestedQuit: () => void;
+  requestStartTimer: (seconds: number) => void;
+  requestCancelTimer: () => void;
 
   // family warmup events
   hostRequestedTeamAnswers: () => void;
@@ -36,4 +38,6 @@ export interface ServerToClientEvents {
   answerRevealed: (payload: { index: number }) => void;
   answerIncorrect: (payload: { strikes: number }) => void;
   hostLeft: () => void;
+  timerStarted: (seconds: number) => void;
+  timerCancelled: () => void;
 }

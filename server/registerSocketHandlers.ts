@@ -39,7 +39,6 @@ export default function registerSocketHandlers(socket: Socket<ClientToServerEven
   socket.on("requestEndGame", () => updateGame((game) => game.endGame()));
   socket.on('hostRequestedQuit', () => {
     const game = gameManager.getGameBySocketId(socket.id);
-    const room = io.sockets.adapter.rooms.get(game?.id || "");
     if (game) {
       socket.leave(game.id);
       socket.broadcast.to(game.id).emit("hostLeft");
@@ -67,6 +66,9 @@ export default function registerSocketHandlers(socket: Socket<ClientToServerEven
       );
     }
   });
+
+  socket.on('requestStartTimer', (seconds) => updateGame((game) => io.to(game.id).emit('timerStarted', seconds)));
+  socket.on('requestCancelTimer', () => updateGame((game) => io.to(game.id).emit('timerCancelled')));
 
   familyWarmupHandlers(socket, io, gameManager);
   faceOffHandlers(socket, io, gameManager);

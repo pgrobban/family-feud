@@ -8,13 +8,12 @@ export default function GameBoardWithScores({
 	gameState: GameState;
 }) {
 	return (
-		<Box>
+		<Box mb={2}>
 			<Box
 				display={"flex"}
 				justifyContent={"space-between"}
 				alignItems={"stretch"}
 				height={900}
-				padding={2}
 			>
 				<Box width={220} flex={"0 0 220px"}>
 					<Box

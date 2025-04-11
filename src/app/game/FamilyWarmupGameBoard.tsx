@@ -5,6 +5,9 @@ import type { GameState, FamilyWarmUpGame } from "@/shared/types";
 import AnswerCardWithTeamPoints from "./AnswerCardWithTeamPoints";
 import TotalPointsBox from "./TotalPointsBox";
 import LogoAndRoundBox from "./LogoAndRoundBox";
+import { useEffect, useState } from "react";
+import CircularCountdownOverlay from "./CircularCOuntdownTimer";
+import useSocket from "@/hooks/useSocket";
 
 const sideBoxStyles = {
 	mt: 1,
@@ -23,6 +26,22 @@ export default function FamilyWarmupGameBoard({
 }: {
 	gameState: GameState & FamilyWarmUpGame;
 }) {
+	const [timerSeconds, setTimerSeconds] = useState(0);
+	const socket = useSocket();
+
+	useEffect(() => {
+		const onTimerStarted = (seconds: number) => setTimerSeconds(seconds);
+		const onTimerCancelled = () => setTimerSeconds(0);
+
+		socket?.on("timerStarted", onTimerStarted);
+		socket?.on("timerCancelled", onTimerCancelled);
+
+		return () => {
+			socket?.off("timerStarted", onTimerStarted);
+			socket?.off("timerCancelled", onTimerCancelled);
+		};
+	});
+
 	if (
 		gameState.status !== "in_progress" ||
 		gameState.mode !== "family_warm_up"
@@ -39,7 +58,19 @@ export default function FamilyWarmupGameBoard({
 	}
 
 	return (
-		<Box p={2}>
+		<Box
+			p={2}
+			sx={{
+				position: "relative", // Ensure the overlay and question text are positioned relative to this container
+			}}
+		>
+			{timerSeconds > 0 && (
+				<CircularCountdownOverlay
+					seconds={timerSeconds}
+					onComplete={() => setTimerSeconds(0)}
+				/>
+			)}
+
 			<Box
 				sx={{
 					background: "linear-gradient(to bottom, #3964c9, #1b2d6d)",
@@ -53,12 +84,14 @@ export default function FamilyWarmupGameBoard({
 					mb: 3,
 					p: 2,
 					textTransform: "uppercase",
+					zIndex: 100,
+					position: "relative",
 				}}
 			>
 				<Typography variant="h5">{gameState.question.questionText}</Typography>
 			</Box>
 
-			<Box>
+			<Box sx={{ opacity: timerSeconds ? 0.4 : 1.0 }}>
 				<Box
 					sx={{
 						display: "flex",

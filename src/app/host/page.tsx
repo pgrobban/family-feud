@@ -42,34 +42,32 @@ export default function Host() {
 		return <Box>Connecting...</Box>;
 	}
 	return (
-		<>
+		<Box>
 			<Box>
-				<Box mb={2}>
-					<GameBoardWithScores gameState={gameState} />
-				</Box>
-				{gameState.mode === "indeterminate" && <GameModePicker />}
-				<FamilyWarmupControls
-					gameState={gameState as GameState & FamilyWarmUpGame}
-				/>
-				<FaceOffControls gameState={gameState as GameState & FaceOffGame} />
-				{gameState.status === "in_progress" &&
-					gameState.mode !== "indeterminate" && (
-						<Box mt={10}>
-							<Button
-								onClick={cancelQuestion}
-								variant="contained"
-								color="secondary"
-							>
-								Cancel question
-							</Button>
-						</Box>
-					)}
-				<Box mt={10}>
-					<Button onClick={quitGame} variant="contained" color="secondary">
-						Quit game
-					</Button>
-				</Box>
+				<GameBoardWithScores gameState={gameState} />
 			</Box>
-		</>
+			{gameState.mode === "indeterminate" && <GameModePicker />}
+			<FamilyWarmupControls
+				gameState={gameState as GameState & FamilyWarmUpGame}
+			/>
+			<FaceOffControls gameState={gameState as GameState & FaceOffGame} />
+			{gameState.status === "in_progress" &&
+				gameState.mode !== "indeterminate" && (
+					<Box mt={10}>
+						<Button
+							onClick={cancelQuestion}
+							variant="contained"
+							color="secondary"
+						>
+							Cancel question
+						</Button>
+					</Box>
+				)}
+			<Box mt={10}>
+				<Button onClick={quitGame} variant="contained" color="secondary">
+					Quit game
+				</Button>
+			</Box>
+		</Box>
 	);
 }
