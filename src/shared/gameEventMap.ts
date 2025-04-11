@@ -11,6 +11,7 @@ export interface ClientToServerEvents {
   joinHost: (gameId: string) => void;
   requestNewQuestion: () => void;
   reconnect: (payload: { oldSocketId: string }) => void;
+  hostRequestedQuit: () => void;
 
   // family warmup events
   hostRequestedTeamAnswers: () => void;
@@ -34,4 +35,5 @@ export interface ServerToClientEvents {
   receivedGames: (games: GameState[]) => void;
   answerRevealed: (payload: { index: number }) => void;
   answerIncorrect: (payload: { strikes: number }) => void;
+  hostLeft: () => void;
 }

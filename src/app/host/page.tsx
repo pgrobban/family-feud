@@ -20,21 +20,21 @@ export default function Host() {
 			return;
 		}
 
-		const handleGameState = (gameState: GameState | null) =>
+		const handleReceivedGameState = (gameState: GameState | null) =>
 			setGameState(gameState);
 
 		socket.emit("requestGameState");
-		socket.on("receivedGameState", handleGameState);
+		socket.on("receivedGameState", handleReceivedGameState);
 
 		return () => {
-			socket.off("receivedGameState", handleGameState);
+			socket.off("receivedGameState", handleReceivedGameState);
 		};
 	}, [socket]);
 
 	const cancelQuestion = () => socket?.emit("questionOrModeCancelled");
 
 	const quitGame = () => {
-		socket?.disconnect();
+		socket?.emit("hostRequestedQuit");
 		router.push("/join");
 	};
 

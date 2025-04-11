@@ -50,7 +50,7 @@ export default function Create() {
 								variant="contained"
 								color="primary"
 								onClick={() => onJoin(id)}
-								disabled={gameSelected}
+								disabled={gameSelected || status === "finished"}
 							>
 								Join
 							</Button>

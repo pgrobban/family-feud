@@ -8,7 +8,7 @@ import type { GameState } from "@/shared/types";
 import fastMoneyHandlers from "./eventHandlers/fastMoneyGameHandlers";
 
 
-export default function registerSocketHandlers(socket: Socket<ClientToServerEvents, ServerToClientEvents>, io: Server, gameManager: GameManager) {
+export default function registerSocketHandlers(socket: Socket<ClientToServerEvents, ServerToClientEvents>, io: Server<ServerToClientEvents>, gameManager: GameManager) {
 
   const updateGame = bindUpdateGame(socket, io, gameManager);
 
@@ -17,8 +17,19 @@ export default function registerSocketHandlers(socket: Socket<ClientToServerEven
     const game = gameManager.getGameBySocketId(socket.id);
     if (game) {
       socket.join(game.id);
-      io.to(game.id).emit("gameCreated", game.toJson());
-      io.emit("receivedGames", gameManager.getAllGames());
+      io.to(game.id).emit("gameCreated", game.toJson() as GameState);
+      io.emit("receivedGames", gameManager.getAllGames() as GameState[]);
+    }
+  });
+
+  socket.on("joinHost", (gameId) => {
+    const game = gameManager.getGame(gameId);
+    if (game) {
+      game.joinHost(socket.id);
+      socket.join(game.id);
+      const state = game.toJson() as GameState;
+      io.to(game.id).emit("hostJoined", state);
+      io.to(game.id).emit("receivedGameState", state);
     }
   });
 
@@ -26,6 +37,36 @@ export default function registerSocketHandlers(socket: Socket<ClientToServerEven
   socket.on("requestGameState", () => updateGame((game) => game));
   socket.on("modePicked", (mode) => updateGame((game) => game.hostPickedMode(mode)));
   socket.on("requestEndGame", () => updateGame((game) => game.endGame()));
+  socket.on('hostRequestedQuit', () => {
+    const game = gameManager.getGameBySocketId(socket.id);
+    const room = io.sockets.adapter.rooms.get(game?.id || "");
+    if (game) {
+      socket.leave(game.id);
+      socket.broadcast.to(game.id).emit("hostLeft");
+    }
+  })
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+  socket.on("reconnect", (payload) => {
+    const { oldSocketId } = payload;
+
+    const game = gameManager.getGameBySocketId(oldSocketId);
+    if (game) {
+      console.log(`Updating socket ID from ${oldSocketId} to ${socket.id}`);
+
+      // @ts-expect-error TODO
+      game.playerSocketIds = game.playerSocketIds.map((id) =>
+        id === oldSocketId ? socket.id : id
+      );
+
+      // @ts-expect-error TODO
+      game.hostSocketIds = game.hostSocketIds.map((id) =>
+        id === oldSocketId ? socket.id : id
+      );
+    }
+  });
 
   familyWarmupHandlers(socket, io, gameManager);
   faceOffHandlers(socket, io, gameManager);
