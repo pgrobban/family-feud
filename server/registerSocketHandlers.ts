@@ -23,10 +23,9 @@ export default function registerSocketHandlers(socket: Socket<ClientToServerEven
   });
 
   socket.on("requestGames", () => socket.emit("receivedGames", gameManager.getAllGames() as GameState[]));
-
   socket.on("requestGameState", () => updateGame((game) => game));
-
   socket.on("modePicked", (mode) => updateGame((game) => game.hostPickedMode(mode)));
+  socket.on("requestEndGame", () => updateGame((game) => game.endGame()));
 
   familyWarmupHandlers(socket, io, gameManager);
   faceOffHandlers(socket, io, gameManager);

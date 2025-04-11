@@ -317,6 +317,7 @@ export default class Game {
         throw new Error(`Wrong modeStatus, got: ${this.modeStatus}`)
       }
       this.awardPointsFamilyWarmup();
+      return;
     }
 
     if (this.modeStatus !== 'revealing_stored_answers') {
@@ -392,6 +393,12 @@ export default class Game {
 
     const newQuestionStateProps = this.getNewQuestionState(this.mode);
     this.updateGameState(newQuestionStateProps);
+  }
+
+  endGame() {
+    this.updateGameState({
+      status: 'finished'
+    })
   }
 
   private validateGameStatus(

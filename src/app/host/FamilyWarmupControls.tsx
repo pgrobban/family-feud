@@ -12,6 +12,7 @@ export default function FamilyWarmupControls({
 }: {
 	gameState: GameState;
 }) {
+	console.log("***", gameState);
 	const socket = useSocket();
 
 	if (

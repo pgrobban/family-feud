@@ -18,11 +18,13 @@ export default function FaceOffControls({
 	gameState: GameState & FaceOffGame;
 }) {
 	const getControls = useCallback(() => {
+		if (gameState.modeStatus === "waiting_for_question") {
+			return <QuestionPicker />;
+		}
+
 		if (!gameState.question) {
 			return null;
 		}
-
-		console.log("***", gameState);
 
 		switch (gameState.modeStatus) {
 			case "face_off_started":
@@ -78,8 +80,6 @@ export default function FaceOffControls({
 					/>
 				);
 			}
-			case "reveal_stolen_answer":
-				return null;
 			default:
 				return null;
 		}
@@ -87,10 +87,6 @@ export default function FaceOffControls({
 
 	if (gameState?.status !== "in_progress" || gameState?.mode !== "face_off") {
 		return null;
-	}
-
-	if (gameState.modeStatus === "waiting_for_question") {
-		return <QuestionPicker />;
 	}
 
 	return (

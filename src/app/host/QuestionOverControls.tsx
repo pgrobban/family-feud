@@ -5,6 +5,7 @@ export default function QuestionOverControls() {
 	const socket = useSocket();
 	const requestNewQuestion = () => socket?.emit("requestNewQuestion");
 	const requestNewGameMode = () => socket?.emit("questionOrModeCancelled");
+	const requestEndGame = () => socket?.emit("requestEndGame");
 
 	return (
 		<Box>
@@ -19,6 +20,11 @@ export default function QuestionOverControls() {
 				<Grid>
 					<Button variant="contained" onClick={requestNewGameMode}>
 						New game mode
+					</Button>
+				</Grid>
+				<Grid>
+					<Button variant="contained" onClick={requestEndGame}>
+						End game & declare winner
 					</Button>
 				</Grid>
 			</Grid>

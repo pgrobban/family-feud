@@ -4,6 +4,7 @@ export interface ClientToServerEvents {
   createGame: (teamNames: string[]) => void;
   requestGames: () => void;
   requestGameState: () => void;
+  requestEndGame: () => void;
   modePicked: (mode: Exclude<GameInProgress["mode"], "indeterminate">) => void;
   questionOrModeCancelled: () => void;
   questionPicked: (question: string) => void;
