@@ -88,6 +88,18 @@ export default class Game {
     return (this.gameState as FaceOffGame).strikes;
   }
 
+  get answeringTeam() {
+    return (this.gameState as FastMoneyGame).answeringTeam;
+  }
+
+  get fastMoneyResponses() {
+    return (this.gameState as FastMoneyGame).fastMoneyResponses;
+  }
+
+  get stolenQuestionAndAnswer() {
+    return (this.gameState as FastMoneyGame).stolenQuestionAndAnswer;
+  }
+
   toJson() {
     const serializableState = {
       id: this.id,
@@ -168,15 +180,14 @@ export default class Game {
           strikes: 0,
           currentTeam: null,
         } as FaceOffGame;
-      case "fast_money":
+      case "fast_money": {
+        const answeringTeamIndex = this.teamsAndPoints.findIndex(team => team.points === Math.max(...this.teamsAndPoints.map(t => t.points)));
         return {
           mode,
           modeStatus: "waiting_for_questions",
-          questions: [],
-          answersTeam1: [],
-          answersTeam2: [],
-          currentTeam: 0,
+          answeringTeam: answeringTeamIndex + 1
         } as FastMoneyGame;
+      }
     }
   }
 

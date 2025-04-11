@@ -76,13 +76,17 @@ export interface FaceOffGame {
 export interface FastMoneyGame {
   mode: "fast_money";
   modeStatus:
-  | "waiting_for_questions"
-  | "questions_in_progress"
-  | "revealing_answers";
+  | "waiting_for_questions" // host picks questions
+  | "questions_in_progress" // member of team 1 answers
+  | "revealing_questions_and_answers" // reveal the questions and what the answers were. if < 200, don't reveal the answer points. go to request_steal_question_and_answer, otherwise reveal_points
+  | "request_steal_question_and_answer" // opposing team picks a question and answer to steal
+  | "reveal_points" // reveal the individual question points + steal
+  | "award_points" // award points to the team that had 200 or more points, or the team that stole
   currentTeam: number;
   questions: GameQuestion[];
-  answersTeam1: string[];
-  answersTeam2: string[];
+  answeringTeam: 1 | 2;
+  fastMoneyResponses: { text: string; points?: number }[];
+  stolenQuestionAndAnswer?: { questionIndex: number, answerText: string };
 }
 
 export interface TeamAndPoints {

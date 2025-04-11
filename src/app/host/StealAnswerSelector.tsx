@@ -13,7 +13,7 @@ export default function StealAnswerSelector({
 
 	return (
 		<Box>
-			<Typography>Select {teamName}'s answer to steal</Typography>
+			<Typography>Select {teamName}&apos;s answer to steal</Typography>
 			<StoredAnswerSelector
 				storedAnswers={gameAnswers}
 				disabled={(answerText) =>

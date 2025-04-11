@@ -64,10 +64,6 @@ export default function FaceOffGameBoard({
 }: {
 	gameState: GameState & FaceOffGame;
 }) {
-	if (gameState.status !== "in_progress" || gameState.mode !== "face_off") {
-		return null;
-	}
-
 	const [animateStrikes, setAnimateStrikes] = useState(0);
 	const socket = useSocket();
 
@@ -86,6 +82,10 @@ export default function FaceOffGameBoard({
 			socket.off("answerIncorrect", onAnswerIncorrect);
 		};
 	}, [socket]);
+
+	if (gameState.status !== "in_progress" || gameState.mode !== "face_off") {
+		return null;
+	}
 
 	if (gameState.modeStatus === "waiting_for_question") {
 		return (

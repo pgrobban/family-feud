@@ -79,7 +79,7 @@ export default function FaceOffControls({
 				);
 			}
 			case "reveal_stolen_answer":
-				return <AfterStolenAnswerRevealButton />;
+				return null;
 			default:
 				return null;
 		}

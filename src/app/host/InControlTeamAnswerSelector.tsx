@@ -13,7 +13,7 @@ export default function InControlTeamAnswerSelector({
 
 	return (
 		<Box>
-			<Typography>Select {teamName}'s answer</Typography>
+			<Typography>Select {teamName}&apos;s answer</Typography>
 			<StoredAnswerSelector
 				storedAnswers={gameAnswers}
 				disabled={(answerText) =>

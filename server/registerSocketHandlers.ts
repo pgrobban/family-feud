@@ -5,6 +5,7 @@ import familyWarmupHandlers from './eventHandlers/familyWarmupHandlers';
 import faceOffHandlers from './eventHandlers/faceOffHandlers';
 import bindUpdateGame from "./eventHandlers/bindUpdateGame";
 import type { GameState } from "@/shared/types";
+import fastMoneyHandlers from "./eventHandlers/fastMoneyGameHandlers";
 
 
 export default function registerSocketHandlers(socket: Socket<ClientToServerEvents, ServerToClientEvents>, io: Server, gameManager: GameManager) {
@@ -29,4 +30,5 @@ export default function registerSocketHandlers(socket: Socket<ClientToServerEven
 
   familyWarmupHandlers(socket, io, gameManager);
   faceOffHandlers(socket, io, gameManager);
+  fastMoneyHandlers(socket, io, gameManager);
 }

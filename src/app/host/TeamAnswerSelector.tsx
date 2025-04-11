@@ -1,7 +1,7 @@
 "use client";
 import useSocket from "@/hooks/useSocket";
 import type { StoredAnswer } from "@/shared/types";
-import { Box, Button, Grid, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { useState } from "react";
 import StoredAnswerSelector from "./StoredAnswerSelector";
 
@@ -49,9 +49,12 @@ export default function TeamAnswerSelector({
 		} else {
 			newTeamAnswers.push(answerText);
 		}
-		teamNumber === 1
-			? setTeam1Answers(newTeamAnswers)
-			: setTeam2Answers(newTeamAnswers);
+
+		if (teamNumber === 1) {
+			setTeam1Answers(newTeamAnswers);
+		} else {
+			setTeam2Answers(newTeamAnswers);
+		}
 	};
 
 	return (
