@@ -1,16 +1,27 @@
-import type { ClientToServerEvents, ServerToClientEvents } from "@/shared/gameEventMap";
+import type {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from "@/shared/gameEventMap";
 import { useEffect, useState } from "react";
 import { io, type Socket } from "socket.io-client";
+
+const SOCKET_IO_PORT = process.env.NEXT_PUBLIC_SOCKET_IO_PORT;
+
+console.log("***", SOCKET_IO_PORT);
 
 // Store the socket instance outside of the component scope
 let socketInstance: Socket<ClientToServerEvents> | null = null;
 
-export default function useSocket(): Socket<ClientToServerEvents & ServerToClientEvents> | null {
+export default function useSocket(): Socket<
+  ClientToServerEvents & ServerToClientEvents
+> | null {
   const [socket, setSocket] = useState<Socket | null>(socketInstance);
 
   useEffect(() => {
     if (!socketInstance) {
-      socketInstance = io("http://localhost:3002");
+      socketInstance = io(
+        `http://${window.location.hostname}:${SOCKET_IO_PORT}`
+      );
 
       socketInstance.on("connect", () => {
         console.log("✅ Connected to Socket.IO server:", socketInstance!.id);

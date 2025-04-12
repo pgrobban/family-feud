@@ -21,13 +21,8 @@ export default function RootLayout({
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            <Box
-              border={"1px solid #ccc"}
-              margin={"0 auto"}
-              width={1400}
-              height={900}
-            >
-              <Box>{children}</Box>
+            <Box margin={"0 auto"} width={1400} height={900}>
+              <Box mt={2}>{children}</Box>
               <Box position={"fixed"} right={30} bottom={20}>
                 &copy; pgrobban
               </Box>

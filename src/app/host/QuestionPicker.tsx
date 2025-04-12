@@ -5,7 +5,7 @@ import type { StoredQuestion } from "@/shared/types";
 import useSocket from "@/hooks/useSocket";
 const storedQuestions: StoredQuestion[] = questions;
 
-export default function GameModePicker() {
+export default function QuestionPicker() {
   const socket = useSocket();
   const onQuestionPicked = (questionText: string) =>
     socket?.emit("questionPicked", questionText);

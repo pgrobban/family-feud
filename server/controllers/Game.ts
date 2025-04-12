@@ -69,7 +69,7 @@ export default class Game {
   }
 
   get currentTeam() {
-    return (this.gameState as FaceOffGame).currentTeam;
+    return (this.gameState as FaceOffGame | FastMoneyGame).currentTeam;
   }
 
   get inControlTeam() {
@@ -88,16 +88,16 @@ export default class Game {
     return (this.gameState as FaceOffGame).strikes;
   }
 
-  get answeringTeam() {
-    return (this.gameState as FastMoneyGame).answeringTeam;
+  get questions() {
+    return (this.gameState as FastMoneyGame).questions;
   }
 
-  get fastMoneyResponses() {
-    return (this.gameState as FastMoneyGame).fastMoneyResponses;
+  get fastMoneyResponsesFirstTeam() {
+    return (this.gameState as FastMoneyGame).responsesFirstTeam;
   }
 
-  get stolenQuestionAndAnswer() {
-    return (this.gameState as FastMoneyGame).stolenQuestionAndAnswer;
+  get fastMoneyResponsesSecondTeam() {
+    return (this.gameState as FastMoneyGame).responsesSecondTeam;
   }
 
   toJson() {
@@ -111,11 +111,14 @@ export default class Game {
       team2Answers: this.team2Answers,
       status: this.status,
       question: this.question,
+      questions: this.questions,
       isStolen: this.isStolen,
       buzzOrder: this.buzzOrder,
       currentTeam: this.currentTeam,
       inControlTeam: this.inControlTeam,
-      strikes: this.strikes
+      strikes: this.strikes,
+      fastMoneyResponsesFirstTeam: this.fastMoneyResponsesFirstTeam,
+      fastMOneyResponsesSecondTeam: this.fastMoneyResponsesSecondTeam,
     };
 
     return serializableState;
@@ -181,11 +184,18 @@ export default class Game {
           currentTeam: null,
         } as FaceOffGame;
       case "fast_money": {
-        const answeringTeamIndex = this.teamsAndPoints.findIndex(team => team.points === Math.max(...this.teamsAndPoints.map(t => t.points)));
+        const firstTeamToAnswerIndex = this.teamsAndPoints.findIndex(
+          (team) =>
+            team.points ===
+            Math.max(...this.teamsAndPoints.map((t) => t.points))
+        );
         return {
           mode,
           modeStatus: "waiting_for_questions",
-          answeringTeam: answeringTeamIndex + 1
+          questions: [],
+          currentTeam: firstTeamToAnswerIndex + 1,
+          responsesFirstTeam: undefined,
+          responsesSecondTeam: undefined,
         } as FastMoneyGame;
       }
     }
@@ -238,6 +248,40 @@ export default class Game {
     });
   }
 
+  hostPickedFastMoneyQuestions(questionTexts: string[]) {
+    if (!this.validateGameStatus("fast_money", "waiting_for_questions")) {
+      return;
+    }
+
+    if (!questionTexts.length || questionTexts.length !== 5) {
+      throw new Error(
+        "Invalid number of questions, Expected 5, got: " + questionTexts.length
+      );
+    }
+
+    const questions = questionTexts.map((questionText) => {
+      const stored = storedQuestions.find(
+        ({ questionText: storedQuestionText }) =>
+          storedQuestionText === questionText
+      );
+      if (!stored) {
+        throw new Error(`Question not found: ${questionText}.`);
+      }
+      return {
+        ...stored,
+        answers: stored.answers.map((answer) => ({
+          ...answer,
+          revealed: false,
+        })),
+      };
+    });
+
+    this.updateGameState({
+      questions,
+      modeStatus: "questions_in_progress",
+    });
+  }
+
   revealTeamAnswersFamilyWarmup() {
     if (
       !this.validateGameStatus("family_warm_up", "revealing_stored_answers")
@@ -267,9 +311,7 @@ export default class Game {
     team1Answers: string[],
     team2Answers: string[]
   ) {
-    if (
-      !this.validateGameStatus("family_warm_up", "gathering_team_answers")
-    )
+    if (!this.validateGameStatus("family_warm_up", "gathering_team_answers"))
       return;
 
     const question = this.question;
@@ -308,20 +350,20 @@ export default class Game {
   }
 
   awardPoints() {
-    if (!this.validateGameStatus(['family_warm_up', 'face_off'])) {
+    if (!this.validateGameStatus(["family_warm_up", "face_off"])) {
       return;
     }
 
-    if (this.mode === 'family_warm_up') {
-      if (this.modeStatus !== 'revealing_team_answers') {
-        throw new Error(`Wrong modeStatus, got: ${this.modeStatus}`)
+    if (this.mode === "family_warm_up") {
+      if (this.modeStatus !== "revealing_team_answers") {
+        throw new Error(`Wrong modeStatus, got: ${this.modeStatus}`);
       }
       this.awardPointsFamilyWarmup();
       return;
     }
 
-    if (this.modeStatus !== 'revealing_stored_answers') {
-      throw new Error(`Wrong modeStatus, got: ${this.modeStatus}`)
+    if (this.modeStatus !== "revealing_stored_answers") {
+      throw new Error(`Wrong modeStatus, got: ${this.modeStatus}`);
     }
     this.awardPointsFaceOff();
   }
@@ -353,9 +395,7 @@ export default class Game {
         ...team,
         points:
           team.points +
-          calculatePoints(
-            index === 0 ? team1Answers : team2Answers
-          ),
+          calculatePoints(index === 0 ? team1Answers : team2Answers),
       })
     );
 
@@ -389,7 +429,7 @@ export default class Game {
   }
 
   requestNewQuestion() {
-    if (!this.mode || this.mode === 'indeterminate') return;
+    if (!this.mode || this.mode === "indeterminate") return;
 
     const newQuestionStateProps = this.getNewQuestionState(this.mode);
     this.updateGameState(newQuestionStateProps);
@@ -397,8 +437,8 @@ export default class Game {
 
   endGame() {
     this.updateGameState({
-      status: 'finished'
-    })
+      status: "finished",
+    });
   }
 
   private validateGameStatus(
@@ -444,12 +484,12 @@ export default class Game {
     return true;
   }
 
-  submitBuzzInAnswer(
-    team: 1 | 2,
-    answerText: string
-  ) {
+  submitBuzzInAnswer(team: 1 | 2, answerText: string) {
     if (
-      !this.validateGameStatus("face_off", ["face_off_started", "getting_other_buzzed_in_answer"])
+      !this.validateGameStatus("face_off", [
+        "face_off_started",
+        "getting_other_buzzed_in_answer",
+      ])
     ) {
       return;
     }
@@ -500,32 +540,33 @@ export default class Game {
   requestOtherTeamToBuzzInAnswer() {
     this.updateGameState({
       currentTeam: (this.gameState as FaceOffGame).currentTeam === 1 ? 2 : 1,
-      modeStatus: 'getting_other_buzzed_in_answer'
-    })
+      modeStatus: "getting_other_buzzed_in_answer",
+    });
   }
 
   requestAskTeamToPlayOrPass() {
     if (
-      !this.validateGameStatus("face_off", ["reveal_buzzed_in_answer", "reveal_other_buzzed_in_answer"])
+      !this.validateGameStatus("face_off", [
+        "reveal_buzzed_in_answer",
+        "reveal_other_buzzed_in_answer",
+      ])
     ) {
       return;
     }
 
     this.updateGameState({
-      modeStatus: 'team_asked_to_play'
+      modeStatus: "team_asked_to_play",
     });
   }
 
-  receivedPlayOrPass(choice: 'play' | 'pass') {
-    if (
-      !this.validateGameStatus("face_off", ["team_asked_to_play"])
-    ) {
+  receivedPlayOrPass(choice: "play" | "pass") {
+    if (!this.validateGameStatus("face_off", ["team_asked_to_play"])) {
       return;
     }
 
     const typedState = this.gameState as FaceOffGame;
     if (!typedState.currentTeam) {
-      throw new Error('No current team!');
+      throw new Error("No current team!");
     }
 
     let inControlTeam: 1 | 2;
@@ -537,14 +578,12 @@ export default class Game {
 
     this.updateGameState({
       inControlTeam,
-      modeStatus: 'in_control_team_guesses'
-    })
+      modeStatus: "in_control_team_guesses",
+    });
   }
 
   receivedFaceOffAnswer(answerText: string) {
-    if (
-      !this.validateGameStatus("face_off", "in_control_team_guesses")
-    ) {
+    if (!this.validateGameStatus("face_off", "in_control_team_guesses")) {
       return;
     }
 
@@ -558,15 +597,19 @@ export default class Game {
       const answer = game.question.answers[answerIndex];
       answer.revealed = true;
       answer.revealedByControlTeam = true;
-      const allAnswersFound = game.question.answers.every(({ revealedByControlTeam }) => revealedByControlTeam);
-      const nextStatus = allAnswersFound ? 'revealing_stored_answers' : 'in_control_team_guesses';
+      const allAnswersFound = game.question.answers.every(
+        ({ revealedByControlTeam }) => revealedByControlTeam
+      );
+      const nextStatus = allAnswersFound
+        ? "revealing_stored_answers"
+        : "in_control_team_guesses";
 
       this.io.to(this.id).emit("answerRevealed", { index: answerIndex });
 
       setTimeout(() => {
         this.updateGameState({
           question: game.question,
-          modeStatus: nextStatus
+          modeStatus: nextStatus,
         });
         this.io.to(this.id).emit("receivedGameState", this.toJson());
       }, 800);
@@ -576,11 +619,14 @@ export default class Game {
 
     const newStrikes = this.strikes + 1;
     this.io.to(this.id).emit("answerIncorrect", { strikes: newStrikes });
-    const nextStatus = newStrikes === MAX_STRIKES ? 'ask_other_team_for_guess_for_steal' : 'in_control_team_guesses';
+    const nextStatus =
+      newStrikes === MAX_STRIKES
+        ? "ask_other_team_for_guess_for_steal"
+        : "in_control_team_guesses";
 
     this.updateGameState({
       strikes: newStrikes,
-      modeStatus: nextStatus
+      modeStatus: nextStatus,
     });
     return true;
   }
@@ -608,7 +654,7 @@ export default class Game {
         this.updateGameState({
           question: game.question,
           isStolen: true,
-          modeStatus: 'revealing_stored_answers'
+          modeStatus: "revealing_stored_answers",
         });
         this.io.to(this.id).emit("receivedGameState", this.toJson());
       }, 800);
@@ -619,7 +665,7 @@ export default class Game {
     this.io.to(this.id).emit("answerIncorrect", { strikes: 1 });
 
     this.updateGameState({
-      modeStatus: "revealing_stored_answers"
+      modeStatus: "revealing_stored_answers",
     });
     return true;
   }

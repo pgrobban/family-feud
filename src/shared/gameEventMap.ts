@@ -17,7 +17,10 @@ export interface ClientToServerEvents {
 
   // family warmup events
   hostRequestedTeamAnswers: () => void;
-  hostGatheredTeamAnswers: (team1Answers: string[], team2Answers: string[]) => void;
+  hostGatheredTeamAnswers: (
+    team1Answers: string[],
+    team2Answers: string[]
+  ) => void;
   requestRevealTeamAnswers: () => void;
   awardTeamPoints: () => void;
 
@@ -25,9 +28,12 @@ export interface ClientToServerEvents {
   submitBuzzInAnswer: (team: 1 | 2, answerText: string) => void;
   requestOtherTeamBuzzInAnswer: () => void;
   requestAskTeamToPlayOrPass: () => void;
-  receivedPlayOrPass: (choice: 'play' | 'pass') => void;
+  receivedPlayOrPass: (choice: "play" | "pass") => void;
   receivedAnswer: (answerText: string) => void;
   receivedStealAnswer: (answerText: string) => void;
+
+  // fast money events
+  questionsPicked: (questions: string[]) => void;
 }
 
 export interface ServerToClientEvents {

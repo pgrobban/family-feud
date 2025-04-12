@@ -13,88 +13,90 @@ import StealAnswerSelector from "./StealAnswerSelector";
 import { getOpposingTeam } from "@/shared/utils";
 
 export default function FaceOffControls({
-	gameState,
+  gameState,
 }: {
-	gameState: GameState & FaceOffGame;
+  gameState: GameState & FaceOffGame;
 }) {
-	const getControls = useCallback(() => {
-		if (gameState.modeStatus === "waiting_for_question") {
-			return <QuestionPicker />;
-		}
+  const getControls = useCallback(() => {
+    if (gameState.modeStatus === "waiting_for_question") {
+      return <QuestionPicker />;
+    }
 
-		if (!gameState.question) {
-			return null;
-		}
+    if (!gameState.question) {
+      return null;
+    }
 
-		switch (gameState.modeStatus) {
-			case "face_off_started":
-			case "getting_other_buzzed_in_answer":
-				return (
-					<BuzzedInTeamAndAnswerPicker
-						question={gameState.question}
-						teamNames={gameState.teamNames}
-						modeStatus={gameState.modeStatus}
-					/>
-				);
-			case "reveal_buzzed_in_answer":
-			case "reveal_other_buzzed_in_answer":
-				return <AfterBuzzedInAnswer gameState={gameState} />;
-			case "team_asked_to_play":
-				if (!gameState.currentTeam) {
-					return null;
-				}
+    switch (gameState.modeStatus) {
+      case "face_off_started":
+      case "getting_other_buzzed_in_answer":
+        return (
+          <BuzzedInTeamAndAnswerPicker
+            question={gameState.question}
+            teamNames={gameState.teamNames}
+            modeStatus={gameState.modeStatus}
+          />
+        );
+      case "reveal_buzzed_in_answer":
+      case "reveal_other_buzzed_in_answer":
+        return <AfterBuzzedInAnswer gameState={gameState} />;
+      case "team_asked_to_play":
+        if (!gameState.currentTeam) {
+          return null;
+        }
 
-				return (
-					<AskTeamToPlay
-						teamNames={gameState.teamNames}
-						currentTeam={gameState.currentTeam}
-					/>
-				);
-			case "in_control_team_guesses":
-				if (!gameState.inControlTeam) {
-					return null;
-				}
+        return (
+          <AskTeamToPlay
+            teamNames={gameState.teamNames}
+            currentTeam={gameState.currentTeam}
+          />
+        );
+      case "in_control_team_guesses":
+        if (!gameState.inControlTeam) {
+          return null;
+        }
 
-				return (
-					<InControlTeamAnswerSelector
-						gameAnswers={gameState.question.answers}
-						teamName={gameState.teamNames[gameState.inControlTeam - 1]}
-					/>
-				);
-			case "revealing_stored_answers":
-				return <AwardPointsButton />;
-			case "awarding_points":
-				return <QuestionOverControls />;
-			case "ask_other_team_for_guess_for_steal": {
-				if (!gameState.inControlTeam) {
-					return null;
-				}
+        return (
+          <InControlTeamAnswerSelector
+            gameAnswers={gameState.question.answers}
+            teamName={gameState.teamNames[gameState.inControlTeam - 1]}
+          />
+        );
+      case "revealing_stored_answers":
+        return <AwardPointsButton />;
+      case "awarding_points":
+        return <QuestionOverControls />;
+      case "ask_other_team_for_guess_for_steal": {
+        if (!gameState.inControlTeam) {
+          return null;
+        }
 
-				const opposingTeamIndex = getOpposingTeam(gameState.inControlTeam) - 1;
-				const opposingTeamName = gameState.teamNames[opposingTeamIndex];
+        const opposingTeamIndex = getOpposingTeam(gameState.inControlTeam) - 1;
+        const opposingTeamName = gameState.teamNames[opposingTeamIndex];
 
-				return (
-					<StealAnswerSelector
-						gameAnswers={gameState.question.answers}
-						teamName={opposingTeamName}
-					/>
-				);
-			}
-			default:
-				return null;
-		}
-	}, [gameState]);
+        return (
+          <StealAnswerSelector
+            gameAnswers={gameState.question.answers}
+            teamName={opposingTeamName}
+          />
+        );
+      }
+      default:
+        return null;
+    }
+  }, [gameState]);
 
-	if (gameState?.status !== "in_progress" || gameState?.mode !== "face_off") {
-		return null;
-	}
+  if (gameState?.status !== "in_progress" || gameState?.mode !== "face_off") {
+    return null;
+  }
 
-	return (
-		<Box>
-			<Box border={"1px solid #ccc"} p={1} mb={5}>
-				<Typography>{gameState.question?.questionText}</Typography>
-			</Box>
-			{getControls()}
-		</Box>
-	);
+  return (
+    <Box>
+      {gameState.question && (
+        <Box border={"1px solid #ccc"} p={1} mb={5}>
+          <Typography>{gameState.question?.questionText}</Typography>
+        </Box>
+      )}
+      {getControls()}
+    </Box>
+  );
 }
