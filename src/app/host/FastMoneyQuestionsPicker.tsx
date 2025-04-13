@@ -10,6 +10,7 @@ import questions from "@/shared/questions.json" assert { type: "json" };
 import type { StoredQuestion } from "@/shared/types";
 import useSocket from "@/hooks/useSocket";
 import { useState } from "react";
+import { FAST_MONEY_QUESTIONS } from "@/shared/utils";
 const storedQuestions: StoredQuestion[] = questions;
 
 export default function GameModePicker() {
@@ -26,7 +27,7 @@ export default function GameModePicker() {
     }
   };
 
-  const submitDisabled = pickedQuestions.length !== 5;
+  const submitDisabled = pickedQuestions.length !== FAST_MONEY_QUESTIONS;
 
   return (
     <Box>

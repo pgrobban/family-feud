@@ -1,6 +1,7 @@
 import useSocket from "@/hooks/useSocket";
 import { FastMoneyGame, GameState } from "@/shared/types";
 import FastMoneyQuestionsPicker from "./FastMoneyQuestionsPicker";
+import FastMoneyAnswersPicker from "./FastMoneyQuestionInProgressControls";
 
 export default function FastMoneyControls({
   gameState,
@@ -13,9 +14,13 @@ export default function FastMoneyControls({
     return null;
   }
 
+  console.log("***", gameState);
+
   switch (gameState.modeStatus) {
     case "waiting_for_questions":
       return <FastMoneyQuestionsPicker />;
+    case "questions_in_progress":
+      return <FastMoneyAnswersPicker gameState={gameState} />;
     default:
       return null;
   }

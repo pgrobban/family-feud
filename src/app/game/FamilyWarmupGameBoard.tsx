@@ -50,7 +50,12 @@ export default function FamilyWarmupGameBoard({
   }
 
   if (gameState.modeStatus === "waiting_for_question") {
-    return <LogoAndRoundBox round={"All-family warmup round"} />;
+    return (
+      <LogoAndRoundBox
+        round={"All-family warmup round"}
+        text1="Teams, get ready with pen and paper"
+      />
+    );
   }
 
   if (!gameState.question) {

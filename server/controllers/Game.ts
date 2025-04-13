@@ -11,7 +11,11 @@ import type {
 } from "@/shared/types";
 import questions from "../../src/shared/questions.json";
 import type { Server } from "socket.io";
-import { getAnswerIndex, getOpposingTeam } from "../../src/shared/utils";
+import {
+  FAST_MONEY_QUESTIONS,
+  getAnswerIndex,
+  getOpposingTeam,
+} from "../../src/shared/utils";
 
 const storedQuestions: StoredQuestion[] = questions;
 
@@ -253,9 +257,12 @@ export default class Game {
       return;
     }
 
-    if (!questionTexts.length || questionTexts.length !== 5) {
+    if (
+      !questionTexts.length ||
+      questionTexts.length !== FAST_MONEY_QUESTIONS
+    ) {
       throw new Error(
-        "Invalid number of questions, Expected 5, got: " + questionTexts.length
+        `Invalid number of questions, Expected ${FAST_MONEY_QUESTIONS} got: ${questionTexts.length}`
       );
     }
 

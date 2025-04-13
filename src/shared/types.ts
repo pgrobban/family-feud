@@ -77,7 +77,7 @@ export interface FastMoneyGame {
   modeStatus:
     | "waiting_for_questions" // host picks questions
     | "questions_in_progress" // member of team 1 answers
-    | "revealing_questions_and_answers" // reveal the questions and what the answers were. if < 200, don't reveal the answer points. go to request_steal_question_and_answer, otherwise reveal_points
+    | "revealing_answers" // reveal the gathered answers. if < 200 points, go to request_steal_question_and_answer, otherwise go to reveal_points
     | "request_steal_question_and_answer" // opposing team picks a question and answer to steal
     | "reveal_points" // reveal the individual question points + steal
     | "award_points"; // award points to the team that had 200 or more points, or the team that stole

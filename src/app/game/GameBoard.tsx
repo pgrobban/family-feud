@@ -17,7 +17,7 @@ export default function GameBoard({ gameState }: { gameState: GameState }) {
     case "in_progress":
       switch (gameState.mode) {
         case "indeterminate":
-          return <LogoAndRoundBox round="" text="Waiting for host..." />;
+          return <LogoAndRoundBox round="" text1="Waiting for host..." />;
         case "family_warm_up":
           return (
             <FamilyWarmupGameBoard
@@ -36,8 +36,6 @@ export default function GameBoard({ gameState }: { gameState: GameState }) {
               gameState={gameState as GameState & FastMoneyGame}
             />
           );
-        default:
-          return <LogoAndRoundBox round="" text="Unknown game mode" />;
       }
     case "finished":
       return <WinScreen teamsAndPoints={gameState.teamsAndPoints} />;

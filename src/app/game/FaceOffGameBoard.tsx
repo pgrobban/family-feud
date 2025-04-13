@@ -45,7 +45,7 @@ export default function FaceOffGameBoard({
     return (
       <LogoAndRoundBox
         round={"Family face-off round"}
-        text={"Teams, select one person to stand by the buzzers"}
+        text1={"Teams, select one person to stand by the buzzers"}
       />
     );
   }

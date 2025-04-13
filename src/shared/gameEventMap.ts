@@ -34,6 +34,7 @@ export interface ClientToServerEvents {
 
   // fast money events
   questionsPicked: (questions: string[]) => void;
+  receivedAnswers: (answerTexts: string[]) => void;
 }
 
 export interface ServerToClientEvents {
@@ -46,4 +47,14 @@ export interface ServerToClientEvents {
   hostLeft: () => void;
   timerStarted: (seconds: number) => void;
   timerCancelled: () => void;
+  fastMoneyAnswerRevealed: (answerIndex: number, team: 1 | 2) => void;
+  fastMoneyPointsRevealed: (answerIndex: number, team: 1 | 2) => void;
 }
+
+export type EventHandler<
+  K extends keyof (ClientToServerEvents & ServerToClientEvents)
+> = K extends keyof ClientToServerEvents
+  ? (...args: Parameters<ClientToServerEvents[K]>) => void
+  : K extends keyof ServerToClientEvents
+  ? (...args: Parameters<ServerToClientEvents[K]>) => void
+  : never;

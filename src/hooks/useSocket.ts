@@ -7,8 +7,6 @@ import { io, type Socket } from "socket.io-client";
 
 const SOCKET_IO_PORT = process.env.NEXT_PUBLIC_SOCKET_IO_PORT;
 
-console.log("***", SOCKET_IO_PORT);
-
 // Store the socket instance outside of the component scope
 let socketInstance: Socket<ClientToServerEvents> | null = null;
 
