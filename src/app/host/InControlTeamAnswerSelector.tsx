@@ -9,7 +9,7 @@ export default function InControlTeamAnswerSelector({
 }: { gameAnswers: GameAnswer[]; teamName: string }) {
 	const socket = useSocket();
 	const onAnswerPicked = (answerText: string) =>
-		socket?.emit("receivedAnswer", answerText);
+		socket?.emit("faceOff:receivedAnswer", answerText);
 
 	return (
 		<Box>

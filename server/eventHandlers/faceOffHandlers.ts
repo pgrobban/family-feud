@@ -6,7 +6,7 @@ import bindUpdateGame from "./bindUpdateGame";
 export default function registerFaceOffSocketEvents(socket: Socket<ClientToServerEvents, ServerToClientEvents>, io: Server, gameManager: GameManager) {
   const updateGame = bindUpdateGame(socket, io, gameManager);
 
-  socket.on("submitBuzzInAnswer", (team, answerText) => {
+  socket.on("faceOff:submitBuzzInAnswer", (team, answerText) => {
     const game = gameManager.getGameBySocketId(socket.id);
     if (!game) return;
 
@@ -16,11 +16,11 @@ export default function registerFaceOffSocketEvents(socket: Socket<ClientToServe
     }
   });
 
-  socket.on('requestOtherTeamBuzzInAnswer', () => updateGame((game) => game.requestOtherTeamToBuzzInAnswer()));
-  socket.on('receivedPlayOrPass', (choice) => updateGame((game) => game.receivedPlayOrPass(choice)));
-  socket.on('requestAskTeamToPlayOrPass', () => updateGame((game) => game.requestAskTeamToPlayOrPass()));
+  socket.on('faceOff:requestOtherTeamBuzzInAnswer', () => updateGame((game) => game.requestOtherTeamToBuzzInAnswer()));
+  socket.on('faceOff:receivedPlayOrPass', (choice) => updateGame((game) => game.receivedPlayOrPass(choice)));
+  socket.on('faceOff:requestAskTeamToPlayOrPass', () => updateGame((game) => game.requestAskTeamToPlayOrPass()));
 
-  socket.on("receivedAnswer", (answerText) => {
+  socket.on("faceOff:receivedAnswer", (answerText) => {
     const game = gameManager.getGameBySocketId(socket.id);
     if (!game) return;
 
@@ -30,7 +30,7 @@ export default function registerFaceOffSocketEvents(socket: Socket<ClientToServe
     }
   });
 
-  socket.on("receivedStealAnswer", (answerText) => {
+  socket.on("faceOff:receivedStealAnswer", (answerText) => {
     const game = gameManager.getGameBySocketId(socket.id);
     if (!game) return;
 
@@ -39,4 +39,6 @@ export default function registerFaceOffSocketEvents(socket: Socket<ClientToServe
       io.to(game.id).emit("receivedGameState", game.toJson());
     }
   });
+
+  socket.on("faceOff:awardTeamPoints", () => updateGame((game) => game.awardPointsFaceOff()));
 }

@@ -356,26 +356,13 @@ export default class Game {
     });
   }
 
-  awardPoints() {
-    if (!this.validateGameStatus(["family_warm_up", "face_off"])) {
-      return;
-    }
-
-    if (this.mode === "family_warm_up") {
-      if (this.modeStatus !== "revealing_team_answers") {
-        throw new Error(`Wrong modeStatus, got: ${this.modeStatus}`);
-      }
-      this.awardPointsFamilyWarmup();
-      return;
-    }
-
-    if (this.modeStatus !== "revealing_stored_answers") {
-      throw new Error(`Wrong modeStatus, got: ${this.modeStatus}`);
-    }
-    this.awardPointsFaceOff();
-  }
-
   awardPointsFamilyWarmup() {
+    if (
+      !this.validateGameStatus("family_warm_up", "revealing_team_answers")
+    ) {
+      return;
+    }
+
     const gameState = this.gameState as GameState & FamilyWarmUpGame;
 
     if (!gameState.team1Answers || !gameState.team2Answers) {
@@ -413,6 +400,12 @@ export default class Game {
   }
 
   awardPointsFaceOff() {
+    if (
+      !this.validateGameStatus("face_off", "revealing_stored_answers")
+    ) {
+      return;
+    }
+
     const { question, currentTeam, isStolen } = this;
     if (!question || !currentTeam) {
       throw new Error("Cannot award points: missing question or currentTeam");

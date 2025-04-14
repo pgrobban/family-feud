@@ -20,7 +20,11 @@ export default function BuzzedInTeamAndAnswerPicker({
 		modeStatus === "face_off_started" ? !buzzedInTeam || !answer : !answer;
 
 	const onSubmit = () =>
-		socket?.emit("submitBuzzInAnswer", buzzedInTeam as 1 | 2, answer as string);
+		socket?.emit(
+			"faceOff:submitBuzzInAnswer",
+			buzzedInTeam as 1 | 2,
+			answer as string,
+		);
 
 	return (
 		<Grid container spacing={2}>

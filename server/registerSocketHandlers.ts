@@ -9,6 +9,9 @@ import fastMoneyHandlers from "./eventHandlers/fastMoneyGameHandlers";
 
 
 export default function registerSocketHandlers(socket: Socket<ClientToServerEvents, ServerToClientEvents>, io: Server<ServerToClientEvents>, gameManager: GameManager) {
+  familyWarmupHandlers(socket, io, gameManager);
+  faceOffHandlers(socket, io, gameManager);
+  fastMoneyHandlers(socket, io, gameManager);
 
   const updateGame = bindUpdateGame(socket, io, gameManager);
 
@@ -69,8 +72,7 @@ export default function registerSocketHandlers(socket: Socket<ClientToServerEven
 
   socket.on('requestStartTimer', (seconds) => updateGame((game) => io.to(game.id).emit('timerStarted', seconds)));
   socket.on('requestCancelTimer', () => updateGame((game) => io.to(game.id).emit('timerCancelled')));
-
-  familyWarmupHandlers(socket, io, gameManager);
-  faceOffHandlers(socket, io, gameManager);
-  fastMoneyHandlers(socket, io, gameManager);
+  socket.on("questionOrModeCancelled", () => updateGame((game) => game.cancelQuestionOrMode()));
+  socket.on("requestNewQuestion", () => updateGame((game) => game.requestNewQuestion()));
+  socket.on("questionPicked", (question) => updateGame((game) => game.hostPickedQuestionForCurrentMode(question)));
 }

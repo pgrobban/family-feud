@@ -15,26 +15,24 @@ export interface ClientToServerEvents {
   requestStartTimer: (seconds: number) => void;
   requestCancelTimer: () => void;
 
-  // family warmup events
-  hostRequestedTeamAnswers: () => void;
-  hostGatheredTeamAnswers: (
+  'familyWarmup:hostRequestedTeamAnswers': () => void;
+  'familyWarmup:hostGatheredTeamAnswers': (
     team1Answers: string[],
     team2Answers: string[]
   ) => void;
-  requestRevealTeamAnswers: () => void;
-  awardTeamPoints: () => void;
+  'familyWarmup:requestRevealTeamAnswers': () => void;
+  'familyWarmup:awardTeamPoints': () => void;
 
-  // faceoff events
-  submitBuzzInAnswer: (team: 1 | 2, answerText: string) => void;
-  requestOtherTeamBuzzInAnswer: () => void;
-  requestAskTeamToPlayOrPass: () => void;
-  receivedPlayOrPass: (choice: "play" | "pass") => void;
-  receivedAnswer: (answerText: string) => void;
-  receivedStealAnswer: (answerText: string) => void;
+  'faceOff:submitBuzzInAnswer': (team: 1 | 2, answerText: string) => void;
+  'faceOff:requestOtherTeamBuzzInAnswer': () => void;
+  'faceOff:requestAskTeamToPlayOrPass': () => void;
+  'faceOff:receivedPlayOrPass': (choice: "play" | "pass") => void;
+  'faceOff:receivedAnswer': (answerText: string) => void;
+  'faceOff:receivedStealAnswer': (answerText: string) => void;
+  'faceOff:awardTeamPoints': () => void;
 
-  // fast money events
-  questionsPicked: (questions: string[]) => void;
-  receivedAnswers: (answerTexts: string[]) => void;
+  'fastMoney:questionsPicked': (questions: string[]) => void;
+  'fastMoney:receivedAnswers': (answerTexts: string[]) => void;
 }
 
 export interface ServerToClientEvents {
@@ -47,8 +45,9 @@ export interface ServerToClientEvents {
   hostLeft: () => void;
   timerStarted: (seconds: number) => void;
   timerCancelled: () => void;
-  fastMoneyAnswerRevealed: (answerIndex: number, team: 1 | 2) => void;
-  fastMoneyPointsRevealed: (answerIndex: number, team: 1 | 2) => void;
+
+  'fastMoney:answerRevealed': (answerIndex: number, team: 1 | 2) => void;
+  'fastMoney:pointsRevealed': (answerIndex: number, team: 1 | 2) => void;
 }
 
 export type EventHandler<

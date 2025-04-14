@@ -7,7 +7,7 @@ export default function AskTeamToPlay({
 }: { teamNames: string[]; currentTeam: 1 | 2 }) {
 	const socket = useSocket();
 	const emitPlayOrPass = (choice: "play" | "pass") =>
-		socket?.emit("receivedPlayOrPass", choice);
+		socket?.emit("faceOff:receivedPlayOrPass", choice);
 
 	return (
 		<Box>

@@ -9,7 +9,7 @@ export default function StealAnswerSelector({
 }: { gameAnswers: GameAnswer[]; teamName: string }) {
 	const socket = useSocket();
 	const onAnswerPicked = (answerText: string) =>
-		socket?.emit("receivedStealAnswer", answerText);
+		socket?.emit("faceOff:receivedStealAnswer", answerText);
 
 	return (
 		<Box>

@@ -15,9 +15,9 @@ export default function AfterBuzzedInAnswer({
 	}
 
 	const emitAskTeamToPlayOrPass = () =>
-		socket?.emit("requestAskTeamToPlayOrPass");
+		socket?.emit("faceOff:requestAskTeamToPlayOrPass");
 	const emitRequestOtherTeamToBuzzInAnswer = () =>
-		socket?.emit("requestOtherTeamBuzzInAnswer");
+		socket?.emit("faceOff:requestOtherTeamBuzzInAnswer");
 
 	if (gameState.modeStatus === "reveal_buzzed_in_answer") {
 		return (

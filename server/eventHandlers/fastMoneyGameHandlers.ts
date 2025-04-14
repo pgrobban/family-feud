@@ -13,7 +13,7 @@ export default function fastMoneyHandlers(
 ) {
   const updateGame = bindUpdateGame(socket, io, gameManager);
 
-  socket.on("questionsPicked", (questions) =>
+  socket.on("fastMoney:questionsPicked", (questions) =>
     updateGame((game) => game.hostPickedFastMoneyQuestions(questions))
   );
 }

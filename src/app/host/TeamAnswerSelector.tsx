@@ -40,7 +40,11 @@ export default function TeamAnswerSelector({
 	const [team2Answers, setTeam2Answers] = useState<string[]>([]);
 
 	const submitAnswers = () =>
-		socket?.emit("hostGatheredTeamAnswers", team1Answers, team2Answers);
+		socket?.emit(
+			"familyWarmup:hostGatheredTeamAnswers",
+			team1Answers,
+			team2Answers,
+		);
 
 	const toggleAnswerText = (teamNumber: 1 | 2, answerText: string) => {
 		let newTeamAnswers = [...(teamNumber === 1 ? team1Answers : team2Answers)];
