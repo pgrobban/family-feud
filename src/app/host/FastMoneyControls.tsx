@@ -2,6 +2,9 @@ import type { FastMoneyGame, GameState } from "@/shared/types";
 import FastMoneyQuestionsPicker from "./FastMoneyQuestionsPicker";
 import FastMoneyAnswersPicker from "./FastMoneyQuestionInProgressControls";
 import FastMoneyRevealAnswers from "./FastMoneyRevealAnswers";
+import QuestionOverControls from "./QuestionOverControls";
+import AwardPointsButton from "./AwardPointsButton";
+import FastMoneyStealQuestionAndAnswerPicker from "./FastMoneyStealQuestionAndAnswerPicker";
 
 export default function FastMoneyControls({
 	gameState,
@@ -12,16 +15,27 @@ export default function FastMoneyControls({
 		return null;
 	}
 
-	console.log("***", gameState);
-
 	switch (gameState.modeStatus) {
 		case "waiting_for_questions":
 			return <FastMoneyQuestionsPicker />;
 		case "questions_in_progress":
 			return <FastMoneyAnswersPicker gameState={gameState} />;
 		case "revealing_answers":
+		case "received_steal_question_and_answer":
 			return <FastMoneyRevealAnswers gameState={gameState} />;
-		default:
-			return null;
+		case "request_steal_question_and_answer":
+			if (!gameState.questions) {
+				return null;
+			}
+
+			return (
+				<FastMoneyStealQuestionAndAnswerPicker
+					questions={gameState.questions}
+				/>
+			);
+		case "reveal_steal_question_and_answer":
+			return <AwardPointsButton currentMode={gameState.mode} />;
+		case "awarding_points":
+			return <QuestionOverControls />;
 	}
 }

@@ -39,7 +39,6 @@ export default function registerFaceOffSocketEvents(socket: Socket<ClientToServe
       io.to(game.id).emit("receivedGameState", game.toJson());
     }
   });
-
   socket.on('faceOff:requestRevealStoredAnswers', () => updateGame((game) => game.revealStoredAnswers()));
   socket.on("faceOff:requestAwardPoints", () => updateGame((game) => game.awardPointsFaceOff()));
 }

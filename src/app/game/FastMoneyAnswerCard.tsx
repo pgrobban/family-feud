@@ -1,18 +1,18 @@
 import useSocket from "@/hooks/useSocket";
-import type { EventHandler } from "@/shared/gameEventMap";
+import type { EventHandler, ToTeam } from "@/shared/gameEventMap";
 import type { GameAnswer } from "@/shared/types";
 import { Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 interface Props {
 	answer: GameAnswer;
 	answerIndex: number;
-	team: 1 | 2;
+	column: ToTeam;
 }
 
 export default function FastMoneyAnswerCard({
 	answer,
 	answerIndex,
-	team,
+	column,
 }: Props) {
 	const { answerText, points } = answer;
 	const [flipped, setFlipped] = useState(false);
@@ -34,8 +34,8 @@ export default function FastMoneyAnswerCard({
 			answerIdx,
 			teamIdx,
 		) => {
-			console.log("in doAnimation", answerIdx, teamIdx, answerIndex, team);
-			if (answerIndex !== answerIdx || team !== teamIdx) return;
+			console.log("in doAnimation", answerIdx, teamIdx, answerIndex, column);
+			if (answerIndex !== answerIdx || column !== teamIdx) return;
 
 			setFlipped(true); // flip visually immediately
 			setAnswerRevealed(true);
@@ -45,9 +45,9 @@ export default function FastMoneyAnswerCard({
 			answerIdx,
 			teamIdx,
 		) => {
-			console.log("in revealPoints", answerIdx, teamIdx, answerIndex, team);
+			console.log("in revealPoints", answerIdx, teamIdx, answerIndex, column);
 
-			if (answerIndex !== answerIdx || team !== teamIdx) return;
+			if (answerIndex !== answerIdx || column !== teamIdx) return;
 			setPointsRevealed(true);
 		};
 
@@ -57,7 +57,7 @@ export default function FastMoneyAnswerCard({
 			socket.off("fastMoney:answerRevealed", doAnimation);
 			socket.off("fastMoney:pointsRevealed", revealPoints);
 		};
-	}, [socket, answerIndex, team]);
+	}, [socket, answerIndex, column]);
 
 	return (
 		<Box

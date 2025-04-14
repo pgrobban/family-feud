@@ -18,14 +18,24 @@ export default function fastMoneyHandlers(
   );
   socket.on("fastMoney:receivedResponses", (responses) => updateGame((game) => game.receivedFastMoneyResponses(responses)));
 
-  socket.on("fastMoney:requestRevealAnswer", (answerIndex, team) => {
+  socket.on("fastMoney:requestRevealAnswer", (answerIndex, column) => {
     const game = gameManager.getGameBySocketId(socket.id);
     if (!game) return;
-    game.requestedFastMoneyAnswerReveal(answerIndex, team);
+    game.requestedFastMoneyAnswerReveal(answerIndex, column);
   });
-  socket.on("fastMoney:requestRevealPoints", (answerIndex, team) => {
+  socket.on("fastMoney:requestRevealPoints", (answerIndex, column) => {
     const game = gameManager.getGameBySocketId(socket.id);
     if (!game) return;
-    game.requestedFastMoneyPointsReveal(answerIndex, team);
+    game.requestedFastMoneyPointsReveal(answerIndex, column);
   });
+
+  socket.on("fastMoney:requestStealQuestionAndAnswer", () => updateGame((game) => game.requestedFastMoneyStealQuestionAndAnswer()));
+  socket.on("fastMoney:receivedStealQuestionAndAnswer", (questionText, answerText) => updateGame((game) => game.receivedFastMoneyStealQuestionAndAnswer(questionText, answerText)));
+
+  socket.on("fastMoney:requestRevealStealQuestionAndAnswer", () => {
+    const game = gameManager.getGameBySocketId(socket.id);
+    if (!game) return;
+    game.requestedRevealFastMoneyStealQuestionAndAnswer();
+  });
+  socket.on("fastMoney:requestAwardPoints", () => updateGame((game) => game.awardPointsFastMoney()));
 }

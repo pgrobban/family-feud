@@ -3,10 +3,13 @@ import type { GameAnswer } from "@/shared/types";
 import StoredAnswerSelector from "./StoredAnswerSelector";
 import { Box, Typography } from "@mui/material";
 
-export default function StealAnswerSelector({
-	gameAnswers,
-	teamName,
-}: { gameAnswers: GameAnswer[]; teamName: string }) {
+interface Props {
+	mode: "face_off" | "fast_money";
+	gameAnswers: GameAnswer[];
+	teamName: string;
+}
+
+export default function StealAnswerSelector({ gameAnswers, teamName }: Props) {
 	const socket = useSocket();
 	const onAnswerPicked = (answerText: string) =>
 		socket?.emit("faceOff:receivedStealAnswer", answerText);

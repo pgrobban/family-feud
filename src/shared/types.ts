@@ -79,9 +79,10 @@ export interface FastMoneyGame {
   | "waiting_for_questions" // host picks questions
   | "questions_in_progress" // member of team 1 answers
   | "revealing_answers" // reveal the gathered answers. if < 200 points, go to request_steal_question_and_answer, otherwise go to reveal_points
-  | "request_steal_question_and_answer" // opposing team picks a question and answer to steal
-  | "revealing_all_points" // reveal the individual question points + steal
-  | "award_points"; // award points to the team that had 200 or more points, or the team that stole
+  | "request_steal_question_and_answer" // UI state transition to...
+  | "received_steal_question_and_answer" // opposing team picks a question and answer to steal
+  | "reveal_steal_question_and_answer" // reveal the question and answer that the other team picked to steal
+  | "awarding_points"; // award points to the team that had 200 or more points, or the team that stole
   currentTeam: 1 | 2;
   questions?: GameQuestion[];
   responsesFirstTeam?: GameAnswer[];

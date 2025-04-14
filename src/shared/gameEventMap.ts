@@ -1,5 +1,6 @@
 import type { GameInProgress, GameState } from "./types";
 
+export type ToTeam = 'playing_team' | 'stealing_team';
 export interface ClientToServerEvents {
   createGame: (teamNames: string[]) => void;
   requestGames: () => void;
@@ -34,10 +35,12 @@ export interface ClientToServerEvents {
 
   'fastMoney:questionsPicked': (questions: string[]) => void;
   'fastMoney:receivedResponses': (responses: string[]) => void;
-  'fastMoney:requestRevealAnswer': (answerIndex: number, team: 1 | 2) => void;
-  'fastMoney:requestRevealPoints': (answerIndex: number, team: 1 | 2) => void;
+  'fastMoney:requestRevealAnswer': (answerIndex: number, to: ToTeam) => void;
+  'fastMoney:requestRevealPoints': (answerIndex: number, to: ToTeam) => void;
   'fastMoney:requestStealQuestionAndAnswer': () => void;
+  'fastMoney:receivedStealQuestionAndAnswer': (questionText: string, answerText: string) => void;
   'fastMoney:requestRevealStealQuestionAndAnswer': () => void;
+  'fastMoney:requestRevealAllPoints': () => void;
   'fastMoney:requestAwardPoints': () => void;
 }
 
@@ -52,8 +55,8 @@ export interface ServerToClientEvents {
   timerStarted: (seconds: number) => void;
   timerCancelled: () => void;
 
-  'fastMoney:answerRevealed': (answerIndex: number, team: 1 | 2) => void;
-  'fastMoney:pointsRevealed': (answerIndex: number, team: 1 | 2) => void;
+  'fastMoney:answerRevealed': (answerIndex: number, to: ToTeam) => void;
+  'fastMoney:pointsRevealed': (answerIndex: number, to: ToTeam) => void;
 }
 
 export type EventHandler<

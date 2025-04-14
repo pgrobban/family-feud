@@ -3,6 +3,7 @@ import useSocket from "@/hooks/useSocket";
 import type { FaceOffGame, StoredQuestion } from "@/shared/types";
 import { Button, Grid, Typography } from "@mui/material";
 import { useState } from "react";
+import StoredAnswerSelector from "./StoredAnswerSelector";
 
 export default function BuzzedInTeamAndAnswerPicker({
 	modeStatus,
@@ -61,26 +62,14 @@ export default function BuzzedInTeamAndAnswerPicker({
 					Select {modeStatus === "face_off_started" ? "their" : "other team's"}{" "}
 					answer
 				</Typography>
-				{question.answers.map(({ answerText }) => (
-					<Grid key={answerText} spacing={2}>
-						<Button
-							variant="contained"
-							color={answerText === answer ? "success" : "primary"}
-							onClick={() => setAnswer(answerText)}
-						>
-							{answerText}
-						</Button>
-					</Grid>
-				))}
-				<Grid spacing={2}>
-					<Button
-						variant="contained"
-						color={answer === "Invalid answer" ? "error" : "secondary"}
-						onClick={() => setAnswer("Invalid answer")}
-					>
-						Invalid answer
-					</Button>
-				</Grid>
+				<StoredAnswerSelector
+					storedAnswers={question.answers}
+					buttonColor={(answerText) =>
+						answerText === "answer" ? "success" : "primary"
+					}
+					onAnswerPicked={(answertText) => setAnswer(answertText)}
+					includeInvalidOption
+				/>
 			</Grid>
 			<Grid container size={6}>
 				<Grid spacing={2}>

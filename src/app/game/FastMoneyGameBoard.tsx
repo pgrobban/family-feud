@@ -2,7 +2,7 @@ import useSocket from "@/hooks/useSocket";
 import { FastMoneyGame, GameAnswer, GameState } from "@/shared/types";
 import { useEffect, useState } from "react";
 import LogoAndRoundBox from "./LogoAndRoundBox";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import CircularCountdownOverlay from "./CircularCountdownTimer";
 import FastMoneyAnswerCard from "./FastMoneyAnswerCard";
 import { getSortedTeamNames } from "@/shared/utils";
@@ -67,9 +67,10 @@ export default function FastMoneyGameBoard({
 				return 0;
 			case "revealing_answers":
 			case "request_steal_question_and_answer":
+			case "received_steal_question_and_answer":
 				return firstTeamResponseSum;
-			case "revealing_all_points":
-			case "award_points":
+			case "reveal_steal_question_and_answer":
+			case "awarding_points":
 				return firstTeamResponseSum + stolenAnswerPoints;
 		}
 	};
@@ -115,7 +116,7 @@ export default function FastMoneyGameBoard({
 									key={`${answer}-${index}`}
 									answer={answer}
 									answerIndex={index}
-									team={1}
+									column={"playing_team"}
 								/>
 							),
 						)}
@@ -127,7 +128,7 @@ export default function FastMoneyGameBoard({
 									key={`${answer}-${index}`}
 									answer={answer}
 									answerIndex={index}
-									team={2}
+									column={"stealing_team"}
 								/>
 							),
 						)}

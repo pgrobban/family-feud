@@ -35,7 +35,7 @@ export default function StoredAnswerSelector({
 					<Button
 						color={"secondary"}
 						variant="contained"
-						onClick={() => onAnswerPicked("Invalid answer")}
+						onClick={() => onAnswerPicked("---")}
 					>
 						Not on board/
 						<br />

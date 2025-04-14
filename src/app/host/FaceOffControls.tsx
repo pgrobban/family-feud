@@ -76,6 +76,7 @@ export default function FaceOffControls({
 
 				return (
 					<StealAnswerSelector
+						mode={gameState.mode}
 						gameAnswers={gameState.question.answers}
 						teamName={opposingTeamName}
 					/>
@@ -83,8 +84,6 @@ export default function FaceOffControls({
 			}
 			case "revealing_steal_answer":
 				return <AfterStealAnswerReveal answers={gameState.question.answers} />;
-			default:
-				return null;
 		}
 	}, [gameState]);
 
