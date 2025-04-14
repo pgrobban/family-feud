@@ -21,7 +21,7 @@ export interface ClientToServerEvents {
     team2Answers: string[]
   ) => void;
   'familyWarmup:requestRevealTeamAnswers': () => void;
-  'familyWarmup:awardTeamPoints': () => void;
+  'familyWarmup:requestAwardTeamPoints': () => void;
 
   'faceOff:submitBuzzInAnswer': (team: 1 | 2, answerText: string) => void;
   'faceOff:requestOtherTeamBuzzInAnswer': () => void;
@@ -29,12 +29,16 @@ export interface ClientToServerEvents {
   'faceOff:receivedPlayOrPass': (choice: "play" | "pass") => void;
   'faceOff:receivedAnswer': (answerText: string) => void;
   'faceOff:receivedStealAnswer': (answerText: string) => void;
-  'faceOff:awardTeamPoints': () => void;
+  'faceOff:requestRevealStoredAnswers': () => void;
+  'faceOff:requestAwardPoints': () => void;
 
   'fastMoney:questionsPicked': (questions: string[]) => void;
   'fastMoney:receivedResponses': (responses: string[]) => void;
   'fastMoney:requestRevealAnswer': (answerIndex: number, team: 1 | 2) => void;
   'fastMoney:requestRevealPoints': (answerIndex: number, team: 1 | 2) => void;
+  'fastMoney:requestStealQuestionAndAnswer': () => void;
+  'fastMoney:requestRevealStealQuestionAndAnswer': () => void;
+  'fastMoney:requestAwardPoints': () => void;
 }
 
 export interface ServerToClientEvents {

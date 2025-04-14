@@ -20,7 +20,7 @@ export default function StealAnswerSelector({
 					Boolean(
 						gameAnswers.find(
 							(gameAnswer) => gameAnswer.answerText === answerText,
-						)?.revealed,
+						)?.answerRevealed,
 					)
 				}
 				onAnswerPicked={onAnswerPicked}

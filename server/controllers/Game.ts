@@ -1,16 +1,13 @@
 import type {
-  BaseGameState,
   FaceOffGame,
   FaceOffGameAnswer,
   FamilyWarmUpGame,
   FastMoneyGame,
-  GameFinished,
   GameInProgress,
   GameQuestion,
   GameState,
   StoredQuestion,
   TeamAndPoints,
-  WaitingForHostGame,
 } from "@/shared/types";
 import questions from "../../src/shared/questions.json";
 import type { Server } from "socket.io";
@@ -152,10 +149,12 @@ export default class Game {
       this.hostSocketIds.push(socketId);
     }
 
-    this.updateGameState({
-      status: "in_progress",
-      mode: "indeterminate",
-    });
+    if (this.status === "waiting_for_host") {
+      this.updateGameState({
+        status: "in_progress",
+        mode: "indeterminate",
+      });
+    }
   }
 
   hostPickedMode(mode: Exclude<GameInProgress["mode"], "indeterminate">) {
@@ -663,7 +662,7 @@ export default class Game {
         this.updateGameState({
           question: game.question,
           isStolen: true,
-          modeStatus: "revealing_stored_answers",
+          modeStatus: 'revealing_steal_answer',
         });
         this.io.to(this.id).emit("receivedGameState", this.toJson());
       }, 800);
@@ -674,9 +673,38 @@ export default class Game {
     this.io.to(this.id).emit("answerIncorrect", { strikes: 1 });
 
     this.updateGameState({
-      modeStatus: "revealing_stored_answers",
+      modeStatus: 'revealing_steal_answer'
     });
     return true;
+  }
+
+  revealStoredAnswers() {
+    if (
+      !this.validateGameStatus("face_off", "revealing_steal_answer")
+    ) {
+      return;
+    }
+    const question = this.question;
+    if (!question) return;
+
+    question.answers.forEach((_, index) => {
+      setTimeout(() => {
+        question.answers[index].answerRevealed = true;
+        question.answers[index].pointsRevealed = true;
+
+        this.io.to(this.id).emit("answerRevealed", { index });
+
+        if (index === question.answers.length - 1) {
+          setTimeout(() => {
+            this.io.to(this.id).emit("receivedGameState", this.toJson());
+          }, 500);
+        }
+      }, index * 800);
+    });
+
+    this.updateGameState({
+      modeStatus: 'revealing_stored_answers'
+    })
   }
 
   receivedFastMoneyResponses(responses: string[]) {

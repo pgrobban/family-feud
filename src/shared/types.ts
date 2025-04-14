@@ -62,6 +62,7 @@ export interface FaceOffGame {
   | "in_control_team_guesses" // Team in control begins guessing.
   | "reveal_in_control_team_answer" // Reveal answer or give a strike. If 3 strikes → go to steal phase. If all answers revealed → go to awarding points.
   | "ask_other_team_for_guess_for_steal" // Other team confers and gives 1 steal guess.
+  | "revealing_steal_answer" // Reveal the steal answer. If all answers are revealed, go to awarding points, otherwise revealing_stored_answers
   | "revealing_stored_answers" // Reveal remaining hidden answers.
   | "awarding_points"; // Award points to the correct team based if the steal was successful.
   currentTeam: 1 | 2 | null; // for buzzing in
@@ -79,7 +80,7 @@ export interface FastMoneyGame {
   | "questions_in_progress" // member of team 1 answers
   | "revealing_answers" // reveal the gathered answers. if < 200 points, go to request_steal_question_and_answer, otherwise go to reveal_points
   | "request_steal_question_and_answer" // opposing team picks a question and answer to steal
-  | "reveal_points" // reveal the individual question points + steal
+  | "revealing_all_points" // reveal the individual question points + steal
   | "award_points"; // award points to the team that had 200 or more points, or the team that stole
   currentTeam: 1 | 2;
   questions?: GameQuestion[];

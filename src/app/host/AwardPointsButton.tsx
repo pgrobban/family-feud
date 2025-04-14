@@ -1,15 +1,18 @@
 import useSocket from "@/hooks/useSocket";
+import type { GameInProgress } from "@/shared/types";
 import { Button } from "@mui/material";
 
 export default function AwardPointsButton({
 	currentMode,
-}: { currentMode: "face_off" | "family_warm_up" }) {
+}: { currentMode: Exclude<GameInProgress["mode"], "indeterminate"> }) {
 	const socket = useSocket();
 	const requestAwardPoints = () =>
 		socket?.emit(
-			currentMode === "face_off"
-				? "faceOff:awardTeamPoints"
-				: "familyWarmup:awardTeamPoints",
+			currentMode === "family_warm_up"
+				? "familyWarmup:requestAwardTeamPoints"
+				: currentMode === "face_off"
+					? "faceOff:requestAwardPoints"
+					: "fastMoney:requestAwardPoints",
 		);
 
 	return (

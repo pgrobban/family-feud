@@ -49,9 +49,30 @@ export default function FastMoneyGameBoard({
 		);
 	}
 
-	const pointsToBeAwarded = (gameState.responsesFirstTeam || [])
-		.filter((r) => r.pointsRevealed)
-		.reduce((sum, a) => sum + a.points, 0);
+	const getPointsSum = () => {
+		const firstTeamResponseSum =
+			gameState.responsesFirstTeam?.reduce(
+				(sum, answer) => sum + (answer.pointsRevealed ? answer.points : 0),
+				0,
+			) || 0;
+		const stolenAnswerPoints =
+			gameState.responsesSecondTeam?.reduce(
+				(sum, answer) => sum + (answer.pointsRevealed ? answer.points : 0),
+				0,
+			) || 0;
+
+		switch (gameState.modeStatus) {
+			case "waiting_for_questions":
+			case "questions_in_progress":
+				return 0;
+			case "revealing_answers":
+			case "request_steal_question_and_answer":
+				return firstTeamResponseSum;
+			case "revealing_all_points":
+			case "award_points":
+				return firstTeamResponseSum + stolenAnswerPoints;
+		}
+	};
 
 	return (
 		<Box
@@ -84,7 +105,7 @@ export default function FastMoneyGameBoard({
 						width: 200,
 					}}
 				>
-					<Typography variant="h3">{pointsToBeAwarded}</Typography>
+					<Typography variant="h3">{getPointsSum()}</Typography>
 				</Box>
 				<Box display="flex" gap={4} justifyContent="center">
 					<Box display="flex" flexDirection="column" gap={2} flex={1}>

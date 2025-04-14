@@ -11,6 +11,7 @@ import AwardPointsButton from "./AwardPointsButton";
 import QuestionOverControls from "./QuestionOverControls";
 import StealAnswerSelector from "./StealAnswerSelector";
 import { getOpposingTeam } from "@/shared/utils";
+import AfterStealAnswerReveal from "./AfterStealAnswerReveal";
 
 export default function FaceOffControls({
 	gameState,
@@ -80,6 +81,8 @@ export default function FaceOffControls({
 					/>
 				);
 			}
+			case "revealing_steal_answer":
+				return <AfterStealAnswerReveal answers={gameState.question.answers} />;
 			default:
 				return null;
 		}

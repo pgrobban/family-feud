@@ -40,5 +40,6 @@ export default function registerFaceOffSocketEvents(socket: Socket<ClientToServe
     }
   });
 
-  socket.on("faceOff:awardTeamPoints", () => updateGame((game) => game.awardPointsFaceOff()));
+  socket.on('faceOff:requestRevealStoredAnswers', () => updateGame((game) => game.revealStoredAnswers()));
+  socket.on("faceOff:requestAwardPoints", () => updateGame((game) => game.awardPointsFaceOff()));
 }
