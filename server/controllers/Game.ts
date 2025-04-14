@@ -17,7 +17,11 @@ import {
   getAnswerIndex,
   getOpposingTeam,
 } from "../../src/shared/utils";
-import type { ClientToServerEvents, ServerToClientEvents, ToTeam } from "@/shared/gameEventMap";
+import type {
+  ClientToServerEvents,
+  ServerToClientEvents,
+  ToTeam,
+} from "@/shared/gameEventMap";
 
 const storedQuestions: StoredQuestion[] = questions;
 
@@ -242,7 +246,7 @@ export default class Game {
       answers: stored.answers.map((answer) => ({
         ...answer,
         answerRevealed: false,
-        pointsRevealed: false
+        pointsRevealed: false,
       })),
     };
 
@@ -282,7 +286,7 @@ export default class Game {
         answers: stored.answers.map((answer) => ({
           ...answer,
           answerRevealed: false,
-          pointsRevealed: false
+          pointsRevealed: false,
         })),
       };
     });
@@ -363,9 +367,7 @@ export default class Game {
   }
 
   awardPointsFamilyWarmup() {
-    if (
-      !this.validateGameStatus("family_warm_up", "revealing_team_answers")
-    ) {
+    if (!this.validateGameStatus("family_warm_up", "revealing_team_answers")) {
       return;
     }
 
@@ -406,9 +408,7 @@ export default class Game {
   }
 
   awardPointsFaceOff() {
-    if (
-      !this.validateGameStatus("face_off", "revealing_stored_answers")
-    ) {
+    if (!this.validateGameStatus("face_off", "revealing_stored_answers")) {
       return;
     }
 
@@ -436,7 +436,10 @@ export default class Game {
 
   awardPointsFastMoney() {
     if (
-      !this.validateGameStatus("face_off", ['revealing_answers', 'reveal_steal_question_and_answer'])
+      !this.validateGameStatus("face_off", [
+        "revealing_answers",
+        "reveal_steal_question_and_answer",
+      ])
     ) {
       return;
     }
@@ -444,8 +447,16 @@ export default class Game {
     if (!this.fastMoneyResponsesFirstTeam || !this.currentTeam) return;
 
     const isStolen = !!this.fastMoneyResponsesSecondTeam;
-    const firstTeamPoints = this.fastMoneyResponsesFirstTeam.reduce((acc, response) => acc + response.points, 0);
-    const stolenPoints = isStolen ? this.fastMoneyResponsesSecondTeam.reduce((acc, response) => acc + response.points, 0) : 0;
+    const firstTeamPoints = this.fastMoneyResponsesFirstTeam.reduce(
+      (acc, response) => acc + response.points,
+      0
+    );
+    const stolenPoints = isStolen
+      ? this.fastMoneyResponsesSecondTeam.reduce(
+          (acc, response) => acc + response.points,
+          0
+        )
+      : 0;
     const pointsToAward = firstTeamPoints + stolenPoints;
 
     const newTeamsAndPoints = [...this.teamsAndPoints];
@@ -455,7 +466,6 @@ export default class Game {
       modeStatus: "awarding_points",
     });
   }
-
 
   requestNewQuestion() {
     if (!this.mode || this.mode === "indeterminate") return;
@@ -522,7 +532,6 @@ export default class Game {
     ) {
       return;
     }
-
     const game = this.gameState as Extract<GameState, { mode: "face_off" }>;
 
     if (!game.question || game.buzzOrder.includes(team)) return;
@@ -569,7 +578,7 @@ export default class Game {
 
   requestOtherTeamToBuzzInAnswer() {
     this.updateGameState({
-      currentTeam: (this.gameState as FaceOffGame).currentTeam === 1 ? 2 : 1,
+      currentTeam: this.currentTeam === 1 ? 2 : 1,
       modeStatus: "getting_other_buzzed_in_answer",
     });
   }
@@ -686,7 +695,7 @@ export default class Game {
         this.updateGameState({
           question: game.question,
           isStolen: true,
-          modeStatus: 'revealing_steal_answer',
+          modeStatus: "revealing_steal_answer",
         });
         this.io.to(this.id).emit("receivedGameState", this.toJson());
       }, 800);
@@ -697,15 +706,13 @@ export default class Game {
     this.io.to(this.id).emit("answerIncorrect", { strikes: 1 });
 
     this.updateGameState({
-      modeStatus: 'revealing_steal_answer'
+      modeStatus: "revealing_steal_answer",
     });
     return true;
   }
 
   revealStoredAnswers() {
-    if (
-      !this.validateGameStatus("face_off", "revealing_steal_answer")
-    ) {
+    if (!this.validateGameStatus("face_off", "revealing_steal_answer")) {
       return;
     }
     const question = this.question;
@@ -727,8 +734,8 @@ export default class Game {
     });
 
     this.updateGameState({
-      modeStatus: 'revealing_stored_answers'
-    })
+      modeStatus: "revealing_stored_answers",
+    });
   }
 
   receivedFastMoneyResponses(responses: string[]) {
@@ -751,16 +758,15 @@ export default class Game {
           points: question.answers[answerIndex].points,
           answerRevealed: false,
           pointsRevealed: false,
-        }
+        };
       }
       return {
         answerText: response,
         points: 0,
         answerRevealed: false,
         pointsRevealed: false,
-      }
+      };
     });
-
 
     this.updateGameState({
       responsesFirstTeam: responsesWithPoints,
@@ -768,13 +774,18 @@ export default class Game {
     });
   }
 
-  requestedFastMoneyAnswerReveal(answerIndex: number, to: "playing_team" | "stealing_team") {
+  requestedFastMoneyAnswerReveal(
+    answerIndex: number,
+    to: "playing_team" | "stealing_team"
+  ) {
     if (!this.validateGameStatus("fast_money", "revealing_answers")) {
       return;
     }
 
     const responses =
-      to === "playing_team" ? this.fastMoneyResponsesFirstTeam : this.fastMoneyResponsesSecondTeam;
+      to === "playing_team"
+        ? this.fastMoneyResponsesFirstTeam
+        : this.fastMoneyResponsesSecondTeam;
 
     if (!responses) {
       throw new Error(`No responses for team ${to}`);
@@ -797,12 +808,19 @@ export default class Game {
   }
 
   requestedFastMoneyPointsReveal(answerIndex: number, to: ToTeam) {
-    if (!this.validateGameStatus("fast_money", ["revealing_answers", "received_steal_question_and_answer"])) {
+    if (
+      !this.validateGameStatus("fast_money", [
+        "revealing_answers",
+        "received_steal_question_and_answer",
+      ])
+    ) {
       return;
     }
 
     const responses =
-      to === "playing_team" ? this.fastMoneyResponsesFirstTeam : this.fastMoneyResponsesSecondTeam;
+      to === "playing_team"
+        ? this.fastMoneyResponsesFirstTeam
+        : this.fastMoneyResponsesSecondTeam;
 
     if (!responses) {
       throw new Error(`No responses for team ${to}`);
@@ -834,11 +852,19 @@ export default class Game {
     this.updateGameState({
       currentTeam: getOpposingTeam(this.currentTeam),
       modeStatus: "request_steal_question_and_answer",
-    })
+    });
   }
 
-  receivedFastMoneyStealQuestionAndAnswer(questionText: string, answerText: string) {
-    if (!this.validateGameStatus("fast_money", "request_steal_question_and_answer")) {
+  receivedFastMoneyStealQuestionAndAnswer(
+    questionText: string,
+    answerText: string
+  ) {
+    if (
+      !this.validateGameStatus(
+        "fast_money",
+        "request_steal_question_and_answer"
+      )
+    ) {
       return;
     }
 
@@ -846,43 +872,56 @@ export default class Game {
     if (!game.questions) return;
 
     const questionIndex = game.questions.findIndex(
-      (question) => question.questionText === questionText);
+      (question) => question.questionText === questionText
+    );
 
     if (questionIndex === -1) return;
 
     const foundAnswerIndex = game.questions[questionIndex].answers.findIndex(
-      (answer) => answer.answerText === answerText);
-    const storedAnswer = game.questions[questionIndex].answers[foundAnswerIndex];
+      (answer) => answer.answerText === answerText
+    );
+    const storedAnswer =
+      game.questions[questionIndex].answers[foundAnswerIndex];
 
-    const newResponsesSecondTeam = new Array<GameAnswer>(game.questions.length).fill({
+    const newResponsesSecondTeam = new Array<GameAnswer>(
+      game.questions.length
+    ).fill({
       answerText: "",
       points: 0,
       answerRevealed: false,
-      pointsRevealed: false
+      pointsRevealed: false,
     });
 
     newResponsesSecondTeam[questionIndex] = {
-      answerText: foundAnswerIndex !== -1 ? storedAnswer.answerText : answerText,
+      answerText:
+        foundAnswerIndex !== -1 ? storedAnswer.answerText : answerText,
       points: foundAnswerIndex !== -1 ? storedAnswer.points : 0,
       answerRevealed: true,
-      pointsRevealed: true
-    }
+      pointsRevealed: true,
+    };
 
     this.updateGameState({
       responsesSecondTeam: newResponsesSecondTeam,
-      modeStatus: 'received_steal_question_and_answer'
-    })
+      modeStatus: "received_steal_question_and_answer",
+    });
   }
 
   requestedRevealFastMoneyStealQuestionAndAnswer() {
-    if (!this.validateGameStatus("fast_money", "request_steal_question_and_answer")) {
+    if (
+      !this.validateGameStatus(
+        "fast_money",
+        "request_steal_question_and_answer"
+      )
+    ) {
       return;
     }
 
     if (!this.fastMoneyResponsesSecondTeam) return;
 
     const newResponsesSecondTeam = [...this.fastMoneyResponsesSecondTeam];
-    const answerIndex = newResponsesSecondTeam.findIndex((answer) => answer.answerText !== "");
+    const answerIndex = newResponsesSecondTeam.findIndex(
+      (answer) => answer.answerText !== ""
+    );
     newResponsesSecondTeam[answerIndex].answerRevealed = true;
     newResponsesSecondTeam[answerIndex].pointsRevealed = true;
 
@@ -891,9 +930,13 @@ export default class Game {
       modeStatus: "reveal_steal_question_and_answer",
     });
 
-    this.io.to(this.id).emit("fastMoney:pointsRevealed", answerIndex, "stealing_team");
+    this.io
+      .to(this.id)
+      .emit("fastMoney:pointsRevealed", answerIndex, "stealing_team");
     setTimeout(() => {
-      this.io.to(this.id).emit("fastMoney:pointsRevealed", answerIndex, "stealing_team");
+      this.io
+        .to(this.id)
+        .emit("fastMoney:pointsRevealed", answerIndex, "stealing_team");
     }, 1000);
 
     setTimeout(() => {
