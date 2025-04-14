@@ -31,7 +31,7 @@ export default function FastMoneyQuestionInProgressControls({
 		socket?.emit("requestStartTimer", FAST_MONEY_TIMER_SECONDS);
 	const onCancelTimer = () => socket?.emit("requestCancelTimer");
 	const onSubmitAnswers = () =>
-		socket?.emit("fastMoney:receivedAnswers", answersPicked);
+		socket?.emit("fastMoney:receivedResponses", answersPicked);
 
 	const submitDisabled = answersPicked.some((answer) => answer === "");
 

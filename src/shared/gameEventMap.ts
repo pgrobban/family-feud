@@ -32,7 +32,9 @@ export interface ClientToServerEvents {
   'faceOff:awardTeamPoints': () => void;
 
   'fastMoney:questionsPicked': (questions: string[]) => void;
-  'fastMoney:receivedAnswers': (answerTexts: string[]) => void;
+  'fastMoney:receivedResponses': (responses: string[]) => void;
+  'fastMoney:requestRevealAnswer': (answerIndex: number, team: 1 | 2) => void;
+  'fastMoney:requestRevealPoints': (answerIndex: number, team: 1 | 2) => void;
 }
 
 export interface ServerToClientEvents {

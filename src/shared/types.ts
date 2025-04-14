@@ -107,7 +107,8 @@ export interface StoredAnswer {
 }
 
 export interface GameAnswer extends StoredAnswer {
-  revealed: boolean;
+  answerRevealed: boolean;
+  pointsRevealed: boolean;
 }
 
 export interface FaceOffGameAnswer extends GameAnswer {

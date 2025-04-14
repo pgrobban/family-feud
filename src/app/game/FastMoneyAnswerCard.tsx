@@ -34,25 +34,28 @@ export default function FastMoneyAnswerCard({
 			answerIdx,
 			teamIdx,
 		) => {
-			if (answerIndex !== answerIdx && team !== teamIdx) return;
+			console.log("in doAnimation", answerIdx, teamIdx, answerIndex, team);
+			if (answerIndex !== answerIdx || team !== teamIdx) return;
 
 			setFlipped(true); // flip visually immediately
 			setAnswerRevealed(true);
 		};
 
-		const onPointsRevealed: EventHandler<"fastMoney:pointsRevealed"> = (
+		const revealPoints: EventHandler<"fastMoney:pointsRevealed"> = (
 			answerIdx,
 			teamIdx,
 		) => {
-			if (answerIndex !== answerIdx && team !== teamIdx) return;
+			console.log("in revealPoints", answerIdx, teamIdx, answerIndex, team);
+
+			if (answerIndex !== answerIdx || team !== teamIdx) return;
 			setPointsRevealed(true);
 		};
 
 		socket.on("fastMoney:answerRevealed", doAnimation);
-		socket.on("fastMoney:pointsRevealed", onPointsRevealed);
+		socket.on("fastMoney:pointsRevealed", revealPoints);
 		return () => {
 			socket.off("fastMoney:answerRevealed", doAnimation);
-			socket.off("fastMoney:pointsRevealed", onPointsRevealed);
+			socket.off("fastMoney:pointsRevealed", revealPoints);
 		};
 	}, [socket, answerIndex, team]);
 
@@ -120,6 +123,7 @@ export default function FastMoneyAnswerCard({
 						borderRadius: 2,
 						color: "#fff",
 						boxShadow: "inset 0 0 6px #000",
+						textTransform: "uppercase",
 					}}
 				>
 					<Typography fontSize={50}>{answerText}</Typography>

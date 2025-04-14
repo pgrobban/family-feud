@@ -16,4 +16,16 @@ export default function fastMoneyHandlers(
   socket.on("fastMoney:questionsPicked", (questions) =>
     updateGame((game) => game.hostPickedFastMoneyQuestions(questions))
   );
+  socket.on("fastMoney:receivedResponses", (responses) => updateGame((game) => game.receivedFastMoneyResponses(responses)));
+
+  socket.on("fastMoney:requestRevealAnswer", (answerIndex, team) => {
+    const game = gameManager.getGameBySocketId(socket.id);
+    if (!game) return;
+    game.requestedFastMoneyAnswerReveal(answerIndex, team);
+  });
+  socket.on("fastMoney:requestRevealPoints", (answerIndex, team) => {
+    const game = gameManager.getGameBySocketId(socket.id);
+    if (!game) return;
+    game.requestedFastMoneyPointsReveal(answerIndex, team);
+  });
 }

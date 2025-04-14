@@ -8,16 +8,16 @@ interface Props {
 }
 
 export default function AnswerCard({ answer, index }: Props) {
-	const { answerText, points, revealed } = answer;
-	const [flipped, setFlipped] = useState(revealed);
+	const { answerText, points, answerRevealed } = answer;
+	const [flipped, setFlipped] = useState(answerRevealed);
 
 	const socket = useSocket();
 
 	useEffect(() => {
-		if (revealed && !flipped) {
+		if (answerRevealed && !flipped) {
 			setFlipped(true);
 		}
-	}, [revealed, flipped]);
+	}, [answerRevealed, flipped]);
 
 	useEffect(() => {
 		if (!socket) return;
