@@ -101,6 +101,7 @@ export interface GameFinished {
 export interface StoredQuestion {
   questionText: string;
   answers: StoredAnswer[];
+  comment: string;
 }
 
 export interface StoredAnswer {

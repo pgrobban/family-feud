@@ -1,6 +1,7 @@
 [
   {
     "questionText": "Name something you can do legally (in the US) when you turn 18.",
+    "comment": "Family warm-up",
     "answers": [
       {
         "answerText": "Drink booze",
@@ -30,6 +31,7 @@
   },
   {
     "questionText": "Name something that millionaires would shop for fun.",
+    "comment": "Family warm-up",
     "answers": [
       {
         "answerText": "Cars",
@@ -58,7 +60,34 @@
     ]
   },
   {
+    "questionText": "Name something you wouldn't be able to go without for a day.",
+    "comment": "Face off",
+    "answers": [
+      {
+        "answerText": "Cell phone",
+        "points": 50
+      },
+      {
+        "answerText": "TV",
+        "points": 16
+      },
+      {
+        "answerText": "Snacks/food",
+        "points": 11
+      },
+      {
+        "answerText": "Video games/computer",
+        "points": 8
+      },
+      {
+        "answerText": "Listening to music",
+        "points": 3
+      }
+    ]
+  },
+  {
     "questionText": "Name a type of professional that you seldom see joking around.",
+    "comment": "Face off",
     "answers": [
       {
         "answerText": "Lawyer",
@@ -91,32 +120,8 @@
     ]
   },
   {
-    "questionText": "Name something you wouldn't be able to go without for a day.",
-    "answers": [
-      {
-        "answerText": "Cell phone",
-        "points": 50
-      },
-      {
-        "answerText": "TV",
-        "points": 16
-      },
-      {
-        "answerText": "Snacks/food",
-        "points": 11
-      },
-      {
-        "answerText": "Video games/computer",
-        "points": 8
-      },
-      {
-        "answerText": "Listening to music",
-        "points": 3
-      }
-    ]
-  },
-  {
     "questionText": "Name an animal with a terrifying bite.",
+    "comment": "Face off",
     "answers": [
       {
         "answerText": "Snake",
@@ -144,12 +149,73 @@
       },
       {
         "answerText": "Bear",
+        "points": 5
+      }
+    ]
+  },
+  {
+    "questionText": "Name something a celebrity hopes won't happen while on stage to accept an award.",
+    "comment": "Face off",
+    "answers": [
+      {
+        "answerText": "Trip/fall",
+        "points": 43
+      },
+      {
+        "answerText": "Forget speech",
+        "points": 22
+      },
+      {
+        "answerText": "Lose voice",
         "points": 11
+      },
+      {
+        "answerText": "Faint",
+        "points": 6
+      },
+      {
+        "answerText": "Cry",
+        "points": 4
+      },
+      {
+        "answerText": "Drop award",
+        "points": 3
+      }
+    ]
+  },
+  {
+    "questionText": "Name something you feel sleepy while doing",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "Reading",
+        "points": 48
+      },
+      {
+        "answerText": "Driving",
+        "points": 27
+      },
+      {
+        "answerText": "Watching TV",
+        "points": 10
+      },
+      {
+        "answerText": "Working",
+        "points": 5
+      },
+      {
+        "answerText": "Homework",
+        "points": 4
+      },
+      {
+        "answerText": "Eating",
+        "points": 3
       }
     ]
   },
   {
     "questionText": "Name something that parents are always telling their kids to clean.",
+    "comment": "Fast money",
     "answers": [
       {
         "answerText": "Their rooms",
@@ -170,6 +236,734 @@
       {
         "answerText": "Their plates",
         "points": 8
+      }
+    ]
+  },
+  {
+    "questionText": "Name something you can tell is fake in a cheesy movie.",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "Blood",
+        "points": 50
+      },
+      {
+        "answerText": "Love scene",
+        "points": 13
+      },
+      {
+        "answerText": "Scenery",
+        "points": 12
+      },
+      {
+        "answerText": "Acting",
+        "points": 10
+      },
+      {
+        "answerText": "Monsters",
+        "points": 6
+      },
+      {
+        "answerText": "Fight scenes",
+        "points": 5
+      }
+    ]
+  },
+  {
+    "questionText": "Name an event that could be cancelled due to rain.",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "Sports event",
+        "points": 45
+      },
+      {
+        "answerText": "Picnic",
+        "points": 34
+      },
+      {
+        "answerText": "Wedding",
+        "points": 10
+      },
+      {
+        "answerText": "Concert",
+        "points": 7
+      },
+      {
+        "answerText": "Barbeque",
+        "points": 3
+      }
+    ]
+  },
+  {
+    "questionText": "Name a place people might go for peace and quiet.",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "Library",
+        "points": 48
+      },
+      {
+        "answerText": "Park",
+        "points": 16
+      },
+      {
+        "answerText": "Church",
+        "points": 14
+      },
+      {
+        "answerText": "Bedroom",
+        "points": 13
+      },
+      {
+        "answerText": "Beach",
+        "points": 7
+      }
+    ]
+  },
+  {
+    "questionText": "Name something that comes with a hood",
+    "comment": "Family warm-up",
+    "answers": [
+      {
+        "answerText": "Coat",
+        "points": 41
+      },
+      {
+        "answerText": "Car",
+        "points": 37
+      },
+      {
+        "answerText": "Sweatshirt",
+        "points": 18
+      },
+      {
+        "answerText": "Cape",
+        "points": 3
+      }
+    ]
+  },
+  {
+    "questionText": "Name something that someone who gets dates has, that someone who doesn't get dates doesn't have.",
+    "comment": "Family warm-up",
+    "answers": [
+      {
+        "answerText": "Good looks",
+        "points": 35
+      },
+      {
+        "answerText": "Money",
+        "points": 26
+      },
+      {
+        "answerText": "Intimacy",
+        "points": 20
+      },
+      {
+        "answerText": "Charm/Confidence",
+        "points": 9
+      },
+      {
+        "answerText": "Car",
+        "points": 9
+      }
+    ]
+  },
+  {
+    "questionText": "What is the first thing you would do if you won a million dollars?",
+    "comment": "Face off",
+    "answers": [
+      {
+        "answerText": "Buy a house",
+        "points": 48
+      },
+      {
+        "answerText": "Buy a car",
+        "points": 18
+      },
+      {
+        "answerText": "Vacation",
+        "points": 11
+      },
+      {
+        "answerText": "Shopping spree",
+        "points": 8
+      },
+      {
+        "answerText": "Pay bills",
+        "points": 7
+      },
+      {
+        "answerText": "Quit job",
+        "points": 5
+      }
+    ]
+  },
+  {
+    "questionText": "Name a bad job for someone who's afraid of heights.",
+    "comment": "Face off",
+    "answers": [
+      {
+        "answerText": "Window washer",
+        "points": 39
+      },
+      {
+        "answerText": "Pilot/flight attendant",
+        "points": 37
+      },
+      {
+        "answerText": "Construction worker",
+        "points": 16
+      },
+      {
+        "answerText": "Firefighter",
+        "points": 6
+      }
+    ]
+  },
+  {
+    "questionText": "Tell me something you would never borrow from your close friend.",
+    "comment": "Face off",
+    "answers": [
+      {
+        "answerText": "Buy a house",
+        "points": 48
+      },
+      {
+        "answerText": "Buy a car",
+        "points": 18
+      },
+      {
+        "answerText": "Vacation",
+        "points": 11
+      },
+      {
+        "answerText": "Shopping spree",
+        "points": 8
+      },
+      {
+        "answerText": "Pay bills",
+        "points": 7
+      },
+      {
+        "answerText": "Quit job",
+        "points": 5
+      }
+    ]
+  },
+  {
+    "questionText": "Name a person or animal who might spend time in a tree.",
+    "comment": "Face off",
+    "answers": [
+      {
+        "answerText": "Tarzan",
+        "points": 22
+      },
+      {
+        "answerText": "Bird watcher",
+        "points": 21
+      },
+      {
+        "answerText": "Monkey",
+        "points": 15
+      },
+      {
+        "answerText": "Tree trimmer",
+        "points": 12
+      },
+      {
+        "answerText": "Bird",
+        "points": 9
+      },
+      {
+        "answerText": "Firefighter",
+        "points": 9
+      },
+      {
+        "answerText": "Child",
+        "points": 7
+      }
+    ]
+  },
+  {
+    "questionText": "Name something a mom might tell her kid to shower after doing.",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "Playing outside",
+        "points": 52
+      },
+      {
+        "answerText": "Playing sports",
+        "points": 25
+      },
+      {
+        "answerText": "Swimming",
+        "points": 18
+      },
+      {
+        "answerText": "Getting out of bed",
+        "points": 3
+      }
+    ]
+  },
+  {
+    "questionText": "Other than clothes, name something a kid might outgrow.",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "Toys",
+        "points": 48
+      },
+      {
+        "answerText": "Bed",
+        "points": 28
+      },
+      {
+        "answerText": "Hairstyle",
+        "points": 13
+      },
+      {
+        "answerText": "Bike",
+        "points": 5
+      },
+      {
+        "answerText": "Habits",
+        "points": 5
+      }
+    ]
+  },
+  {
+    "questionText": "Name something that reminds you of an ex.",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "Song",
+        "points": 61
+      },
+      {
+        "answerText": "Voice",
+        "points": 13
+      },
+      {
+        "answerText": "Photo",
+        "points": 9
+      },
+      {
+        "answerText": "Movie",
+        "points": 6
+      },
+      {
+        "answerText": "Name",
+        "points": 5
+      },
+      {
+        "answerText": "Car",
+        "points": 3
+      }
+    ]
+  },
+  {
+    "questionText": "Name something that might be ruined if it had a scratch on it.",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "CD/Record",
+        "points": 44
+      },
+      {
+        "answerText": "Furniture",
+        "points": 16
+      },
+      {
+        "answerText": "Glasses",
+        "points": 11
+      },
+      {
+        "answerText": "Car",
+        "points": 11
+      },
+      {
+        "answerText": "Mirror",
+        "points": 6
+      },
+      {
+        "answerText": "Camera lens",
+        "points": 5
+      }
+    ]
+  },
+  {
+    "questionText": "What might an actor do to cure stage fright?",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "Have a drink",
+        "points": 38
+      },
+      {
+        "answerText": "Rehearse",
+        "points": 32
+      },
+      {
+        "answerText": "Imagine crowd named",
+        "points": 12
+      },
+      {
+        "answerText": "Deep breaths",
+        "points": 5
+      },
+      {
+        "answerText": "Meditate",
+        "points": 5
+      },
+      {
+        "answerText": "Count to 10",
+        "points": 3
+      }
+    ]
+  },
+  {
+    "questionText": "Name something a little girl needs to look like a princess.",
+    "comment": "Family warm-up",
+    "answers": [
+      {
+        "answerText": "Tiara",
+        "points": 63
+      },
+      {
+        "answerText": "Dress",
+        "points": 17
+      },
+      {
+        "answerText": "Magic wand",
+        "points": 5
+      },
+      {
+        "answerText": "Makeup",
+        "points": 4
+      },
+      {
+        "answerText": "Jewelry",
+        "points": 3
+      },
+      {
+        "answerText": "Charm",
+        "points": 2
+      }
+    ]
+  },
+  {
+    "questionText": "Name something that people wear that only comes in one size.",
+    "comment": "Family warm-up",
+    "answers": [
+      {
+        "answerText": "Hat",
+        "points": 38
+      },
+      {
+        "answerText": "Glasses",
+        "points": 22
+      },
+      {
+        "answerText": "Scarf",
+        "points": 12
+      },
+      {
+        "answerText": "Gloves",
+        "points": 10
+      },
+      {
+        "answerText": "Tie",
+        "points": 8
+      }
+    ]
+  },
+  {
+    "questionText": "Name a place or event, where you’d be mortified if your cell phone went off.",
+    "comment": "Face off",
+    "answers": [
+      {
+        "answerText": "Church",
+        "points": 39
+      },
+      {
+        "answerText": "Funeral",
+        "points": 37
+      },
+      {
+        "answerText": "Movies",
+        "points": 7
+      },
+      {
+        "answerText": "Job interview",
+        "points": 4
+      },
+      {
+        "answerText": "Wedding",
+        "points": 4
+      }
+    ]
+  },
+  {
+    "questionText": "Name a place you wait, where it could be awkward if you make too much small talk with others.",
+    "comment": "Face off",
+    "answers": [
+      {
+        "answerText": "Hospital",
+        "points": 33
+      },
+      {
+        "answerText": "Bathroom",
+        "points": 29
+      },
+      {
+        "answerText": "Bus stop",
+        "points": 15
+      },
+      {
+        "answerText": "Jail",
+        "points": 13
+      },
+      {
+        "answerText": "Voting booth",
+        "points": 4
+      },
+      {
+        "answerText": "Court/Lawyer",
+        "points": 4
+      }
+    ]
+  },
+  {
+    "questionText": "Name something you wouldn’t want to happen while you’re in the bathtub.",
+    "comment": "Face off",
+    "answers": [
+      {
+        "answerText": "Slip",
+        "points": 30
+      },
+      {
+        "answerText": "Appliance falling in",
+        "points": 22
+      },
+      {
+        "answerText": "Phone ring",
+        "points": 15
+      },
+      {
+        "answerText": "Power goes out",
+        "points": 15
+      },
+      {
+        "answerText": "Doorbell",
+        "points": 5
+      },
+      {
+        "answerText": "Fall asleep",
+        "points": 4
+      }
+    ]
+  },
+  {
+    "questionText": "Name something men would try to cover up.",
+    "comment": "Face off",
+    "answers": [
+      {
+        "answerText": "Affair",
+        "points": 59
+      },
+      {
+        "answerText": "Baldness",
+        "points": 15
+      },
+      {
+        "answerText": "Lies",
+        "points": 8
+      },
+      {
+        "answerText": "Bills/money",
+        "points": 8
+      },
+      {
+        "answerText": "Gray hair",
+        "points": 4
+      }
+    ]
+  },
+  {
+    "questionText": "Name someone who wears white clothes.",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "Nurse",
+        "points": 45
+      },
+      {
+        "answerText": "Doctor",
+        "points": 27
+      },
+      {
+        "answerText": "Bride",
+        "points": 8
+      },
+      {
+        "answerText": "Chef",
+        "points": 5
+      },
+      {
+        "answerText": "Dentist",
+        "points": 3
+      },
+      {
+        "answerText": "Painter",
+        "points": 2
+      }
+    ]
+  },
+  {
+    "questionText": "Name a school supply that you haven't used since you were young.",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "Crayon",
+        "points": 38
+      },
+      {
+        "answerText": "Ruler",
+        "points": 25
+      },
+      {
+        "answerText": "Pencil/Eraser",
+        "points": 18
+      },
+      {
+        "answerText": "Paster/glue",
+        "points": 11
+      },
+      {
+        "answerText": "Compass",
+        "points": 5
+      }
+    ]
+  },
+  {
+    "questionText": "Name something a flight attendant sees every day",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "Passengers",
+        "points": 40
+      },
+      {
+        "answerText": "Planes",
+        "points": 16
+      },
+      {
+        "answerText": "Clouds",
+        "points": 12
+      },
+      {
+        "answerText": "Pilot",
+        "points": 9
+      },
+      {
+        "answerText": "Sky",
+        "points": 9
+      },
+      {
+        "answerText": "In-flight movie",
+        "points": 4
+      },
+      {
+        "answerText": "Safety movie",
+        "points": 2
+      }
+    ]
+  },
+  {
+    "questionText": "Name something a flight attendant sees every day",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "Passengers",
+        "points": 40
+      },
+      {
+        "answerText": "Planes",
+        "points": 16
+      },
+      {
+        "answerText": "Clouds",
+        "points": 12
+      },
+      {
+        "answerText": "Pilot",
+        "points": 9
+      },
+      {
+        "answerText": "Sky",
+        "points": 9
+      },
+      {
+        "answerText": "In-flight movie",
+        "points": 4
+      },
+      {
+        "answerText": "Safety movie",
+        "points": 2
+      }
+    ]
+  },
+  {
+    "questionText": "Name something people might buy for their new goldfish",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "Food",
+        "points": 46
+      },
+      {
+        "answerText": "Tank",
+        "points": 26
+      },
+      {
+        "answerText": "Some rocks",
+        "points": 14
+      },
+      {
+        "answerText": "Castle",
+        "points": 5
+      },
+      {
+        "answerText": "Another goldfish",
+        "points": 4
+      }
+    ]
+  },
+  {
+    "questionText": "Name someone who might work at a mansion",
+    "comment": "Fast money",
+    "answers": [
+      {
+        "answerText": "Maid",
+        "points": 45
+      },
+      {
+        "answerText": "Butler",
+        "points": 37
+      },
+      {
+        "answerText": "Cook",
+        "points": 5
+      },
+      {
+        "answerText": "Gardener",
+        "points": 5
+      },
+      {
+        "answerText": "Chauffeur",
+        "points": 2
       }
     ]
   }

@@ -453,9 +453,9 @@ export default class Game {
     );
     const stolenPoints = isStolen
       ? this.fastMoneyResponsesSecondTeam.reduce(
-          (acc, response) => acc + response.points,
-          0
-        )
+        (acc, response) => acc + response.points,
+        0
+      )
       : 0;
     const pointsToAward = firstTeamPoints + stolenPoints;
 

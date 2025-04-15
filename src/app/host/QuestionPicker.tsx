@@ -6,28 +6,31 @@ import useSocket from "@/hooks/useSocket";
 const storedQuestions: StoredQuestion[] = questions;
 
 export default function QuestionPicker() {
-  const socket = useSocket();
-  const onQuestionPicked = (questionText: string) =>
-    socket?.emit("questionPicked", questionText);
+	const socket = useSocket();
+	const onQuestionPicked = (questionText: string) =>
+		socket?.emit("questionPicked", questionText);
 
-  return (
-    <Box p={2}>
-      <Typography>Pick a question...</Typography>
-      {storedQuestions.map(({ questionText, answers }) => (
-        <Grid container key={questionText} spacing={2} sx={{ display: "flex" }}>
-          <div style={{ flex: 1 }}>{questionText}</div>
-          <div style={{ flex: 1 }}>{answers.length} answers</div>
-          <div style={{ flex: 1 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => onQuestionPicked(questionText)}
-            >
-              Pick
-            </Button>
-          </div>
-        </Grid>
-      ))}
-    </Box>
-  );
+	return (
+		<Box p={2}>
+			<Typography>Pick a question...</Typography>
+			{storedQuestions.map(({ questionText, answers, comment }) => (
+				<Grid container key={questionText} spacing={2} mb={2}>
+					<Box flex={2}>{questionText}</Box>
+					<Box flex={1} fontSize={16}>
+						{comment} <br />
+						{answers.length} answers
+					</Box>
+					<Box flex={1}>
+						<Button
+							variant="contained"
+							color="primary"
+							onClick={() => onQuestionPicked(questionText)}
+						>
+							Pick
+						</Button>
+					</Box>
+				</Grid>
+			))}
+		</Box>
+	);
 }
