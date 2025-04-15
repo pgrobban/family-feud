@@ -1,7 +1,14 @@
-import type { BaseGameState, FamilyWarmUpGame, GameState, TeamAndPoints } from "@/shared/types";
+import type {
+  BaseGameState,
+  FamilyWarmUpGame,
+  GameState,
+  TeamAndPoints,
+} from "@/shared/types";
 import { BaseMode } from "./BaseMode";
 
-export class FamilyWarmUpMode extends BaseMode<BaseGameState & FamilyWarmUpGame> {
+export class FamilyWarmUpMode extends BaseMode<
+  BaseGameState & FamilyWarmUpGame
+> {
   initialize(): Partial<FamilyWarmUpGame> {
     return {
       mode: "family_warm_up",
@@ -17,9 +24,10 @@ export class FamilyWarmUpMode extends BaseMode<BaseGameState & FamilyWarmUpGame>
   }
 
   hostRequestedTeamAnswers() {
+    console.log("Before:", this.gameState);
     this.updateGameState({ modeStatus: "gathering_team_answers" });
+    console.log("After:", this.gameState);
   }
-
 
   revealTeamAnswers() {
     const question = this.gameState.question;
@@ -100,5 +108,15 @@ export class FamilyWarmUpMode extends BaseMode<BaseGameState & FamilyWarmUpGame>
       teamsAndPoints: newTeamsAndPoints,
       modeStatus: "awarding_points",
     });
+  }
+
+  toJson(): GameState {
+    return {
+      ...super.toJson(),
+      question: this.gameState.question,
+      // @ts-expect-error TODO
+      team1Answers: this.gameState.team1Answers,
+      team2Answers: this.gameState.team2Answers,
+    };
   }
 }

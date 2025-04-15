@@ -24,7 +24,6 @@ import type {
 import { FamilyWarmUpMode } from "./modes/FamilyWarmUpMode";
 import type { BaseMode } from "./modes/BaseMode";
 
-
 const storedQuestions: StoredQuestion[] = questions;
 
 const MAX_STRIKES = 3;
@@ -112,26 +111,13 @@ export default class Game {
   get fastMoneyResponsesSecondTeam() {
     return (this.gameState as FastMoneyGame).responsesSecondTeam;
   }
-
   toJson(): GameState {
-    // @ts-expect-error TODO
+    if (this.currentModeHandler) {
+      return this.currentModeHandler.toJson();
+    }
+
     return {
-      id: this.id,
-      status: this.status,
-      mode: this.mode,
-      modeStatus: this.modeStatus,
-      teamNames: this.teamNames,
-      teamsAndPoints: this.teamsAndPoints,
-      team1Answers: this.team1Answers,
-      team2Answers: this.team2Answers,
-      question: this.question,
-      questions: this.questions,
-      isStolen: this.isStolen,
-      buzzOrder: this.buzzOrder,
-      currentTeam: this.currentTeam,
-      inControlTeam: this.inControlTeam,
-      strikes: this.strikes,
-      responsesFirstTeam: this.fastMoneyResponsesFirstTeam,
+      ...this.gameState,
     };
   }
 
@@ -178,21 +164,16 @@ export default class Game {
     mode: Exclude<GameInProgress["mode"], "indeterminate">
   ) {
     if (mode === "family_warm_up") {
-      const familyGameState = this.gameState as GameState & FamilyWarmUpGame;
-      const handler = new FamilyWarmUpMode(
-        familyGameState,
+      this.currentModeHandler = new FamilyWarmUpMode(
+        this.gameState as GameState & FamilyWarmUpGame,
         this.io,
         this.id,
         this.updateGameState
       );
-      this.currentModeHandler = handler;
-      const initState = handler.initialize();
-      return {
-        ...this.gameState,
-        ...initState,
-      };
+      const initState = this.currentModeHandler.initialize();
+      this.updateGameState(initState); // 👈 apply the new mode + modeStatus etc.
+      return this.gameState as GameState & FamilyWarmUpGame;
     }
-    // rest after refactoring
 
     switch (mode) {
       case "face_off":
@@ -276,7 +257,10 @@ export default class Game {
       return;
     }
 
-    (this.currentModeHandler as FamilyWarmUpMode).gatheredAnswers(team1Answers, team2Answers);
+    (this.currentModeHandler as FamilyWarmUpMode).gatheredAnswers(
+      team1Answers,
+      team2Answers
+    );
   }
 
   hostPickedFastMoneyQuestions(questionTexts: string[]) {
@@ -333,7 +317,10 @@ export default class Game {
     if (!this.validateGameStatus("family_warm_up", "gathering_team_answers"))
       return;
 
-    (this.currentModeHandler as FamilyWarmUpMode).gatheredAnswers(team1Answers, team2Answers);
+    (this.currentModeHandler as FamilyWarmUpMode).gatheredAnswers(
+      team1Answers,
+      team2Answers
+    );
   }
 
   hostRevealedTeamAnswersFamilyWarmup() {
@@ -344,7 +331,6 @@ export default class Game {
     }
 
     (this.currentModeHandler as FamilyWarmUpMode).revealTeamAnswers();
-
   }
 
   awardPointsFamilyWarmup() {
@@ -401,9 +387,9 @@ export default class Game {
     );
     const stolenPoints = isStolen
       ? this.fastMoneyResponsesSecondTeam.reduce(
-        (acc, response) => acc + response.points,
-        0
-      )
+          (acc, response) => acc + response.points,
+          0
+        )
       : 0;
     const pointsToAward = firstTeamPoints + stolenPoints;
 
@@ -419,9 +405,7 @@ export default class Game {
     if (!this.mode || this.mode === "indeterminate") return;
 
     const newQuestionStateProps = this.getNewQuestionState(this.mode);
-    if (newQuestionStateProps) { // todo: remove after refactoring
-      this.updateGameState(newQuestionStateProps);
-    }
+    this.updateGameState(newQuestionStateProps);
   }
 
   endGame() {

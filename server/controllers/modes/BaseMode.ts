@@ -27,12 +27,26 @@ export abstract class BaseMode<T extends GameState> {
 
   abstract getType(): string;
 
-  protected emit(event: keyof ServerToClientEvents, data: any) {
-    this.io.to(this.roomId).emit(event, data);
+  protected emit<K extends keyof ServerToClientEvents>(
+    event: K,
+    ...args: Parameters<ServerToClientEvents[K]>
+  ) {
+    this.io.to(this.roomId).emit(event, ...args);
   }
 
   protected patchState(patch: Partial<T>) {
     this.updateGameState(patch);
   }
 
+  toJson(): GameState {
+    // @ts-expect-error TODO
+    return {
+      id: this.roomId,
+      status: this.gameState.status,
+      mode: this.gameState.mode,
+      modeStatus: this.gameState.modeStatus,
+      teamNames: this.gameState.teamNames,
+      teamsAndPoints: this.gameState.teamsAndPoints,
+    };
+  }
 }
