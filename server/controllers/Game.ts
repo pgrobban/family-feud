@@ -8,7 +8,6 @@ import type {
   GameQuestion,
   GameState,
   StoredQuestion,
-  TeamAndPoints,
 } from "@/shared/types";
 import questions from "../../src/shared/questions.json";
 import type { Server } from "socket.io";
@@ -22,6 +21,9 @@ import type {
   ServerToClientEvents,
   ToTeam,
 } from "@/shared/gameEventMap";
+import { FamilyWarmUpMode } from "./modes/FamilyWarmUpMode";
+import type { BaseMode } from "./modes/BaseMode";
+
 
 const storedQuestions: StoredQuestion[] = questions;
 
@@ -33,6 +35,7 @@ export default class Game {
   private playerSocketIds: string[] = [];
   private hostSocketIds: string[] = [];
   private io: Server<ClientToServerEvents, ServerToClientEvents>;
+  private currentModeHandler: BaseMode<any> | null = null;
 
   constructor(id: string, socketId: string, teamNames: string[], io: Server) {
     this.id = id;
@@ -174,15 +177,24 @@ export default class Game {
   private getNewQuestionState(
     mode: Exclude<GameInProgress["mode"], "indeterminate">
   ) {
+    if (mode === "family_warm_up") {
+      const familyGameState = this.gameState as GameState & FamilyWarmUpGame;
+      const handler = new FamilyWarmUpMode(
+        familyGameState,
+        this.io,
+        this.id,
+        this.updateGameState
+      );
+      this.currentModeHandler = handler;
+      const initState = handler.initialize();
+      return {
+        ...this.gameState,
+        ...initState,
+      };
+    }
+    // rest after refactoring
+
     switch (mode) {
-      case "family_warm_up":
-        return {
-          mode,
-          modeStatus: "waiting_for_question",
-          question: null,
-          team1Answers: [],
-          team2Answers: [],
-        } as FamilyWarmUpGame;
       case "face_off":
         return {
           mode,
@@ -209,13 +221,6 @@ export default class Game {
         } as FastMoneyGame;
       }
     }
-  }
-
-  hostRequestedTeamAnswers() {
-    if (!this.validateGameStatus("family_warm_up", "question_in_progress")) {
-      return;
-    }
-    this.updateGameState({ modeStatus: "gathering_team_answers" });
   }
 
   cancelQuestionOrMode() {
@@ -257,6 +262,21 @@ export default class Game {
           ? "question_in_progress"
           : "face_off_started",
     });
+  }
+
+  hostRequestedTeamAnswers() {
+    if (!this.validateGameStatus("family_warm_up", "question_in_progress")) {
+      return;
+    }
+    (this.currentModeHandler as FamilyWarmUpMode).hostRequestedTeamAnswers();
+  }
+
+  gatheredAnswers(team1Answers: string[], team2Answers: string[]) {
+    if (!this.validateGameStatus("family_warm_up", "question_in_progress")) {
+      return;
+    }
+
+    (this.currentModeHandler as FamilyWarmUpMode).gatheredAnswers(team1Answers, team2Answers);
   }
 
   hostPickedFastMoneyQuestions(questionTexts: string[]) {
@@ -303,23 +323,7 @@ export default class Game {
     ) {
       return;
     }
-
-    const typedState = this.gameState as FamilyWarmUpGame;
-
-    if (!typedState.question) {
-      throw new Error("No question selected");
-    }
-
-    this.updateGameState({
-      question: {
-        ...typedState.question,
-        answers: typedState.question.answers.map((answer) => ({
-          ...answer,
-          revealed: true,
-        })),
-      },
-      modeStatus: "revealing_team_answers",
-    });
+    (this.currentModeHandler as FamilyWarmUpMode).revealTeamAnswers();
   }
 
   hostGatheredTeamAnswersFamilyWarmup(
@@ -329,29 +333,7 @@ export default class Game {
     if (!this.validateGameStatus("family_warm_up", "gathering_team_answers"))
       return;
 
-    const question = this.question;
-    if (!question) return;
-
-    this.updateGameState({
-      team1Answers,
-      team2Answers,
-      modeStatus: "revealing_stored_answers",
-    });
-
-    question.answers.forEach((_, index) => {
-      setTimeout(() => {
-        question.answers[index].answerRevealed = true;
-        question.answers[index].pointsRevealed = true;
-
-        this.io.to(this.id).emit("answerRevealed", { index });
-
-        if (index === question.answers.length - 1) {
-          setTimeout(() => {
-            this.io.to(this.id).emit("receivedGameState", this.toJson());
-          }, 500);
-        }
-      }, index * 800);
-    });
+    (this.currentModeHandler as FamilyWarmUpMode).gatheredAnswers(team1Answers, team2Answers);
   }
 
   hostRevealedTeamAnswersFamilyWarmup() {
@@ -361,9 +343,8 @@ export default class Game {
       return;
     }
 
-    this.updateGameState({
-      modeStatus: "revealing_team_answers",
-    });
+    (this.currentModeHandler as FamilyWarmUpMode).revealTeamAnswers();
+
   }
 
   awardPointsFamilyWarmup() {
@@ -371,40 +352,7 @@ export default class Game {
       return;
     }
 
-    const gameState = this.gameState as GameState & FamilyWarmUpGame;
-
-    if (!gameState.team1Answers || !gameState.team2Answers) {
-      throw new Error(
-        `Team answers are missing. Team 1: ${gameState.team1Answers}, Team 2: ${gameState.team2Answers}`
-      );
-    }
-
-    const { question, team1Answers, team2Answers } = this as FamilyWarmUpGame;
-    if (!question || !team1Answers || !team2Answers) {
-      throw new Error("Question or team answers is missing");
-    }
-
-    const calculatePoints = (teamAnswers: string[]) =>
-      teamAnswers.reduce((total, answerText) => {
-        const foundAnswer = question.answers.find(
-          (a) => a.answerText === answerText
-        );
-        return total + (foundAnswer ? foundAnswer.points : 0);
-      }, 0);
-
-    const newTeamsAndPoints: TeamAndPoints[] = gameState.teamsAndPoints.map(
-      (team, index) => ({
-        ...team,
-        points:
-          team.points +
-          calculatePoints(index === 0 ? team1Answers : team2Answers),
-      })
-    );
-
-    this.updateGameState({
-      teamsAndPoints: newTeamsAndPoints,
-      modeStatus: "awarding_points",
-    });
+    (this.currentModeHandler as FamilyWarmUpMode).awardPoints();
   }
 
   awardPointsFaceOff() {
@@ -471,7 +419,9 @@ export default class Game {
     if (!this.mode || this.mode === "indeterminate") return;
 
     const newQuestionStateProps = this.getNewQuestionState(this.mode);
-    this.updateGameState(newQuestionStateProps);
+    if (newQuestionStateProps) { // todo: remove after refactoring
+      this.updateGameState(newQuestionStateProps);
+    }
   }
 
   endGame() {
