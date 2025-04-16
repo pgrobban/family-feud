@@ -11,15 +11,21 @@ export class FamilyWarmUpMode extends BaseMode<
   BaseGameState & FamilyWarmUpGame
 > {
   initialize(): GameState & FamilyWarmUpGame {
-    return {
-      ...this.toJsonBase(),
+
+    const initialState: BaseGameState & FamilyWarmUpGame = {
+      ...this.gameState,
+      id: this.gameState.id,
+      teamNames: this.gameState.teamNames,
+      teamsAndPoints: this.gameState.teamsAndPoints,
       status: "in_progress",
       mode: "family_warm_up",
       modeStatus: "waiting_for_question",
-      question: null,
       team1Answers: [],
       team2Answers: [],
+      question: null,
     };
+
+    return initialState; // Return the correctly combined state
   }
 
   getType() {

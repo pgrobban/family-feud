@@ -157,9 +157,30 @@ export default class Game {
       return;
     }
 
-    const stateProps = this.getNewQuestionState(mode);
-    //  this.updateGameState({ ...stateProps, status: "in_progress" });
-    console.log("***", this.toJson())
+    // Create the mode handler
+    this.currentModeHandler = this.createModeHandler(mode);
+
+    // Initialize and update game state in a single step
+    const newStateProps = this.currentModeHandler.initialize();
+    newStateProps.mode = mode;
+    this.updateGameState(newStateProps);
+  }
+
+  // @ts-ignore ignore the remaining two modes for now since their handlers are not implemented
+  private createModeHandler(mode: Exclude<GameInProgress["mode"], "indeterminate">): BaseMode<any> {
+    switch (mode) {
+      case "family_warm_up":
+        return new FamilyWarmUpMode(
+          this.gameState as GameState & FamilyWarmUpGame,
+          this.io,
+          this.id,
+          this.updateGameState
+        );
+      case "face_off":
+      // return new FaceOffMode(...)
+      case "fast_money":
+      // return new FastMoneyMode(...)
+    }
   }
 
   private getNewQuestionState(
@@ -172,7 +193,8 @@ export default class Game {
         this.id,
         this.updateGameState
       );
-      // @ts-expect-error TODO
+
+      // @ts-ignore
       this.gameState = this.currentModeHandler.initialize();
       return;
     }
@@ -213,6 +235,7 @@ export default class Game {
   }
 
   hostPickedQuestionForCurrentMode(pickedQuestionText: string) {
+    console.log("*** before", this.toJson());
     if (
       !this.validateGameStatus(
         ["family_warm_up", "face_off", "fast_money"],
@@ -245,6 +268,7 @@ export default class Game {
           ? "question_in_progress"
           : "face_off_started",
     });
+    console.log("*** after", this.toJson());
   }
 
   hostRequestedTeamAnswers() {
@@ -880,10 +904,16 @@ export default class Game {
     }, 2000);
   }
 
-  private updateGameState(updates: Partial<GameState>) {
-    if (!this.gameState) {
-      return;
-    }
-    this.gameState = { ...this.gameState, ...updates } as GameState;
-  }
+  private updateGameState = (updates: Partial<GameState>) => {
+    if (!this.gameState) return;
+
+    console.log(">>> updateGameState called with:", updates);
+
+    const nextState = { ...this.gameState, ...updates } as GameState;
+
+    console.log(">>> next state would be:", nextState);
+    this.gameState = nextState;
+
+    console.log(">>> after update, gameState is now:", this.toJson());
+  };
 }
