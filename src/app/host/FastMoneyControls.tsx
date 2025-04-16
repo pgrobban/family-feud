@@ -1,4 +1,4 @@
-import type { FastMoneyGame, GameState } from "@/shared/types";
+import type { FastMoneyGameState, GameState } from "@/shared/types";
 import FastMoneyQuestionsPicker from "./FastMoneyQuestionsPicker";
 import FastMoneyAnswersPicker from "./FastMoneyQuestionInProgressControls";
 import FastMoneyRevealAnswers from "./FastMoneyRevealAnswers";
@@ -9,7 +9,7 @@ import FastMoneyStealQuestionAndAnswerPicker from "./FastMoneyStealQuestionAndAn
 export default function FastMoneyControls({
 	gameState,
 }: {
-	gameState: GameState & FastMoneyGame;
+	gameState: GameState & FastMoneyGameState;
 }) {
 	if (gameState?.status !== "in_progress" || gameState?.mode !== "fast_money") {
 		return null;

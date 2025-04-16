@@ -1,10 +1,10 @@
 import useSocket from "@/hooks/useSocket";
-import type { GameInProgress } from "@/shared/types";
+import type { Mode } from "@/shared/types";
 import { Button } from "@mui/material";
 
 export default function AwardPointsButton({
 	currentMode,
-}: { currentMode: Exclude<GameInProgress["mode"], "indeterminate"> }) {
+}: { currentMode: Exclude<Mode, "indeterminate"> }) {
 	const socket = useSocket();
 	const requestAwardPoints = () =>
 		socket?.emit(

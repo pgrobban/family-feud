@@ -1,12 +1,14 @@
 import type {
-  FaceOffGame,
+  BaseGameState,
   FaceOffGameAnswer,
-  FamilyWarmUpGame,
-  FastMoneyGame,
-  GameAnswer,
-  GameInProgress,
+  FaceOffGameState,
+  FamilyWarmUpGameState,
+  FastMoneyAnswer,
+  FastMoneyGameState,
   GameQuestion,
   GameState,
+  IndeterminateGameState,
+  Mode,
   StoredQuestion,
   TeamAndPoints,
 } from "@/shared/types";
@@ -18,6 +20,8 @@ import {
   getAnswerIndex,
   getFastMoneyStealPoints,
   getOpposingTeam,
+  getPointsSum,
+  MAX_FACE_OFF_STRIKES,
 } from "../../src/shared/utils";
 import type {
   ClientToServerEvents,
@@ -27,7 +31,17 @@ import type {
 
 const storedQuestions: StoredQuestion[] = questions;
 
-const MAX_STRIKES = 3;
+function isFamilyWarmUpGame(gameState: GameState): gameState is FamilyWarmUpGameState {
+  return gameState.mode === "family_warm_up";
+}
+
+function isFaceOffGame(gameState: GameState): gameState is FaceOffGameState {
+  return gameState.mode === "face_off";
+}
+
+function isFastMoneyGame(gameState: GameState): gameState is FastMoneyGameState {
+  return gameState.mode === "fast_money";
+}
 
 export default class Game {
   public id: string;
@@ -46,6 +60,8 @@ export default class Game {
       teamNames,
       teamsAndPoints: teamNames.map((teamName) => ({ teamName, points: 0 })),
       status: "waiting_for_host",
+      mode: "indeterminate",
+      modeStatus: null
     };
   }
 
@@ -54,7 +70,14 @@ export default class Game {
   }
 
   get question() {
-    return this.gameState.question;
+    if (isFamilyWarmUpGame(this.gameState)) {
+      return (this.gameState as FamilyWarmUpGameState).question;
+    }
+    if (isFaceOffGame(this.gameState)) {
+      return (this.gameState as FaceOffGameState).question;
+    }
+
+    return undefined;
   }
 
   get modeStatus() {
@@ -73,66 +96,58 @@ export default class Game {
   }
 
   get team1Answers() {
-    return (this.gameState as FamilyWarmUpGame).team1Answers;
+    return (this.gameState as FamilyWarmUpGameState).team1Answers;
   }
 
   get team2Answers() {
-    return (this.gameState as FamilyWarmUpGame).team2Answers;
+    return (this.gameState as FamilyWarmUpGameState).team2Answers;
   }
 
   get currentTeam() {
-    return (this.gameState as FaceOffGame | FastMoneyGame).currentTeam;
+    return (this.gameState as FaceOffGameState | FastMoneyGameState).currentTeam;
   }
 
   get inControlTeam() {
-    return (this.gameState as FaceOffGame).inControlTeam;
+    return (this.gameState as FaceOffGameState).inControlTeam;
   }
 
   get buzzOrder() {
-    return (this.gameState as FaceOffGame).buzzOrder;
+    return (this.gameState as FaceOffGameState).buzzOrder;
   }
 
   get isStolen() {
-    return (this.gameState as FaceOffGame).isStolen;
+    return (this.gameState as FaceOffGameState).isStolen;
   }
 
   get strikes() {
-    return (this.gameState as FaceOffGame).strikes;
+    return (this.gameState as FaceOffGameState).strikes;
   }
 
   get questions() {
-    return (this.gameState as FastMoneyGame).questions;
+    return (this.gameState as FastMoneyGameState).questions;
   }
 
   get fastMoneyResponsesFirstTeam() {
-    return (this.gameState as FastMoneyGame).responsesFirstTeam;
+    return (this.gameState as FastMoneyGameState).responsesFirstTeam;
   }
 
   get fastMoneyResponsesSecondTeam() {
-    return (this.gameState as FastMoneyGame).responsesSecondTeam;
+    return (this.gameState as FastMoneyGameState).responsesSecondTeam;
   }
 
-  toJson(): GameState {
-    // @ts-expect-error TODO
-    return {
-      id: this.id,
-      status: this.status,
-      mode: this.mode,
-      modeStatus: this.modeStatus,
-      teamNames: this.teamNames,
-      teamsAndPoints: this.teamsAndPoints,
-      team1Answers: this.team1Answers,
-      team2Answers: this.team2Answers,
-      question: this.question,
-      questions: this.questions,
-      isStolen: this.isStolen,
-      buzzOrder: this.buzzOrder,
-      currentTeam: this.currentTeam,
-      inControlTeam: this.inControlTeam,
-      strikes: this.strikes,
-      responsesFirstTeam: this.fastMoneyResponsesFirstTeam,
-      responsesSecondTeam: this.fastMoneyResponsesSecondTeam
-    };
+  toJson() {
+    if (isFamilyWarmUpGame(this.gameState)) {
+      return this.gameState as FamilyWarmUpGameState;
+    }
+
+    if (isFaceOffGame(this.gameState)) {
+      return this.gameState as FaceOffGameState;
+    }
+
+    if (isFastMoneyGame(this.gameState)) {
+      return this.gameState as FastMoneyGameState;
+    }
+    return this.gameState as IndeterminateGameState;
   }
 
   getPlayerSocketIds() {
@@ -165,7 +180,7 @@ export default class Game {
     }
   }
 
-  hostPickedMode(mode: Exclude<GameInProgress["mode"], "indeterminate">) {
+  hostPickedMode(mode: Exclude<BaseGameState["mode"], "indeterminate">) {
     if (!this.validateGameStatus("indeterminate")) {
       return;
     }
@@ -175,19 +190,21 @@ export default class Game {
   }
 
   private getNewQuestionState(
-    mode: Exclude<GameInProgress["mode"], "indeterminate">
+    mode: Exclude<BaseGameState["mode"], "indeterminate">
   ) {
     switch (mode) {
       case "family_warm_up":
         return {
+          ...this.gameState,
           mode,
           modeStatus: "waiting_for_question",
           question: null,
           team1Answers: [],
           team2Answers: [],
-        } as FamilyWarmUpGame;
+        } as FamilyWarmUpGameState;
       case "face_off":
         return {
+          ...this.gameState,
           mode,
           modeStatus: "waiting_for_question",
           question: null,
@@ -195,7 +212,8 @@ export default class Game {
           isStolen: false,
           strikes: 0,
           currentTeam: null,
-        } as FaceOffGame;
+          inControlTeam: null,
+        } as FaceOffGameState;
       case "fast_money": {
         const firstTeamToAnswerIndex = this.teamsAndPoints.findIndex(
           (team) =>
@@ -203,13 +221,13 @@ export default class Game {
             Math.max(...this.teamsAndPoints.map((t) => t.points))
         );
         return {
+          ...this.gameState,
           mode,
           modeStatus: "waiting_for_questions",
           questions: [],
           currentTeam: firstTeamToAnswerIndex + 1,
-          responsesFirstTeam: undefined,
-          responsesSecondTeam: undefined,
-        } as FastMoneyGame;
+
+        } as FastMoneyGameState;
       }
     }
   }
@@ -307,7 +325,7 @@ export default class Game {
       return;
     }
 
-    const typedState = this.gameState as FamilyWarmUpGame;
+    const typedState = this.gameState as FamilyWarmUpGameState;
 
     if (!typedState.question) {
       throw new Error("No question selected");
@@ -329,10 +347,12 @@ export default class Game {
     team1Answers: string[],
     team2Answers: string[]
   ) {
+    if (!isFamilyWarmUpGame(this.gameState)) return;
+
     if (!this.validateGameStatus("family_warm_up", "gathering_team_answers"))
       return;
 
-    const question = this.question;
+    const question = this.gameState.question;
     if (!question) return;
 
     this.updateGameState({
@@ -344,7 +364,6 @@ export default class Game {
     question.answers.forEach((_, index) => {
       setTimeout(() => {
         question.answers[index].answerRevealed = true;
-        question.answers[index].pointsRevealed = true;
 
         this.io.to(this.id).emit("answerRevealed", { index });
 
@@ -374,7 +393,7 @@ export default class Game {
       return;
     }
 
-    const gameState = this.gameState as GameState & FamilyWarmUpGame;
+    const gameState = this.gameState as FamilyWarmUpGameState;
 
     if (!gameState.team1Answers || !gameState.team2Answers) {
       throw new Error(
@@ -382,25 +401,15 @@ export default class Game {
       );
     }
 
-    const { question, team1Answers, team2Answers } = this as FamilyWarmUpGame;
-    if (!question || !team1Answers || !team2Answers) {
-      throw new Error("Question or team answers is missing");
-    }
-
-    const calculatePoints = (teamAnswers: string[]) =>
-      teamAnswers.reduce((total, answerText) => {
-        const foundAnswer = question.answers.find(
-          (a) => a.answerText === answerText
-        );
-        return total + (foundAnswer ? foundAnswer.points : 0);
-      }, 0);
+    const { question, team1Answers, team2Answers } = gameState;
+    if (!question) return;
 
     const newTeamsAndPoints: TeamAndPoints[] = gameState.teamsAndPoints.map(
       (team, index) => ({
         ...team,
         points:
           team.points +
-          calculatePoints(index === 0 ? team1Answers : team2Answers),
+          getPointsSum(question, index === 0 ? team1Answers : team2Answers),
       })
     );
 
@@ -481,7 +490,7 @@ export default class Game {
   }
 
   private validateGameStatus(
-    expectedModeOrModes: GameInProgress["mode"] | GameInProgress["mode"][],
+    expectedModeOrModes: Mode | Mode[],
     expectedStatusOrStatuses?: string | string[]
   ): boolean {
     if (this.status !== "in_progress") {
@@ -548,7 +557,6 @@ export default class Game {
     if (isCorrect) {
       const answer = game.question.answers[answerIndex];
       answer.answerRevealed = true;
-      answer.pointsRevealed = true;
       answer.revealedByControlTeam = true;
 
       this.io.to(this.id).emit("answerRevealed", { index: answerIndex });
@@ -603,7 +611,7 @@ export default class Game {
       return;
     }
 
-    const typedState = this.gameState as FaceOffGame;
+    const typedState = this.gameState as FaceOffGameState;
     if (!typedState.currentTeam) {
       throw new Error("No current team!");
     }
@@ -626,7 +634,7 @@ export default class Game {
       return;
     }
 
-    const game = this.gameState as FaceOffGame;
+    const game = this.gameState as FaceOffGameState;
     if (!game.question) return;
 
     const answerIndex = getAnswerIndex(game.question.answers, answerText);
@@ -635,7 +643,6 @@ export default class Game {
     if (isCorrect) {
       const answer = game.question.answers[answerIndex];
       answer.answerRevealed = true;
-      answer.pointsRevealed = true;
       answer.revealedByControlTeam = true;
       const allAnswersFound = game.question.answers.every(
         ({ revealedByControlTeam }) => revealedByControlTeam
@@ -660,13 +667,13 @@ export default class Game {
     const newStrikes = this.strikes + 1;
     this.io.to(this.id).emit("answerIncorrect", { strikes: newStrikes });
     const nextStatus =
-      newStrikes === MAX_STRIKES
+      newStrikes === MAX_FACE_OFF_STRIKES
         ? "ask_other_team_for_guess_for_steal"
         : "in_control_team_guesses";
 
     this.updateGameState({
       strikes: newStrikes,
-      modeStatus: nextStatus,
+      modeStatus: nextStatus as FaceOffGameState["modeStatus"],
     });
     return true;
   }
@@ -678,7 +685,7 @@ export default class Game {
       return;
     }
 
-    const game = this.gameState as FaceOffGame;
+    const game = this.gameState as FaceOffGameState;
     if (!game.question) return;
 
     const answerIndex = getAnswerIndex(game.question.answers, answerText);
@@ -686,7 +693,6 @@ export default class Game {
     if (isCorrect) {
       const answer = game.question.answers[answerIndex];
       answer.answerRevealed = true;
-      answer.pointsRevealed = true;
       answer.revealedByControlTeam = true;
 
       this.io.to(this.id).emit("answerRevealed", { index: answerIndex });
@@ -695,7 +701,7 @@ export default class Game {
         this.updateGameState({
           question: game.question,
           isStolen: true,
-          modeStatus: "revealing_steal_answer",
+          modeStatus: "revealing_steal_answer" as FaceOffGameState["modeStatus"],
         });
         this.io.to(this.id).emit("receivedGameState", this.toJson());
       }, 800);
@@ -706,7 +712,7 @@ export default class Game {
     this.io.to(this.id).emit("answerIncorrect", { strikes: 1 });
 
     this.updateGameState({
-      modeStatus: "revealing_steal_answer",
+      modeStatus: "revealing_steal_answer" as FaceOffGameState["modeStatus"]
     });
     return true;
   }
@@ -721,7 +727,6 @@ export default class Game {
     question.answers.forEach((_, index) => {
       setTimeout(() => {
         question.answers[index].answerRevealed = true;
-        question.answers[index].pointsRevealed = true;
 
         this.io.to(this.id).emit("answerRevealed", { index });
 
@@ -743,7 +748,7 @@ export default class Game {
       return;
     }
 
-    const game = this.gameState as FastMoneyGame;
+    const game = this.gameState as FastMoneyGameState;
     const { questions } = game;
 
     if (!questions) return;
@@ -782,10 +787,10 @@ export default class Game {
       return;
     }
 
-    const responses =
-      to === "playing_team"
+    const responses: FastMoneyAnswer[] | undefined =
+      (to === "playing_team"
         ? this.fastMoneyResponsesFirstTeam
-        : this.fastMoneyResponsesSecondTeam;
+        : this.fastMoneyResponsesSecondTeam);
 
     if (!responses) {
       throw new Error(`No responses for team ${to}`);
@@ -851,9 +856,8 @@ export default class Game {
 
     this.updateGameState({
       currentTeam: getOpposingTeam(this.currentTeam),
-      modeStatus: "request_steal_question_and_answer",
+      modeStatus: "request_steal_question_and_answer" as FastMoneyGameState["modeStatus"],
     });
-    console.log("***", this.toJson())
   }
 
   receivedFastMoneyStealQuestionAndAnswer(
@@ -869,7 +873,7 @@ export default class Game {
       return;
     }
 
-    const game = this.gameState as FastMoneyGame;
+    const game = this.gameState as FastMoneyGameState;
     if (!game.questions) return;
 
     const questionIndex = game.questions.findIndex(
@@ -884,7 +888,7 @@ export default class Game {
     const storedAnswer =
       game.questions[questionIndex].answers[foundAnswerIndex];
 
-    const newResponsesSecondTeam = new Array<GameAnswer>(
+    const newResponsesSecondTeam = new Array<FastMoneyAnswer>(
       game.questions.length
     ).fill({
       answerText: "",
@@ -903,7 +907,7 @@ export default class Game {
 
     this.updateGameState({
       responsesSecondTeam: newResponsesSecondTeam,
-      modeStatus: "received_steal_question_and_answer",
+      modeStatus: "received_steal_question_and_answer" as FastMoneyGameState["modeStatus"],
     });
   }
 
@@ -928,7 +932,7 @@ export default class Game {
 
     this.updateGameState({
       responsesSecondTeam: newResponsesSecondTeam,
-      modeStatus: "reveal_steal_question_and_answer",
+      modeStatus: "reveal_steal_question_and_answer" as FastMoneyGameState["modeStatus"],
     });
 
     this.io

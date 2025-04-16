@@ -1,7 +1,7 @@
 "use client";
 import useSocket from "@/hooks/useSocket";
 import QuestionPicker from "./QuestionPicker";
-import type { FamilyWarmUpGame, GameState } from "@/shared/types";
+import type { FamilyWarmUpGameState, GameState } from "@/shared/types";
 import { Button } from "@mui/material";
 import TeamAnswerSelector from "./TeamAnswerSelector";
 import QuestionOverControls from "./QuestionOverControls";
@@ -11,7 +11,7 @@ import FamilyWarmupQuestionInProgressControls from "./FamilyWarmupQuestionInProg
 export default function FamilyWarmupControls({
 	gameState,
 }: {
-	gameState: GameState & FamilyWarmUpGame;
+	gameState: GameState & FamilyWarmUpGameState;
 }) {
 	const socket = useSocket();
 

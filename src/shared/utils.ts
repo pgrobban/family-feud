@@ -3,9 +3,10 @@ import type {
   ClientToServerEvents,
   ServerToClientEvents,
 } from "./gameEventMap";
-import type { GameAnswer, GameQuestion, StoredAnswer, StoredQuestion, TeamAndPoints } from "./types";
+import type { GameAnswer, GameQuestion, StoredAnswer, TeamAndPoints } from "./types";
 
 export const FAMILY_WARMUP_TIMER_SECONDS = 60;
+export const MAX_FACE_OFF_STRIKES = 3;
 export const FAST_MONEY_QUESTIONS = 5;
 export const FAST_MONEY_TIMER_SECONDS = 25;
 export const FAST_MONEY_STEAL_BONUS = 50;
@@ -32,6 +33,14 @@ export const getSortedTeamNames = (teamsAndPoints: TeamAndPoints[]) => {
     second: teamsAndPoints[opposingTeamIndex].teamName,
   };
 };
+
+export const getPointsSum = (question: GameQuestion, answers: string[]) =>
+  answers.reduce((total, answer) => {
+    const foundAnswer = question.answers.find(
+      (a) => a.answerText.toLowerCase() === answer.toLowerCase()
+    );
+    return total + (foundAnswer ? foundAnswer.points : 0);
+  }, 0);
 
 export const getFastMoneyStealPoints = (questions: GameQuestion[], responses: GameAnswer[]) => {
   for (let i = 0; i < questions.length; i++) {

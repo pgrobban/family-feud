@@ -1,5 +1,5 @@
 import useSocket from "@/hooks/useSocket";
-import type { FastMoneyGame, GameState } from "@/shared/types";
+import type { FastMoneyGameState, GameState } from "@/shared/types";
 import { FAST_MONEY_TIMER_SECONDS } from "@/shared/utils";
 import { Button, Grid, TextField, Typography } from "@mui/material";
 import { useState } from "react";
@@ -7,7 +7,7 @@ import { useState } from "react";
 export default function FastMoneyQuestionInProgressControls({
 	gameState,
 }: {
-	gameState: GameState & FastMoneyGame;
+	gameState: GameState & FastMoneyGameState;
 }) {
 	const socket = useSocket();
 

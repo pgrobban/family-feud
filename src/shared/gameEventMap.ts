@@ -1,4 +1,4 @@
-import type { GameInProgress, GameState } from "./types";
+import type { Mode, GameState } from "./types";
 
 export type ToTeam = 'playing_team' | 'stealing_team';
 export interface ClientToServerEvents {
@@ -6,7 +6,7 @@ export interface ClientToServerEvents {
   requestGames: () => void;
   requestGameState: () => void;
   requestEndGame: () => void;
-  modePicked: (mode: Exclude<GameInProgress["mode"], "indeterminate">) => void;
+  modePicked: (mode: Exclude<Mode, "indeterminate">) => void;
   questionOrModeCancelled: () => void;
   questionPicked: (question: string) => void;
   joinHost: (gameId: string) => void;

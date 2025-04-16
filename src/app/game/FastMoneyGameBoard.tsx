@@ -1,5 +1,9 @@
 import useSocket from "@/hooks/useSocket";
-import { FastMoneyGame, GameAnswer, GameState } from "@/shared/types";
+import type {
+	FastMoneyAnswer,
+	FastMoneyGameState,
+	GameState,
+} from "@/shared/types";
 import { useEffect, useState } from "react";
 import LogoAndRoundBox from "./LogoAndRoundBox";
 import { Box, Typography } from "@mui/material";
@@ -11,7 +15,7 @@ import {
 	getSortedTeamNames,
 } from "@/shared/utils";
 
-const BLANK_ANSWERS = new Array<GameAnswer>(5).fill({
+const BLANK_ANSWERS = new Array<FastMoneyAnswer>(5).fill({
 	answerText: "",
 	points: 0,
 	answerRevealed: false,
@@ -21,7 +25,7 @@ const BLANK_ANSWERS = new Array<GameAnswer>(5).fill({
 export default function FastMoneyGameBoard({
 	gameState,
 }: {
-	gameState: GameState & FastMoneyGame;
+	gameState: GameState & FastMoneyGameState;
 }) {
 	const [timerSeconds, setTimerSeconds] = useState(0);
 	const socket = useSocket();

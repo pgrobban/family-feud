@@ -1,8 +1,8 @@
 "use client";
 
 import type {
-	FaceOffGame,
 	FaceOffGameAnswer,
+	FaceOffGameState,
 	GameQuestion,
 	GameState,
 } from "@/shared/types";
@@ -16,7 +16,7 @@ import RedXOverlay from "./RedXOverlay";
 export default function FaceOffGameBoard({
 	gameState,
 }: {
-	gameState: GameState & FaceOffGame;
+	gameState: GameState & FaceOffGameState;
 }) {
 	const [animateStrikes, setAnimateStrikes] = useState(0);
 	const socket = useSocket();
@@ -57,7 +57,7 @@ export default function FaceOffGameBoard({
 	}
 
 	const pointsToBeAwarded = question.answers
-		.filter((a) => a.pointsRevealed && a.revealedByControlTeam)
+		.filter((a) => a.answerRevealed && a.revealedByControlTeam)
 		.reduce((sum, a) => sum + a.points, 0);
 
 	return (

@@ -1,11 +1,11 @@
 import useSocket from "@/hooks/useSocket";
-import type { GameState, FastMoneyGame } from "@/shared/types";
+import type { GameState, FastMoneyGameState } from "@/shared/types";
 import { Box, Button, Typography } from "@mui/material";
 import AwardPointsButton from "./AwardPointsButton";
 
 export default function FastMoneyRevealAnswers({
 	gameState,
-}: { gameState: GameState & FastMoneyGame }) {
+}: { gameState: GameState & FastMoneyGameState }) {
 	const socket = useSocket();
 
 	if (!gameState.responsesFirstTeam) {

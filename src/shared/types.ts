@@ -1,42 +1,29 @@
+export interface TeamAndPoints {
+  teamName: string;
+  points: number;
+}
+
+type GameStatus = "waiting_for_host" | "in_progress" | "finished";
+
+export type Mode = "family_warm_up" | "face_off" | "fast_money" | "indeterminate";
+
+// Base state structure, shared across all modes
 export interface BaseGameState {
   id: string;
   teamNames: string[];
   teamsAndPoints: TeamAndPoints[];
-  status:
-  | WaitingForHostGame["status"]
-  | GameInProgress["status"]
-  | GameFinished["status"];
-  question?: GameQuestion | null;
-  questions?: GameQuestion[];
-  mode?:
-  | FamilyWarmUpGame["mode"]
-  | FaceOffGame["mode"]
-  | FastMoneyGame["mode"]
-  | IndeterminateGame["mode"];
-  modeStatus?:
-  | FamilyWarmUpGame["modeStatus"]
-  | FaceOffGame["modeStatus"]
-  | FastMoneyGame["modeStatus"]
-  | null;
+  status: GameStatus;
+  mode: Mode;
 }
 
-export type GameState = BaseGameState &
-  (WaitingForHostGame | GameInProgress | GameFinished);
+export type GameState = IndeterminateGameState | FamilyWarmUpGameState | FaceOffGameState | FastMoneyGameState;
 
-export interface WaitingForHostGame {
-  status: "waiting_for_host";
-}
-
-export type GameInProgress = {
-  status: "in_progress";
-} & (IndeterminateGame | FamilyWarmUpGame | FaceOffGame | FastMoneyGame);
-
-export interface IndeterminateGame {
+export interface IndeterminateGameState extends BaseGameState {
   mode: "indeterminate";
+  modeStatus: null;
 }
-
-export interface FamilyWarmUpGame {
-  mode: "family_warm_up";
+export interface FamilyWarmUpGameState extends BaseGameState {
+  mode: 'family_warm_up',
   modeStatus:
   | "waiting_for_question"
   | "question_in_progress"
@@ -46,10 +33,10 @@ export interface FamilyWarmUpGame {
   | "awarding_points";
   question: GameQuestion | null;
   team1Answers?: string[];
-  team2Answers?: string[];
+  team2Answers?: string[]
 }
 
-export interface FaceOffGame {
+export interface FaceOffGameState extends BaseGameState {
   mode: "face_off";
   modeStatus:
   | "waiting_for_question" // Host is picking or preparing a question.
@@ -65,15 +52,15 @@ export interface FaceOffGame {
   | "revealing_steal_answer" // Reveal the steal answer. If all answers are revealed, go to awarding points, otherwise revealing_stored_answers
   | "revealing_stored_answers" // Reveal remaining hidden answers.
   | "awarding_points"; // Award points to the correct team based if the steal was successful.
-  currentTeam: 1 | 2 | null; // for buzzing in
-  inControlTeam?: 1 | 2 | null; // optional until a team is in control
-  question: GameQuestion<FaceOffGameAnswer> | null;
-  buzzOrder: (1 | 2)[];
-  isStolen: boolean;
-  strikes: number;
-}
 
-export interface FastMoneyGame {
+  currentTeam: 1 | 2 | null; // The team currently answering or controlling.
+  inControlTeam: 1 | 2 | null;
+  buzzOrder: number[]; // Order of teams that buzzed in.
+  question: GameQuestion<FaceOffGameAnswer> | null; // The current question.
+  strikes: number; // Number of strikes the team in control has.
+  isStolen: boolean;
+}
+export interface FastMoneyGameState extends BaseGameState {
   mode: "fast_money";
   modeStatus:
   | "waiting_for_questions" // host picks questions
@@ -85,17 +72,8 @@ export interface FastMoneyGame {
   | "awarding_points"; // award points to the team that had 200 or more points, or the team that stole
   currentTeam: 1 | 2;
   questions?: GameQuestion[];
-  responsesFirstTeam?: GameAnswer[];
-  responsesSecondTeam?: GameAnswer[];
-}
-
-export interface TeamAndPoints {
-  teamName: string;
-  points: number;
-}
-
-export interface GameFinished {
-  status: "finished";
+  responsesFirstTeam?: FastMoneyAnswer[];
+  responsesSecondTeam?: FastMoneyAnswer[];
 }
 
 export interface StoredQuestion {
@@ -109,11 +87,6 @@ export interface StoredAnswer {
   points: number;
 }
 
-export interface GameAnswer extends StoredAnswer {
-  answerRevealed: boolean;
-  pointsRevealed: boolean;
-}
-
 export interface FaceOffGameAnswer extends GameAnswer {
   revealedByControlTeam?: boolean;
 }
@@ -121,4 +94,16 @@ export interface FaceOffGameAnswer extends GameAnswer {
 export interface GameQuestion<TAnswer extends GameAnswer = GameAnswer> {
   questionText: string;
   answers: TAnswer[];
+}
+
+export interface GameAnswer extends StoredAnswer {
+  answerRevealed: boolean;
+}
+
+export interface FaceOffGameAnswer extends GameAnswer {
+  revealedByControlTeam?: boolean;
+}
+
+export interface FastMoneyAnswer extends GameAnswer {
+  pointsRevealed: boolean;
 }
