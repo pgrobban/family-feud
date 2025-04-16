@@ -90,6 +90,16 @@ export default function FastMoneyQuestionInProgressControls({
 								</Grid>
 							))}
 							<Grid>
+								<TextField
+									label="Other answer"
+									value={answersPicked[questionIndex]}
+									onChange={(e) =>
+										onAnswerPicked(questionIndex, e.target.value)
+									}
+									fullWidth
+								/>
+							</Grid>
+							<Grid>
 								<Button
 									variant="contained"
 									color={
@@ -97,9 +107,7 @@ export default function FastMoneyQuestionInProgressControls({
 											? "error"
 											: "secondary"
 									}
-									onClick={() =>
-										onAnswerPicked(questionIndex, "Invalid answer")
-									}
+									onClick={() => onAnswerPicked(questionIndex, "-")}
 								>
 									Invalid answer
 								</Button>

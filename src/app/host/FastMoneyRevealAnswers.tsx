@@ -30,7 +30,7 @@ export default function FastMoneyRevealAnswers({
 	const requestStealQuestionAndAnswer = () =>
 		socket?.emit("fastMoney:requestStealQuestionAndAnswer");
 	const requestRevealStealQuestionAndAnswer = () =>
-		socket?.emit("fastMoney:requestStealQuestionAndAnswer");
+		socket?.emit("fastMoney:requestRevealStealQuestionAndAnswer");
 
 	return (
 		<Box>

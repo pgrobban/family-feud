@@ -14,7 +14,9 @@ import questions from "../../src/shared/questions.json";
 import type { Server } from "socket.io";
 import {
   FAST_MONEY_QUESTIONS,
+  FAST_MONEY_STEAL_BONUS,
   getAnswerIndex,
+  getFastMoneyStealPoints,
   getOpposingTeam,
 } from "../../src/shared/utils";
 import type {
@@ -129,6 +131,7 @@ export default class Game {
       inControlTeam: this.inControlTeam,
       strikes: this.strikes,
       responsesFirstTeam: this.fastMoneyResponsesFirstTeam,
+      responsesSecondTeam: this.fastMoneyResponsesSecondTeam
     };
   }
 
@@ -436,7 +439,7 @@ export default class Game {
 
   awardPointsFastMoney() {
     if (
-      !this.validateGameStatus("face_off", [
+      !this.validateGameStatus("fast_money", [
         "revealing_answers",
         "reveal_steal_question_and_answer",
       ])
@@ -444,22 +447,19 @@ export default class Game {
       return;
     }
 
-    if (!this.fastMoneyResponsesFirstTeam || !this.currentTeam) return;
+    if (!this.fastMoneyResponsesFirstTeam || !this.currentTeam || !this.questions || !this.fastMoneyResponsesSecondTeam) return;
 
-    const isStolen = !!this.fastMoneyResponsesSecondTeam;
     const firstTeamPoints = this.fastMoneyResponsesFirstTeam.reduce(
       (acc, response) => acc + response.points,
       0
     );
-    const stolenPoints = isStolen
-      ? this.fastMoneyResponsesSecondTeam.reduce(
-        (acc, response) => acc + response.points,
-        0
-      )
-      : 0;
-    const pointsToAward = firstTeamPoints + stolenPoints;
+
+    const stolenPoints = getFastMoneyStealPoints(this.questions, this.fastMoneyResponsesSecondTeam);
+    const pointsToAward = firstTeamPoints + (stolenPoints.isHighest ? stolenPoints.points + FAST_MONEY_STEAL_BONUS : 0);
 
     const newTeamsAndPoints = [...this.teamsAndPoints];
+
+
     newTeamsAndPoints[this.currentTeam - 1].points += pointsToAward;
     this.updateGameState({
       teamsAndPoints: newTeamsAndPoints,
@@ -853,6 +853,7 @@ export default class Game {
       currentTeam: getOpposingTeam(this.currentTeam),
       modeStatus: "request_steal_question_and_answer",
     });
+    console.log("***", this.toJson())
   }
 
   receivedFastMoneyStealQuestionAndAnswer(
@@ -910,7 +911,7 @@ export default class Game {
     if (
       !this.validateGameStatus(
         "fast_money",
-        "request_steal_question_and_answer"
+        "received_steal_question_and_answer"
       )
     ) {
       return;
@@ -932,7 +933,7 @@ export default class Game {
 
     this.io
       .to(this.id)
-      .emit("fastMoney:pointsRevealed", answerIndex, "stealing_team");
+      .emit("fastMoney:answerRevealed", answerIndex, "stealing_team");
     setTimeout(() => {
       this.io
         .to(this.id)

@@ -3,11 +3,12 @@ import type {
   ClientToServerEvents,
   ServerToClientEvents,
 } from "./gameEventMap";
-import type { StoredAnswer, TeamAndPoints } from "./types";
+import type { GameAnswer, GameQuestion, StoredAnswer, StoredQuestion, TeamAndPoints } from "./types";
 
 export const FAMILY_WARMUP_TIMER_SECONDS = 60;
 export const FAST_MONEY_QUESTIONS = 5;
 export const FAST_MONEY_TIMER_SECONDS = 25;
+export const FAST_MONEY_STEAL_BONUS = 50;
 
 export const isSocketDefined = (
   s: Socket | null
@@ -31,3 +32,22 @@ export const getSortedTeamNames = (teamsAndPoints: TeamAndPoints[]) => {
     second: teamsAndPoints[opposingTeamIndex].teamName,
   };
 };
+
+export const getFastMoneyStealPoints = (questions: GameQuestion[], responses: GameAnswer[]) => {
+  for (let i = 0; i < questions.length; i++) {
+    if (!responses[i]?.answerText) continue;
+
+    const isHighest = questions[i].answers[0].answerText.toLowerCase() === responses[i].answerText.toLowerCase();
+
+    return {
+      isHighest,
+      points: responses[i].points
+    }
+  }
+
+  return {
+    isHighest: false,
+    points: 0
+  }
+
+}
