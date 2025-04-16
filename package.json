@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "type": "commonjs",
   "dependencies": {
     "@emotion/cache": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -30,6 +31,7 @@
     "eslint-config-next": "15.2.4",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.2"
   }
 }

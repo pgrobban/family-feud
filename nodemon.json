@@ -1,6 +1,6 @@
 {
-  "watch": ["server"],
+  "watch": ["src/server", "src/shared"],
   "ext": "ts,json",
-  "ignore": ["src/**/*.spec.ts"],
-  "exec": "ts-node -P ./server/tsconfig.server.json ./server/server.ts"
+  "ignore": ["**/*.spec.ts"],
+  "exec": "ts-node -r tsconfig-paths/register -P ./src/server/tsconfig.server.json ./src/server/server.ts"
 }

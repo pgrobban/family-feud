@@ -12,7 +12,7 @@ import type {
   StoredQuestion,
   TeamAndPoints,
 } from "@/shared/types";
-import questions from "../../src/shared/questions.json";
+import questions from "@/shared/questions.json";
 import type { Server } from "socket.io";
 import {
   FAST_MONEY_QUESTIONS,
@@ -22,7 +22,7 @@ import {
   getOpposingTeam,
   getPointsSum,
   MAX_FACE_OFF_STRIKES,
-} from "../../src/shared/utils";
+} from "@/shared/utils";
 import type {
   ClientToServerEvents,
   ServerToClientEvents,
@@ -31,7 +31,9 @@ import type {
 
 const storedQuestions: StoredQuestion[] = questions;
 
-function isFamilyWarmUpGame(gameState: GameState): gameState is FamilyWarmUpGameState {
+function isFamilyWarmUpGame(
+  gameState: GameState
+): gameState is FamilyWarmUpGameState {
   return gameState.mode === "family_warm_up";
 }
 
@@ -39,7 +41,9 @@ function isFaceOffGame(gameState: GameState): gameState is FaceOffGameState {
   return gameState.mode === "face_off";
 }
 
-function isFastMoneyGame(gameState: GameState): gameState is FastMoneyGameState {
+function isFastMoneyGame(
+  gameState: GameState
+): gameState is FastMoneyGameState {
   return gameState.mode === "fast_money";
 }
 
@@ -61,7 +65,7 @@ export default class Game {
       teamsAndPoints: teamNames.map((teamName) => ({ teamName, points: 0 })),
       status: "waiting_for_host",
       mode: "indeterminate",
-      modeStatus: null
+      modeStatus: null,
     };
   }
 
@@ -104,7 +108,8 @@ export default class Game {
   }
 
   get currentTeam() {
-    return (this.gameState as FaceOffGameState | FastMoneyGameState).currentTeam;
+    return (this.gameState as FaceOffGameState | FastMoneyGameState)
+      .currentTeam;
   }
 
   get inControlTeam() {
@@ -226,7 +231,6 @@ export default class Game {
           modeStatus: "waiting_for_questions",
           questions: [],
           currentTeam: firstTeamToAnswerIndex + 1,
-
         } as FastMoneyGameState;
       }
     }
@@ -456,18 +460,30 @@ export default class Game {
       return;
     }
 
-    if (!this.fastMoneyResponsesFirstTeam || !this.currentTeam || !this.questions || !this.fastMoneyResponsesSecondTeam) return;
+    if (
+      !this.fastMoneyResponsesFirstTeam ||
+      !this.currentTeam ||
+      !this.questions ||
+      !this.fastMoneyResponsesSecondTeam
+    )
+      return;
 
     const firstTeamPoints = this.fastMoneyResponsesFirstTeam.reduce(
       (acc, response) => acc + response.points,
       0
     );
 
-    const stolenPoints = getFastMoneyStealPoints(this.questions, this.fastMoneyResponsesSecondTeam);
-    const pointsToAward = firstTeamPoints + (stolenPoints.isHighest ? stolenPoints.points + FAST_MONEY_STEAL_BONUS : 0);
+    const stolenPoints = getFastMoneyStealPoints(
+      this.questions,
+      this.fastMoneyResponsesSecondTeam
+    );
+    const pointsToAward =
+      firstTeamPoints +
+      (stolenPoints.isHighest
+        ? stolenPoints.points + FAST_MONEY_STEAL_BONUS
+        : 0);
 
     const newTeamsAndPoints = [...this.teamsAndPoints];
-
 
     newTeamsAndPoints[this.currentTeam - 1].points += pointsToAward;
     this.updateGameState({
@@ -701,7 +717,8 @@ export default class Game {
         this.updateGameState({
           question: game.question,
           isStolen: true,
-          modeStatus: "revealing_steal_answer" as FaceOffGameState["modeStatus"],
+          modeStatus:
+            "revealing_steal_answer" as FaceOffGameState["modeStatus"],
         });
         this.io.to(this.id).emit("receivedGameState", this.toJson());
       }, 800);
@@ -712,7 +729,7 @@ export default class Game {
     this.io.to(this.id).emit("answerIncorrect", { strikes: 1 });
 
     this.updateGameState({
-      modeStatus: "revealing_steal_answer" as FaceOffGameState["modeStatus"]
+      modeStatus: "revealing_steal_answer" as FaceOffGameState["modeStatus"],
     });
     return true;
   }
@@ -788,9 +805,9 @@ export default class Game {
     }
 
     const responses: FastMoneyAnswer[] | undefined =
-      (to === "playing_team"
+      to === "playing_team"
         ? this.fastMoneyResponsesFirstTeam
-        : this.fastMoneyResponsesSecondTeam);
+        : this.fastMoneyResponsesSecondTeam;
 
     if (!responses) {
       throw new Error(`No responses for team ${to}`);
@@ -856,7 +873,8 @@ export default class Game {
 
     this.updateGameState({
       currentTeam: getOpposingTeam(this.currentTeam),
-      modeStatus: "request_steal_question_and_answer" as FastMoneyGameState["modeStatus"],
+      modeStatus:
+        "request_steal_question_and_answer" as FastMoneyGameState["modeStatus"],
     });
   }
 
@@ -907,7 +925,8 @@ export default class Game {
 
     this.updateGameState({
       responsesSecondTeam: newResponsesSecondTeam,
-      modeStatus: "received_steal_question_and_answer" as FastMoneyGameState["modeStatus"],
+      modeStatus:
+        "received_steal_question_and_answer" as FastMoneyGameState["modeStatus"],
     });
   }
 
@@ -932,7 +951,8 @@ export default class Game {
 
     this.updateGameState({
       responsesSecondTeam: newResponsesSecondTeam,
-      modeStatus: "reveal_steal_question_and_answer" as FastMoneyGameState["modeStatus"],
+      modeStatus:
+        "reveal_steal_question_and_answer" as FastMoneyGameState["modeStatus"],
     });
 
     this.io
