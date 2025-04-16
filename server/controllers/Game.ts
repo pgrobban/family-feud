@@ -111,6 +111,7 @@ export default class Game {
   get fastMoneyResponsesSecondTeam() {
     return (this.gameState as FastMoneyGame).responsesSecondTeam;
   }
+
   toJson(): GameState {
     if (this.currentModeHandler) {
       return this.currentModeHandler.toJson();
@@ -118,7 +119,7 @@ export default class Game {
 
     return {
       ...this.gameState,
-    };
+    } as GameState;
   }
 
   getPlayerSocketIds() {
@@ -157,7 +158,8 @@ export default class Game {
     }
 
     const stateProps = this.getNewQuestionState(mode);
-    this.updateGameState({ ...stateProps, status: "in_progress" });
+    //  this.updateGameState({ ...stateProps, status: "in_progress" });
+    console.log("***", this.toJson())
   }
 
   private getNewQuestionState(
@@ -170,9 +172,9 @@ export default class Game {
         this.id,
         this.updateGameState
       );
-      const initState = this.currentModeHandler.initialize();
-      this.updateGameState(initState); // 👈 apply the new mode + modeStatus etc.
-      return this.gameState as GameState & FamilyWarmUpGame;
+      // @ts-expect-error TODO
+      this.gameState = this.currentModeHandler.initialize();
+      return;
     }
 
     switch (mode) {
@@ -387,9 +389,9 @@ export default class Game {
     );
     const stolenPoints = isStolen
       ? this.fastMoneyResponsesSecondTeam.reduce(
-          (acc, response) => acc + response.points,
-          0
-        )
+        (acc, response) => acc + response.points,
+        0
+      )
       : 0;
     const pointsToAward = firstTeamPoints + stolenPoints;
 
@@ -405,7 +407,7 @@ export default class Game {
     if (!this.mode || this.mode === "indeterminate") return;
 
     const newQuestionStateProps = this.getNewQuestionState(this.mode);
-    this.updateGameState(newQuestionStateProps);
+    // this.updateGameState(newQuestionStateProps);
   }
 
   endGame() {

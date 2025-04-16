@@ -3,7 +3,7 @@ import type {
   ClientToServerEvents,
   ServerToClientEvents,
 } from "@/shared/gameEventMap";
-import type { GameState } from "@/shared/types";
+import type { BaseGameState, GameState } from "@/shared/types";
 
 export abstract class BaseMode<T extends GameState> {
   protected gameState: T;
@@ -38,8 +38,9 @@ export abstract class BaseMode<T extends GameState> {
     this.updateGameState(patch);
   }
 
-  toJson(): GameState {
-    // @ts-expect-error TODO
+  abstract toJson(): GameState;
+
+  toJsonBase(): BaseGameState {
     return {
       id: this.roomId,
       status: this.gameState.status,
@@ -47,6 +48,8 @@ export abstract class BaseMode<T extends GameState> {
       modeStatus: this.gameState.modeStatus,
       teamNames: this.gameState.teamNames,
       teamsAndPoints: this.gameState.teamsAndPoints,
+      question: this.gameState.question,
+      questions: this.gameState.questions,
     };
   }
 }

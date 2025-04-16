@@ -1,6 +1,7 @@
 import type {
   BaseGameState,
   FamilyWarmUpGame,
+  GameInProgress,
   GameState,
   TeamAndPoints,
 } from "@/shared/types";
@@ -9,8 +10,10 @@ import { BaseMode } from "./BaseMode";
 export class FamilyWarmUpMode extends BaseMode<
   BaseGameState & FamilyWarmUpGame
 > {
-  initialize(): Partial<FamilyWarmUpGame> {
+  initialize(): GameState & FamilyWarmUpGame {
     return {
+      ...this.toJsonBase(),
+      status: "in_progress",
       mode: "family_warm_up",
       modeStatus: "waiting_for_question",
       question: null,
@@ -111,10 +114,12 @@ export class FamilyWarmUpMode extends BaseMode<
   }
 
   toJson(): GameState {
+    const base = this.toJsonBase() as BaseGameState & { status: "in_progress"; mode: "family_warm_up"; modeStatus: FamilyWarmUpGame["modeStatus"] };
+
     return {
-      ...super.toJson(),
-      question: this.gameState.question,
-      // @ts-expect-error TODO
+      ...base,
+      modeStatus: this.gameState.modeStatus as FamilyWarmUpGame["modeStatus"],
+      question: this.gameState.question ?? null,
       team1Answers: this.gameState.team1Answers,
       team2Answers: this.gameState.team2Answers,
     };
