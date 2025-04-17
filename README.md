@@ -40,10 +40,16 @@ npm run dev
 This will start a dev instance of both the frontend and the server running with hot reloading on both.  
 If you are using VSCode, you can simply use the run configs.
 
+Using one tab/browser, create a game. Then, in another tab or browser, join the game as a host. The host will see everything on the game board (what the players see) but with additional controls for running the game. Game components will only listen to events from the server, while host components will also emit to the server.
+
 ## Coding 
 Check out `/src/shared/types.ts` for information about the game modes and statuses. This should make following the logic (in `server/controller/Game.ts`) easier. 
 
-Frontend components are in the routes `game` for the players' side and `host` 
+Event signatures are in `src/shared/gameEventMap.ts`.
+
+`src/app` folders are routes.
+
+Sessions are not persisted, so if the server crashes or restarts due to a code change, you will need to start a new game and join the host again.
 
 
 ## Build for production
