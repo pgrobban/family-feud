@@ -2,6 +2,7 @@ import useSocket from "@/hooks/useSocket";
 import type { GameAnswer } from "@/shared/types";
 import { Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+
 interface Props {
 	answer: GameAnswer;
 	index: number;
@@ -103,7 +104,17 @@ export default function AnswerCard({ answer, index }: Props) {
 						boxShadow: "inset 0 0 6px #000",
 					}}
 				>
-					<Typography fontSize={50}>{answerText}</Typography>
+					<Typography
+						sx={{
+							fontSize: `clamp(16px, ${50 - answerText.length}px, 50px)`,
+							whiteSpace: "nowrap",
+							overflow: "hidden",
+							textOverflow: "ellipsis",
+							flexGrow: 1,
+						}}
+					>
+						{answerText}
+					</Typography>
 					<Box
 						sx={{
 							width: 100,

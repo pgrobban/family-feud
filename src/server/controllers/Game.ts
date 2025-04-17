@@ -484,8 +484,9 @@ export default class Game {
         : 0);
 
     const newTeamsAndPoints = [...this.teamsAndPoints];
+    const teamToAwardPoints = stolenPoints.isHighest ? this.currentTeam : getOpposingTeam(this.currentTeam);
 
-    newTeamsAndPoints[this.currentTeam - 1].points += pointsToAward;
+    newTeamsAndPoints[teamToAwardPoints - 1].points += pointsToAward;
     this.updateGameState({
       teamsAndPoints: newTeamsAndPoints,
       modeStatus: "awarding_points",

@@ -22,6 +22,9 @@ export default function FastMoneyRevealAnswers({
 			0,
 		);
 	}
+	const revealStealDisabled = gameState.responsesFirstTeam.some(
+		(response) => !response.answerRevealed || !response.pointsRevealed,
+	);
 
 	const requestRevealAnswer = (answerIndex: number) =>
 		socket?.emit("fastMoney:requestRevealAnswer", answerIndex, "playing_team");
@@ -67,6 +70,7 @@ export default function FastMoneyRevealAnswers({
 			{gameState.modeStatus === "revealing_answers" && (
 				<Box display="flex" gap={2}>
 					<Button variant="contained" onClick={requestStealQuestionAndAnswer}>
+						Reveal point sum. <br />
 						Request other team to steal question and answer
 					</Button>
 					<AwardPointsButton currentMode={gameState.mode} />
@@ -77,6 +81,7 @@ export default function FastMoneyRevealAnswers({
 					<Button
 						variant="contained"
 						onClick={requestRevealStealQuestionAndAnswer}
+						disabled={revealStealDisabled}
 					>
 						Reveal steal question and answer
 					</Button>

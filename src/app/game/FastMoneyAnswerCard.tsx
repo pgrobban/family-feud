@@ -1,11 +1,12 @@
 import useSocket from "@/hooks/useSocket";
 import type { EventHandler, ToTeam } from "@/shared/gameEventMap";
-import type { GameAnswer } from "@/shared/types";
+import type { FastMoneyAnswer } from "@/shared/types";
 import { Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface Props {
-	answer: GameAnswer;
+	answer: FastMoneyAnswer;
 	answerIndex: number;
 	column: ToTeam;
 }
@@ -19,7 +20,7 @@ export default function FastMoneyAnswerCard({
 	answerIndex,
 	column,
 }: Props) {
-	const { answerText, points } = answer;
+	const { answerText, points, isTopAnswer } = answer;
 	const [flipped, setFlipped] = useState(false);
 	const [answerRevealed, setAnswerRevealed] = useState(false);
 	const [pointsRevealed, setPointsRevealed] = useState(false);
@@ -135,7 +136,28 @@ export default function FastMoneyAnswerCard({
 						textTransform: "uppercase",
 					}}
 				>
-					<Typography fontSize={50}>{answerText}</Typography>
+					<Typography
+						sx={{
+							fontSize: `clamp(16px, ${50 - answerText.length}px, 50px)`,
+							whiteSpace: "nowrap",
+							overflow: "hidden",
+							textOverflow: "ellipsis",
+							flexGrow: 1,
+						}}
+					>
+						{answerText}
+					</Typography>
+
+					{pointsRevealed && isTopAnswer && (
+						<Image
+							src="/images/top-answer.png"
+							alt="top-answer"
+							width={50}
+							height={50}
+							style={{ position: "relative", right: 0 }}
+						/>
+					)}
+
 					<Box
 						sx={{
 							width: 100,
