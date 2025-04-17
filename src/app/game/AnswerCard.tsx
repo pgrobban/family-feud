@@ -7,6 +7,8 @@ interface Props {
 	index: number;
 }
 
+const dingSound = new Audio("sounds/ding.mp3");
+
 export default function AnswerCard({ answer, index }: Props) {
 	const { answerText, points, answerRevealed } = answer;
 	const [flipped, setFlipped] = useState(answerRevealed);
@@ -26,6 +28,7 @@ export default function AnswerCard({ answer, index }: Props) {
 			if (animateIndex !== index) return;
 
 			setFlipped(true); // flip visually immediately
+			dingSound.play();
 		};
 
 		socket.on("answerRevealed", doAnimation);

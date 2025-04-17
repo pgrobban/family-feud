@@ -13,6 +13,8 @@ import { useEffect, useState } from "react";
 import LogoAndRoundBox from "./LogoAndRoundBox";
 import RedXOverlay from "./RedXOverlay";
 
+const buzzSound = new Audio("sounds/buzz.mp3");
+
 export default function FaceOffGameBoard({
 	gameState,
 }: {
@@ -26,6 +28,8 @@ export default function FaceOffGameBoard({
 
 		const onAnswerIncorrect = ({ strikes }: { strikes: number }) => {
 			setAnimateStrikes(strikes);
+			buzzSound.play();
+
 			setTimeout(() => {
 				setAnimateStrikes(0);
 			}, 1800); // matches the animation duration

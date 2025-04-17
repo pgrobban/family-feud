@@ -9,6 +9,8 @@ interface Props {
 	column: ToTeam;
 }
 
+const dingSound = new Audio("sounds/ding.mp3");
+
 export default function FastMoneyAnswerCard({
 	answer,
 	answerIndex,
@@ -39,6 +41,7 @@ export default function FastMoneyAnswerCard({
 
 			setFlipped(true); // flip visually immediately
 			setAnswerRevealed(true);
+			dingSound.play();
 		};
 
 		const revealPoints: EventHandler<"fastMoney:pointsRevealed"> = (
