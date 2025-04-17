@@ -428,8 +428,8 @@ export default class Game {
       return;
     }
 
-    const { question, currentTeam, isStolen } = this;
-    if (!question || !currentTeam) {
+    const { question, currentTeam, isStolen, inControlTeam } = this;
+    if (!question || !currentTeam || !inControlTeam) {
       throw new Error("Cannot award points: missing question or currentTeam");
     }
 
@@ -440,7 +440,7 @@ export default class Game {
     );
 
     const newTeamsAndPoints = [...this.teamsAndPoints];
-    const teamToAward = isStolen ? getOpposingTeam(currentTeam) : currentTeam;
+    const teamToAward = isStolen ? currentTeam : inControlTeam;
 
     newTeamsAndPoints[teamToAward - 1].points += totalRevealedPoints;
 
@@ -602,8 +602,10 @@ export default class Game {
   }
 
   requestOtherTeamToBuzzInAnswer() {
+    if (!this.currentTeam) return;
+
     this.updateGameState({
-      currentTeam: this.currentTeam === 1 ? 2 : 1,
+      currentTeam: getOpposingTeam(this.currentTeam),
       modeStatus: "getting_other_buzzed_in_answer",
     });
   }
@@ -637,11 +639,12 @@ export default class Game {
     if (choice === "play") {
       inControlTeam = typedState.currentTeam;
     } else {
-      inControlTeam = typedState.currentTeam === 1 ? 2 : 1;
+      inControlTeam = getOpposingTeam(typedState.currentTeam);
     }
 
     this.updateGameState({
       inControlTeam,
+      currentTeam: inControlTeam,
       modeStatus: "in_control_team_guesses",
     });
   }
@@ -715,11 +718,13 @@ export default class Game {
       this.io.to(this.id).emit("answerRevealed", { index: answerIndex });
 
       setTimeout(() => {
+        if (!game.inControlTeam) return;
+
         this.updateGameState({
+          currentTeam: getOpposingTeam(game.inControlTeam),
           question: game.question,
           isStolen: true,
-          modeStatus:
-            "revealing_steal_answer" as FaceOffGameState["modeStatus"],
+          modeStatus: "revealing_steal_answer",
         });
         this.io.to(this.id).emit("receivedGameState", this.toJson());
       }, 800);
@@ -730,7 +735,7 @@ export default class Game {
     this.io.to(this.id).emit("answerIncorrect", { strikes: 1 });
 
     this.updateGameState({
-      modeStatus: "revealing_steal_answer" as FaceOffGameState["modeStatus"],
+      modeStatus: "revealing_steal_answer",
     });
     return true;
   }

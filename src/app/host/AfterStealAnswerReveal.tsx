@@ -1,11 +1,18 @@
 import useSocket from "@/hooks/useSocket";
-import type { GameAnswer } from "@/shared/types";
+import type { FaceOffGameState } from "@/shared/types";
 import { Button } from "@mui/material";
 import AwardPointsButton from "./AwardPointsButton";
 
 export default function AfterStealAnswerReveal({
-	answers,
-}: { answers: GameAnswer[] }) {
+	gameState,
+}: { gameState: FaceOffGameState }) {
+	const question = gameState.question;
+
+	if (!question) {
+		return;
+	}
+
+	const answers = question.answers;
 	const socket = useSocket();
 
 	const onRevealRemainingAnswers = () =>
@@ -19,5 +26,5 @@ export default function AfterStealAnswerReveal({
 			</Button>
 		);
 	}
-	return <AwardPointsButton currentMode="face_off" />;
+	return <AwardPointsButton gameState={gameState} />;
 }

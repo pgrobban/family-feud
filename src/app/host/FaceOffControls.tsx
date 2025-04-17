@@ -57,7 +57,7 @@ export default function FaceOffControls({
 					/>
 				);
 			case "revealing_stored_answers":
-				return <AwardPointsButton currentMode={gameState.mode} />;
+				return <AwardPointsButton gameState={gameState} />;
 			case "awarding_points":
 				return <QuestionOverControls />;
 			case "ask_other_team_for_guess_for_steal": {
@@ -77,7 +77,7 @@ export default function FaceOffControls({
 				);
 			}
 			case "revealing_steal_answer":
-				return <AfterStealAnswerReveal answers={gameState.question.answers} />;
+				return <AfterStealAnswerReveal gameState={gameState} />;
 		}
 	}, [gameState]);
 

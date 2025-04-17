@@ -1,6 +1,6 @@
 "use client";
 import useSocket from "@/hooks/useSocket";
-import type { FaceOffGameState, GameState } from "@/shared/types";
+import type { FaceOffGameState } from "@/shared/types";
 import { Button, Grid, Typography } from "@mui/material";
 import { useState } from "react";
 import StoredAnswerSelector from "./StoredAnswerSelector";
@@ -8,7 +8,7 @@ import StoredAnswerSelector from "./StoredAnswerSelector";
 export default function BuzzedInTeamAndAnswerPicker({
 	gameState,
 }: {
-	gameState: GameState & FaceOffGameState;
+	gameState: FaceOffGameState;
 }) {
 	const { modeStatus, currentTeam, teamNames, question } = gameState;
 	const socket = useSocket();
@@ -72,6 +72,12 @@ export default function BuzzedInTeamAndAnswerPicker({
 					}
 					onAnswerPicked={(answerText) => setAnswer(answerText)}
 					includeInvalidOption
+					disabled={(answerText) =>
+						question.answers.some(
+							(answer) =>
+								answer.answerText === answerText && answer.answerRevealed,
+						)
+					}
 				/>
 			</Grid>
 			<Grid container size={6}>

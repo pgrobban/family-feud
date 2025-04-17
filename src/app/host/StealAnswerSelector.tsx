@@ -16,7 +16,10 @@ export default function StealAnswerSelector({ gameAnswers, teamName }: Props) {
 
 	return (
 		<Box>
-			<Typography>Select {teamName}&apos;s answer to steal</Typography>
+			<Typography>
+				Select <span style={{ textDecoration: "underline" }}>{teamName}</span>
+				&apos;s answer to steal
+			</Typography>
 			<StoredAnswerSelector
 				storedAnswers={gameAnswers}
 				disabled={(answerText) =>
