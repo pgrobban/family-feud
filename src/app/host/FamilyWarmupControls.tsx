@@ -45,7 +45,7 @@ export default function FamilyWarmupControls({
 				</Button>
 			);
 		case "revealing_team_answers":
-			return <AwardPointsButton currentMode={gameState.mode} />;
+			return <AwardPointsButton gameState={gameState} />;
 		case "awarding_points":
 			return <QuestionOverControls />;
 	}

@@ -5,6 +5,7 @@ import type {
 } from "./gameEventMap";
 import type { GameAnswer, GameQuestion, StoredAnswer, TeamAndPoints } from "./types";
 
+export const FAMILY_WARMUP_QUESTIONS = 3;
 export const FAMILY_WARMUP_TIMER_SECONDS = 60;
 export const MAX_FACE_OFF_STRIKES = 3;
 export const FAST_MONEY_QUESTIONS = 5;

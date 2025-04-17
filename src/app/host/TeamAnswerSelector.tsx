@@ -4,6 +4,7 @@ import type { StoredAnswer } from "@/shared/types";
 import { Box, Button, Typography } from "@mui/material";
 import { useState } from "react";
 import StoredAnswerSelector from "./StoredAnswerSelector";
+import { FAMILY_WARMUP_QUESTIONS } from "@/shared/utils";
 
 function TeamAnswerPicker({
 	teamNumber,
@@ -26,6 +27,10 @@ function TeamAnswerPicker({
 				}
 				onAnswerPicked={(answerText) =>
 					toggleAnswerText(teamNumber, answerText)
+				}
+				disabled={(answerText) =>
+					teamAnswers.length >= FAMILY_WARMUP_QUESTIONS &&
+					!teamAnswers.includes(answerText)
 				}
 			/>
 		</Box>
@@ -62,7 +67,10 @@ export default function TeamAnswerSelector({
 	};
 
 	return (
-		<>
+		<Box>
+			<Typography>
+				Choose up to {FAMILY_WARMUP_QUESTIONS} answers for each team
+			</Typography>
 			<TeamAnswerPicker
 				teamNumber={1}
 				teamAnswers={team1Answers}
@@ -82,6 +90,6 @@ export default function TeamAnswerSelector({
 					Submit answers
 				</Button>
 			</Box>
-		</>
+		</Box>
 	);
 }
