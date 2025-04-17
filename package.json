@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "concurrently \"next dev -p 3001\" \"nodemon\"",
+    "start:server": "ts-node -r tsconfig-paths/register -P ./src/server/tsconfig.server.json ./src/server/server.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

@@ -7,7 +7,6 @@ type GameStatus = "waiting_for_host" | "in_progress" | "finished";
 
 export type Mode = "family_warm_up" | "face_off" | "fast_money" | "indeterminate";
 
-// Base state structure, shared across all modes
 export interface BaseGameState {
   id: string;
   teamNames: string[];

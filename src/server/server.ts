@@ -9,15 +9,14 @@ import GameManager from "./controllers/GameManager";
 import dotenv from "dotenv";
 dotenv.config();
 
-const SOCKET_IO_PORT = process.env.SOCKET_IO_PORT;
+const { SOCKET_IO_PORT, CORS_ORIGIN } = process.env;
 
 const httpServer = createServer();
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
     origin: [
       "http://localhost:3001",
-      "http://98.128.172.254:3001",
-      "http://192.168.11.75:3001",
+      ...(CORS_ORIGIN ? [CORS_ORIGIN] : [])
     ],
     methods: ["GET", "POST"],
   },
