@@ -105,4 +105,5 @@ export interface FaceOffGameAnswer extends GameAnswer {
 
 export interface FastMoneyAnswer extends GameAnswer {
   pointsRevealed: boolean;
+  isTopAnswer: boolean;
 }

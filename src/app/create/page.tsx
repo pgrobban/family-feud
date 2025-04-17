@@ -45,7 +45,7 @@ export default function Create() {
 	return (
 		<>
 			<Box display="flex" flexDirection="column" alignItems="center">
-				<Image src="/logo.png" alt="Logo" width={560} height={320} />
+				<Image src="/images/logo.png" alt="Logo" width={560} height={320} />
 				<Typography>{statusMessage}</Typography>
 
 				<Grid

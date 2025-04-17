@@ -780,6 +780,7 @@ export default class Game {
           points: question.answers[answerIndex].points,
           answerRevealed: false,
           pointsRevealed: false,
+          isTopAnswer: question.answers[0].answerText.toLowerCase() === response.toLowerCase()
         };
       }
       return {
@@ -787,6 +788,7 @@ export default class Game {
         points: 0,
         answerRevealed: false,
         pointsRevealed: false,
+        isTopAnswer: false
       };
     });
 
@@ -891,28 +893,29 @@ export default class Game {
       return;
     }
 
-    const game = this.gameState as FastMoneyGameState;
-    if (!game.questions) return;
+    const { questions } = this.gameState as FastMoneyGameState;
+    if (!questions) return;
 
-    const questionIndex = game.questions.findIndex(
+    const questionIndex = questions.findIndex(
       (question) => question.questionText === questionText
     );
 
     if (questionIndex === -1) return;
 
-    const foundAnswerIndex = game.questions[questionIndex].answers.findIndex(
+    const foundAnswerIndex = questions[questionIndex].answers.findIndex(
       (answer) => answer.answerText === answerText
     );
     const storedAnswer =
-      game.questions[questionIndex].answers[foundAnswerIndex];
+      questions[questionIndex].answers[foundAnswerIndex];
 
     const newResponsesSecondTeam = new Array<FastMoneyAnswer>(
-      game.questions.length
+      questions.length
     ).fill({
       answerText: "",
       points: 0,
       answerRevealed: false,
       pointsRevealed: false,
+      isTopAnswer: false
     });
 
     newResponsesSecondTeam[questionIndex] = {
@@ -921,6 +924,7 @@ export default class Game {
       points: foundAnswerIndex !== -1 ? storedAnswer.points : 0,
       answerRevealed: true,
       pointsRevealed: true,
+      isTopAnswer: questions[questionIndex].answers[0].answerText.toLowerCase() === answerText.toLowerCase()
     };
 
     this.updateGameState({

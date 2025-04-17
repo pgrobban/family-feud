@@ -54,6 +54,7 @@ export default function FastMoneyStealQuestionAndAnswerPicker({
 									buttonColor={(answerText: string) =>
 										answerPicked === answerText ? "success" : "primary"
 									}
+									includeInvalidOption
 								/>
 							)}
 						</Box>

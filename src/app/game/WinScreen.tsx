@@ -24,7 +24,7 @@ export default function WinScreen({
 		>
 			<Typography variant="h3">Congratulations, {winningTeamName}</Typography>
 			<Box mt={5}>
-				<Image src="/winner.jpg" alt="Logo" width={475} height={475} />
+				<Image src="/images/winner.jpg" alt="Logo" width={475} height={475} />
 			</Box>
 		</Box>
 	);

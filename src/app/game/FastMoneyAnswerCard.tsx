@@ -3,6 +3,7 @@ import type { EventHandler, ToTeam } from "@/shared/gameEventMap";
 import type { GameAnswer } from "@/shared/types";
 import { Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+
 interface Props {
 	answer: GameAnswer;
 	answerIndex: number;
@@ -10,6 +11,8 @@ interface Props {
 }
 
 const dingSound = new Audio("sounds/ding.mp3");
+const buzzSound = new Audio("sounds/buzz.mp3");
+const answerRevealSound = new Audio("sounds/you said.mp3");
 
 export default function FastMoneyAnswerCard({
 	answer,
@@ -36,21 +39,24 @@ export default function FastMoneyAnswerCard({
 			answerIdx,
 			teamIdx,
 		) => {
-			console.log("in doAnimation", answerIdx, teamIdx, answerIndex, column);
 			if (answerIndex !== answerIdx || column !== teamIdx) return;
 
 			setFlipped(true); // flip visually immediately
+			answerRevealSound.play();
 			setAnswerRevealed(true);
-			dingSound.play();
 		};
 
 		const revealPoints: EventHandler<"fastMoney:pointsRevealed"> = (
 			answerIdx,
 			teamIdx,
 		) => {
-			console.log("in revealPoints", answerIdx, teamIdx, answerIndex, column);
-
 			if (answerIndex !== answerIdx || column !== teamIdx) return;
+
+			if (points > 0) {
+				dingSound.play();
+			} else {
+				buzzSound.play();
+			}
 			setPointsRevealed(true);
 		};
 
@@ -60,7 +66,7 @@ export default function FastMoneyAnswerCard({
 			socket.off("fastMoney:answerRevealed", doAnimation);
 			socket.off("fastMoney:pointsRevealed", revealPoints);
 		};
-	}, [socket, answerIndex, column]);
+	}, [socket, answerIndex, column, points]);
 
 	return (
 		<Box
