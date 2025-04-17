@@ -66,13 +66,13 @@ Then
 npm start
 ```
 
-This will run the frontend on localhost:3000
+This will run the frontend on `localhost:3000`.
 
 ```
 npm run start:server
 ```
 
-will run the server on the ports defined in the .env file.
+will run the server on the ports defined in the `.env` file.
 
 
 ## FAQ
