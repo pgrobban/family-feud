@@ -4,16 +4,13 @@ import type { FastMoneyAnswer } from "@/shared/types";
 import { Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useSound } from "@/hooks/useSound";
 
 interface Props {
 	answer: FastMoneyAnswer;
 	answerIndex: number;
 	column: ToTeam;
 }
-
-const dingSound = new Audio("sounds/ding.mp3");
-const buzzSound = new Audio("sounds/buzz.mp3");
-const answerRevealSound = new Audio("sounds/you said.mp3");
 
 export default function FastMoneyAnswerCard({
 	answer,
@@ -26,6 +23,7 @@ export default function FastMoneyAnswerCard({
 	const [pointsRevealed, setPointsRevealed] = useState(false);
 
 	const socket = useSocket();
+	const sounds = useSound();
 
 	useEffect(() => {
 		if (answerRevealed && !flipped) {
@@ -43,7 +41,7 @@ export default function FastMoneyAnswerCard({
 			if (answerIndex !== answerIdx || column !== teamIdx) return;
 
 			setFlipped(true); // flip visually immediately
-			answerRevealSound.play();
+			sounds.playYouSaid();
 			setAnswerRevealed(true);
 		};
 
@@ -54,9 +52,9 @@ export default function FastMoneyAnswerCard({
 			if (answerIndex !== answerIdx || column !== teamIdx) return;
 
 			if (points > 0) {
-				dingSound.play();
+				sounds.playDing();
 			} else {
-				buzzSound.play();
+				sounds.playBuzz();
 			}
 			setPointsRevealed(true);
 		};
@@ -67,7 +65,7 @@ export default function FastMoneyAnswerCard({
 			socket.off("fastMoney:answerRevealed", doAnimation);
 			socket.off("fastMoney:pointsRevealed", revealPoints);
 		};
-	}, [socket, answerIndex, column, points]);
+	}, [socket, answerIndex, column, points, sounds]);
 
 	return (
 		<Box

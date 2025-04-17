@@ -1,4 +1,7 @@
+"use client";
+
 import useSocket from "@/hooks/useSocket";
+import { useSound } from "@/hooks/useSound";
 import type { GameAnswer } from "@/shared/types";
 import { Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -8,9 +11,8 @@ interface Props {
 	index: number;
 }
 
-const dingSound = new Audio("sounds/ding.mp3");
-
 export default function AnswerCard({ answer, index }: Props) {
+	const sounds = useSound();
 	const { answerText, points, answerRevealed } = answer;
 	const [flipped, setFlipped] = useState(answerRevealed);
 
@@ -29,7 +31,7 @@ export default function AnswerCard({ answer, index }: Props) {
 			if (animateIndex !== index) return;
 
 			setFlipped(true); // flip visually immediately
-			dingSound.play();
+			sounds.playDing();
 		};
 
 		socket.on("answerRevealed", doAnimation);

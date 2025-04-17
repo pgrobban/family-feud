@@ -1,22 +1,36 @@
 import useSocket from "@/hooks/useSocket";
-import type { Mode } from "@/shared/types";
+import type { FastMoneyGameState, GameState } from "@/shared/types";
 import { Button } from "@mui/material";
 
 export default function AwardPointsButton({
-	currentMode,
-}: { currentMode: Exclude<Mode, "indeterminate"> }) {
+	gameState,
+}: { gameState: GameState }) {
+	const { mode } = gameState;
+	const fastMoneyResponses =
+		mode === "fast_money"
+			? (gameState as FastMoneyGameState).responsesFirstTeam
+			: [];
+	const disabled = fastMoneyResponses?.some(
+		(response) => !response.pointsRevealed,
+	);
+
 	const socket = useSocket();
 	const requestAwardPoints = () =>
 		socket?.emit(
-			currentMode === "family_warm_up"
+			mode === "family_warm_up"
 				? "familyWarmup:requestAwardTeamPoints"
-				: currentMode === "face_off"
+				: mode === "face_off"
 					? "faceOff:requestAwardPoints"
 					: "fastMoney:requestAwardPoints",
 		);
 
 	return (
-		<Button variant="contained" color="primary" onClick={requestAwardPoints}>
+		<Button
+			variant="contained"
+			color="primary"
+			onClick={requestAwardPoints}
+			disabled={disabled}
+		>
 			Award points
 		</Button>
 	);

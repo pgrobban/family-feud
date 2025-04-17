@@ -34,7 +34,7 @@ export default function FastMoneyControls({
 				/>
 			);
 		case "reveal_steal_question_and_answer":
-			return <AwardPointsButton currentMode={gameState.mode} />;
+			return <AwardPointsButton gameState={gameState} />;
 		case "awarding_points":
 			return <QuestionOverControls />;
 	}

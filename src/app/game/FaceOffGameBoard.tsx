@@ -12,8 +12,7 @@ import useSocket from "@/hooks/useSocket";
 import { useEffect, useState } from "react";
 import LogoAndRoundBox from "./LogoAndRoundBox";
 import RedXOverlay from "./RedXOverlay";
-
-const buzzSound = new Audio("sounds/buzz.mp3");
+import { useSound } from "@/hooks/useSound";
 
 export default function FaceOffGameBoard({
 	gameState,
@@ -22,13 +21,14 @@ export default function FaceOffGameBoard({
 }) {
 	const [animateStrikes, setAnimateStrikes] = useState(0);
 	const socket = useSocket();
+	const sounds = useSound();
 
 	useEffect(() => {
 		if (!socket) return;
 
 		const onAnswerIncorrect = ({ strikes }: { strikes: number }) => {
 			setAnimateStrikes(strikes);
-			buzzSound.play();
+			sounds.playBuzz();
 
 			setTimeout(() => {
 				setAnimateStrikes(0);
@@ -39,7 +39,7 @@ export default function FaceOffGameBoard({
 		return () => {
 			socket.off("answerIncorrect", onAnswerIncorrect);
 		};
-	}, [socket]);
+	}, [socket, sounds]);
 
 	if (gameState.status !== "in_progress" || gameState.mode !== "face_off") {
 		return null;
