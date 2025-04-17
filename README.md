@@ -37,7 +37,8 @@ npm install
 npm run dev
 ```
 
-This will start a dev instance of both the frontend and the server running with hot reloading on both.
+This will start a dev instance of both the frontend and the server running with hot reloading on both.  
+If you are using VSCode, you can simply use the run configs.
 
 ## Coding 
 Check out `/src/shared/types.ts` for information about the game modes and statuses. This should make following the logic (in `server/controller/Game.ts`) easier. 
