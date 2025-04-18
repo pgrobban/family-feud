@@ -3,7 +3,12 @@ import type {
   ClientToServerEvents,
   ServerToClientEvents,
 } from "./gameEventMap";
-import type { GameAnswer, GameQuestion, StoredAnswer, TeamAndPoints } from "./types";
+import type {
+  GameAnswer,
+  GameQuestion,
+  StoredAnswer,
+  TeamAndPoints,
+} from "./types";
 
 export const FAMILY_WARMUP_QUESTIONS = 3;
 export const FAMILY_WARMUP_TIMER_SECONDS = 60;
@@ -43,21 +48,25 @@ export const getPointsSum = (question: GameQuestion, answers: string[]) =>
     return total + (foundAnswer ? foundAnswer.points : 0);
   }, 0);
 
-export const getFastMoneyStealPoints = (questions: GameQuestion[], responses: GameAnswer[]) => {
+export const getFastMoneyStealPoints = (
+  questions: GameQuestion[],
+  responses: GameAnswer[]
+) => {
   for (let i = 0; i < questions.length; i++) {
     if (!responses[i]?.answerText) continue;
 
-    const isHighest = questions[i].answers[0].answerText.toLowerCase() === responses[i].answerText.toLowerCase();
+    const isHighest =
+      questions[i].answers[0].answerText.toLowerCase() ===
+      responses[i].answerText.toLowerCase();
 
     return {
       isHighest,
-      points: responses[i].points
-    }
+      points: responses[i].points,
+    };
   }
 
   return {
     isHighest: false,
-    points: 0
-  }
-
-}
+    points: 0,
+  };
+};

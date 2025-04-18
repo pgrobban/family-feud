@@ -435,7 +435,7 @@ export default class Game {
 
     const answers = question.answers as FaceOffGameAnswer[];
     const totalRevealedPoints = answers.reduce(
-      (acc, answer) => acc + (answer.revealedByControlTeam ? answer.points : 0),
+      (acc, answer) => acc + (answer.revealedByAnyTeam ? answer.points : 0),
       0
     );
 
@@ -484,7 +484,9 @@ export default class Game {
         : 0);
 
     const newTeamsAndPoints = [...this.teamsAndPoints];
-    const teamToAwardPoints = stolenPoints.isHighest ? this.currentTeam : getOpposingTeam(this.currentTeam);
+    const teamToAwardPoints = stolenPoints.isHighest
+      ? this.currentTeam
+      : getOpposingTeam(this.currentTeam);
 
     newTeamsAndPoints[teamToAwardPoints - 1].points += pointsToAward;
     this.updateGameState({
@@ -574,7 +576,7 @@ export default class Game {
     if (isCorrect) {
       const answer = game.question.answers[answerIndex];
       answer.answerRevealed = true;
-      answer.revealedByControlTeam = true;
+      answer.revealedByAnyTeam = true;
 
       this.io.to(this.id).emit("answerRevealed", { index: answerIndex });
 
@@ -663,9 +665,9 @@ export default class Game {
     if (isCorrect) {
       const answer = game.question.answers[answerIndex];
       answer.answerRevealed = true;
-      answer.revealedByControlTeam = true;
+      answer.revealedByAnyTeam = true;
       const allAnswersFound = game.question.answers.every(
-        ({ revealedByControlTeam }) => revealedByControlTeam
+        ({ revealedByAnyTeam }) => revealedByAnyTeam
       );
       const nextStatus = allAnswersFound
         ? "revealing_stored_answers"
@@ -713,7 +715,7 @@ export default class Game {
     if (isCorrect) {
       const answer = game.question.answers[answerIndex];
       answer.answerRevealed = true;
-      answer.revealedByControlTeam = true;
+      answer.revealedByAnyTeam = true;
 
       this.io.to(this.id).emit("answerRevealed", { index: answerIndex });
 
@@ -741,7 +743,12 @@ export default class Game {
   }
 
   revealStoredAnswers() {
-    if (!this.validateGameStatus("face_off", "revealing_steal_answer")) {
+    if (
+      !this.validateGameStatus("face_off", [
+        "revealing_stored_answers",
+        "revealing_steal_answer",
+      ])
+    ) {
       return;
     }
     const question = this.question;
@@ -786,7 +793,9 @@ export default class Game {
           points: question.answers[answerIndex].points,
           answerRevealed: false,
           pointsRevealed: false,
-          isTopAnswer: question.answers[0].answerText.toLowerCase() === response.toLowerCase()
+          isTopAnswer:
+            question.answers[0].answerText.toLowerCase() ===
+            response.toLowerCase(),
         };
       }
       return {
@@ -794,7 +803,7 @@ export default class Game {
         points: 0,
         answerRevealed: false,
         pointsRevealed: false,
-        isTopAnswer: false
+        isTopAnswer: false,
       };
     });
 
@@ -911,8 +920,7 @@ export default class Game {
     const foundAnswerIndex = questions[questionIndex].answers.findIndex(
       (answer) => answer.answerText === answerText
     );
-    const storedAnswer =
-      questions[questionIndex].answers[foundAnswerIndex];
+    const storedAnswer = questions[questionIndex].answers[foundAnswerIndex];
 
     const newResponsesSecondTeam = new Array<FastMoneyAnswer>(
       questions.length
@@ -921,7 +929,7 @@ export default class Game {
       points: 0,
       answerRevealed: false,
       pointsRevealed: false,
-      isTopAnswer: false
+      isTopAnswer: false,
     });
 
     newResponsesSecondTeam[questionIndex] = {
@@ -930,7 +938,9 @@ export default class Game {
       points: foundAnswerIndex !== -1 ? storedAnswer.points : 0,
       answerRevealed: true,
       pointsRevealed: true,
-      isTopAnswer: questions[questionIndex].answers[0].answerText.toLowerCase() === answerText.toLowerCase()
+      isTopAnswer:
+        questions[questionIndex].answers[0].answerText.toLowerCase() ===
+        answerText.toLowerCase(),
     };
 
     this.updateGameState({
