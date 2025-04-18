@@ -5,5 +5,5 @@ module.exports = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
-  testPathIgnorePatterns: ["__tests__/testHelpers.ts"],
+  testPathIgnorePatterns: ["__tests__/helpers"],
 };

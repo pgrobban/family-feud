@@ -1,77 +1,57 @@
+import { faceOffScenarios, faceOffState } from "./helpers/faceOffFixtures";
 import Game from "@/server/controllers/Game";
-import { createMockSocketServerAndRoom } from "./testHelpers";
-
-type Scenario = {
-  name: string;
-  buzzedFirst: 1 | 2;
-  firstAnswer: string;
-  controlChoice: "play" | "pass";
-  controlGuesses: string[]; // Must be >= 3 if not clearing board
-  stealAttempt?: string; // only applies if control team fails
-  expectedPoints: [number, number];
-};
-
-const scenarios: Scenario[] = [
-  {
-    name: "Team 1 buzzes, chooses to play, clears board",
-    buzzedFirst: 1,
-    firstAnswer: "apple",
-    controlChoice: "play",
-    controlGuesses: ["cherry", "strawberry", "raspberry"],
-    expectedPoints: [100, 0],
-  },
-
-  {
-    name: "Team 1 buzzes, chooses to play, fails, Team 2 steals successfully",
-    buzzedFirst: 1,
-    firstAnswer: "apple",
-    controlChoice: "play",
-    controlGuesses: ["grape", "banana", "orange"], // 3 strikes
-    stealAttempt: "cherry",
-    expectedPoints: [0, 70],
-  },
-];
+import { createMockSocketServerAndRoom } from "./helpers/testHelpers";
+import { getOpposingTeam } from "@/shared/utils";
 
 describe("Face-Off full paths", () => {
+  let game: Game;
+
   beforeEach(() => {
+    const { io, roomId } = createMockSocketServerAndRoom();
+    // @ts-expect-error mock IO
+    game = new Game(roomId, "testsocket", ["A", "B"], io);
+
     jest.useFakeTimers();
   });
 
   afterEach(() => {
+    jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });
 
-  test.each(scenarios)("$name", (scenario) => {
-    const { io, roomId } = createMockSocketServerAndRoom();
-    // @ts-expect-error mock IO
-    const game = new Game(roomId, "testsocket", ["A", "B"], io);
-
+  test.each(faceOffScenarios)("$name", (scenario) => {
     // Setup Face-Off question
     // @ts-expect-error private method
-    game.updateGameState({
-      mode: "face_off",
-      modeStatus: "face_off_started",
-      status: "in_progress",
-      buzzOrder: [],
-      question: {
-        questionText: "Name a fruit that's red",
-        answers: [
-          { answerText: "apple", points: 40, answerRevealed: false },
-          { answerText: "cherry", points: 30, answerRevealed: false },
-          { answerText: "strawberry", points: 20, answerRevealed: false },
-          { answerText: "raspberry", points: 10, answerRevealed: false },
-        ],
-      },
-    });
+    game.updateGameState(structuredClone(faceOffState));
+
     const boardAnswers = ["apple", "cherry", "strawberry", "raspberry"];
     const unrevealedAtStart = new Set(boardAnswers);
 
     // Buzz in
     game.submitBuzzInAnswer(scenario.buzzedFirst, scenario.firstAnswer);
-    unrevealedAtStart.delete(scenario.firstAnswer);
+    if (boardAnswers.includes(scenario.firstAnswer)) {
+      unrevealedAtStart.delete(scenario.firstAnswer);
+    }
+
     jest.runAllTimers();
 
-    game.requestAskTeamToPlayOrPass();
+    if (scenario.firstAnswer === boardAnswers[0]) {
+      // highest answer
+      game.requestAskTeamToPlayOrPass();
+    } else {
+      game.requestOtherTeamToBuzzInAnswer();
+      if (!scenario.secondAnswer) {
+        throw new Error(`Scenario needs second buzz in answer!`);
+      }
+
+      game.submitBuzzInAnswer(
+        getOpposingTeam(scenario.buzzedFirst),
+        scenario.secondAnswer
+      );
+      jest.runAllTimers();
+      game.requestAskTeamToPlayOrPass();
+    }
+
     game.receivedPlayOrPass(scenario.controlChoice);
 
     // Simulate control team guesses

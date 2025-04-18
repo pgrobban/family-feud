@@ -62,7 +62,7 @@ export interface FaceOffGameState extends BaseGameState {
 
   currentTeam: 1 | 2 | null; // The team currently answering or controlling.
   inControlTeam: 1 | 2 | null;
-  buzzOrder: number[]; // Order of teams that buzzed in.
+  buzzOrder: (1 | 2)[]; // Order of teams that buzzed in.
   question: GameQuestion<FaceOffGameAnswer> | null; // The current question.
   strikes: number; // Number of strikes the team in control has.
   isStolen: boolean;

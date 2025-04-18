@@ -564,16 +564,35 @@ export default class Game {
 
     if (!game.question || game.buzzOrder.includes(team)) return;
 
+    const previousAnswer = game.question.answers.find(
+      (answer) => answer.answerRevealed
+    );
+
     const updatedBuzzOrder = [...game.buzzOrder, team];
 
     const answerIndex = getAnswerIndex(game.question.answers, answerText);
-    const isCorrect = answerIndex !== -1;
+    const isCorrect =
+      answerIndex !== -1 && !game.question.answers[answerIndex].answerRevealed;
+
     const isFirstBuzz = updatedBuzzOrder.length === 1;
     const nextStatus = isFirstBuzz
       ? "reveal_buzzed_in_answer"
       : "reveal_other_buzzed_in_answer";
 
+    let teamToContinueRound = team;
     if (isCorrect) {
+      if (!isFirstBuzz) {
+        if (previousAnswer) {
+          const pointsForThisBuzz = game.question.answers[answerIndex].points;
+          const previousBuzzPoints = previousAnswer.points;
+          const isHigherThanPreviousBuzz =
+            pointsForThisBuzz > previousBuzzPoints;
+          if (!isHigherThanPreviousBuzz) {
+            teamToContinueRound = getOpposingTeam(team);
+          }
+        }
+      }
+
       const answer = game.question.answers[answerIndex];
       answer.answerRevealed = true;
       answer.revealedByAnyTeam = true;
@@ -584,20 +603,25 @@ export default class Game {
         this.updateGameState({
           question: game.question,
           buzzOrder: updatedBuzzOrder,
-          currentTeam: team,
           modeStatus: nextStatus,
+          currentTeam: teamToContinueRound,
         });
         this.io.to(this.id).emit("receivedGameState", this.toJson());
       }, 800);
 
       return;
     }
+    if (!isCorrect && !isFirstBuzz && !previousAnswer) {
+      // edge case both teams answered incorrectly, give control to first buzzed team
+      teamToContinueRound = updatedBuzzOrder[0];
+    }
+
     this.io.to(this.id).emit("answerIncorrect", { strikes: 1 });
 
     this.updateGameState({
       buzzOrder: updatedBuzzOrder,
-      currentTeam: team,
       modeStatus: nextStatus,
+      currentTeam: teamToContinueRound,
     });
 
     return true;
@@ -660,7 +684,8 @@ export default class Game {
     if (!game.question) return;
 
     const answerIndex = getAnswerIndex(game.question.answers, answerText);
-    const isCorrect = answerIndex !== -1;
+    const isCorrect =
+      answerIndex !== -1 && !game.question.answers[answerIndex].answerRevealed;
 
     if (isCorrect) {
       const answer = game.question.answers[answerIndex];
@@ -711,7 +736,8 @@ export default class Game {
     if (!game.question) return;
 
     const answerIndex = getAnswerIndex(game.question.answers, answerText);
-    const isCorrect = answerIndex !== -1;
+    const isCorrect =
+      answerIndex !== -1 && !game.question.answers[answerIndex].answerRevealed;
     if (isCorrect) {
       const answer = game.question.answers[answerIndex];
       answer.answerRevealed = true;
@@ -754,7 +780,11 @@ export default class Game {
     const question = this.question;
     if (!question) return;
 
+    let answersToReveal = 0;
     question.answers.forEach((_, index) => {
+      if (question.answers[index].answerRevealed) return;
+
+      answersToReveal++;
       setTimeout(() => {
         question.answers[index].answerRevealed = true;
 
@@ -765,7 +795,7 @@ export default class Game {
             this.io.to(this.id).emit("receivedGameState", this.toJson());
           }, 500);
         }
-      }, index * 800);
+      }, answersToReveal * 2000);
     });
 
     this.updateGameState({
