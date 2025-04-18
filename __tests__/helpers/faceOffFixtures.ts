@@ -1,19 +1,28 @@
 import { FaceOffScenario } from "./testHelpers";
 
+export const question = {
+  questionText: "Name a fruit that's red",
+  answers: [
+    { answerText: "apple", points: 40, answerRevealed: false },
+    { answerText: "cherry", points: 30, answerRevealed: false },
+    { answerText: "strawberry", points: 20, answerRevealed: false },
+    { answerText: "raspberry", points: 10, answerRevealed: false },
+  ],
+};
+
+export const familyWarmupState = {
+  mode: "family_warm_up",
+  modeStatus: "question_in_progress",
+  status: "in_progress",
+  question,
+};
+
 export const faceOffState = {
   mode: "face_off",
   modeStatus: "face_off_started",
   status: "in_progress",
   buzzOrder: [],
-  question: {
-    questionText: "Name a fruit that's red",
-    answers: [
-      { answerText: "apple", points: 40, answerRevealed: false },
-      { answerText: "cherry", points: 30, answerRevealed: false },
-      { answerText: "strawberry", points: 20, answerRevealed: false },
-      { answerText: "raspberry", points: 10, answerRevealed: false },
-    ],
-  },
+  question,
 };
 
 export const faceOffScenarios: FaceOffScenario[] = [
