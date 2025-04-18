@@ -1,6 +1,6 @@
 import Game from "@/server/controllers/Game";
 import { createMockSocketServerAndRoom } from "./helpers/testHelpers";
-import { familyWarmupState } from "./helpers/faceOffFixtures";
+import { familyWarmupState, question } from "./helpers/faceOffFixtures";
 
 interface FamilyWarmupScenario {
   name: string;
@@ -61,6 +61,7 @@ describe("Family warm-up full paths", () => {
     );
     // @ts-expect-error private method
     game.updateGameState(updatedGameState);
+    game.hostPickedQuestionForCurrentMode(question.questionText);
 
     game.hostRequestedTeamAnswers();
     game.hostGatheredTeamAnswersFamilyWarmup(

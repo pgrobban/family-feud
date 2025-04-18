@@ -28,6 +28,7 @@ import type {
   ServerToClientEvents,
   ToTeam,
 } from "@/shared/gameEventMap";
+import { question as TEST_QUESTION } from "../../../__tests__/helpers/faceOffFixtures";
 
 const storedQuestions: StoredQuestion[] = questions;
 
@@ -190,8 +191,29 @@ export default class Game {
       return;
     }
 
-    const stateProps = this.getNewQuestionState(mode);
-    this.updateGameState({ ...stateProps, status: "in_progress" });
+    switch (mode) {
+      case "family_warm_up":
+        this.updateGameState({
+          mode,
+          status: "in_progress",
+          modeStatus: "waiting_for_question",
+        } satisfies Partial<FamilyWarmUpGameState>);
+        break;
+      case "face_off":
+        this.updateGameState({
+          mode,
+          status: "in_progress",
+          modeStatus: "waiting_for_question",
+        } satisfies Partial<FaceOffGameState>);
+        break;
+      case "fast_money":
+        this.updateGameState({
+          mode,
+          status: "in_progress",
+          modeStatus: "waiting_for_questions",
+        } satisfies Partial<FastMoneyGameState>);
+        break;
+    }
   }
 
   private getNewQuestionState(
@@ -201,18 +223,12 @@ export default class Game {
       case "family_warm_up":
         return {
           ...this.gameState,
-          mode,
-          modeStatus: "waiting_for_question",
-          question: null,
           team1Answers: [],
           team2Answers: [],
         } as FamilyWarmUpGameState;
       case "face_off":
         return {
           ...this.gameState,
-          mode,
-          modeStatus: "waiting_for_question",
-          question: null,
           buzzOrder: [],
           isStolen: false,
           strikes: 0,
@@ -227,8 +243,6 @@ export default class Game {
         );
         return {
           ...this.gameState,
-          mode,
-          modeStatus: "waiting_for_questions",
           questions: [],
           currentTeam: firstTeamToAnswerIndex + 1,
         } as FastMoneyGameState;
@@ -259,14 +273,19 @@ export default class Game {
       return;
     }
 
-    const stored = storedQuestions.find(
+    const mode = this.mode as Exclude<Mode, "indeterminate" | "fast_money">;
+    const newState = this.getNewQuestionState(mode) as
+      | FamilyWarmUpGameState
+      | FaceOffGameState;
+
+    const stored = [...storedQuestions, TEST_QUESTION].find(
       ({ questionText }) => questionText === pickedQuestionText
     );
     if (!stored) {
       return;
     }
 
-    const gameQuestion: GameQuestion = {
+    newState.question = {
       questionText: stored.questionText,
       answers: stored.answers.map((answer) => ({
         ...answer,
@@ -275,13 +294,17 @@ export default class Game {
       })),
     };
 
-    this.updateGameState({
-      question: gameQuestion,
-      modeStatus:
-        this.mode === "family_warm_up"
-          ? "question_in_progress"
-          : "face_off_started",
-    });
+    if (this.mode === "family_warm_up") {
+      this.updateGameState({
+        ...(newState as FamilyWarmUpGameState),
+        modeStatus: "question_in_progress",
+      });
+    } else {
+      this.updateGameState({
+        ...(newState as FaceOffGameState),
+        modeStatus: "face_off_started",
+      });
+    }
   }
 
   hostPickedFastMoneyQuestions(questionTexts: string[]) {

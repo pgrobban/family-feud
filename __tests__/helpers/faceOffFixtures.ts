@@ -12,17 +12,14 @@ export const question = {
 
 export const familyWarmupState = {
   mode: "family_warm_up",
-  modeStatus: "question_in_progress",
   status: "in_progress",
-  question,
+  modeStatus: "waiting_for_question",
 };
 
 export const faceOffState = {
   mode: "face_off",
-  modeStatus: "face_off_started",
+  modeStatus: "waiting_for_question",
   status: "in_progress",
-  buzzOrder: [],
-  question,
 };
 
 export const faceOffScenarios: FaceOffScenario[] = [

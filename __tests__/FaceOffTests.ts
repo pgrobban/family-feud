@@ -1,10 +1,16 @@
-import { faceOffScenarios, faceOffState } from "./helpers/faceOffFixtures";
+import {
+  faceOffScenarios,
+  faceOffState,
+  question,
+} from "./helpers/faceOffFixtures";
 import Game from "@/server/controllers/Game";
 import {
   createMockSocketServerAndRoom,
   FaceOffScenario,
 } from "./helpers/testHelpers";
 import { getOpposingTeam } from "@/shared/utils";
+
+const boardAnswers = question.answers.map((answer) => answer.answerText);
 
 describe("Face-Off full paths", () => {
   let game: Game;
@@ -39,8 +45,8 @@ describe("Face-Off full paths", () => {
 
     // @ts-expect-error private method
     game.updateGameState(updatedGameState);
+    game.hostPickedQuestionForCurrentMode(question.questionText);
 
-    const boardAnswers = ["apple", "cherry", "strawberry", "raspberry"];
     const unrevealedAtStart = new Set(boardAnswers);
 
     // Buzz in

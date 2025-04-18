@@ -14,9 +14,9 @@ const eslintConfig = [
   {
     rules: {
       noNonNullAssertion: "off",
-      "suspicious/noConfusingVoidType": "off"
-    }
-  }
+      "suspicious/noConfusingVoidType": "off",
+    },
+  },
 ];
 
 export default eslintConfig;
