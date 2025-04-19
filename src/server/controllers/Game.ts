@@ -185,30 +185,31 @@ export default class Game {
     }
   }
 
-  hostPickedMode(mode: Exclude<BaseGameState["mode"], "indeterminate">) {
+  hostPickedMode(mode: Exclude<Mode, "indeterminate">) {
     if (!this.validateGameStatus("indeterminate")) {
       return;
     }
 
+    this.setNewStateForMode(mode);
+  }
+
+  private setNewStateForMode(mode: Exclude<Mode, "indeterminate">) {
     switch (mode) {
       case "family_warm_up":
         this.updateGameState({
           mode,
-          status: "in_progress",
           modeStatus: "waiting_for_question",
         } satisfies Partial<FamilyWarmUpGameState>);
         break;
       case "face_off":
         this.updateGameState({
           mode,
-          status: "in_progress",
           modeStatus: "waiting_for_question",
         } satisfies Partial<FaceOffGameState>);
         break;
       case "fast_money":
         this.updateGameState({
           mode,
-          status: "in_progress",
           modeStatus: "waiting_for_questions",
         } satisfies Partial<FastMoneyGameState>);
         break;
@@ -444,6 +445,8 @@ export default class Game {
       })
     );
 
+    this.io.to(this.id).emit("familyWarmup:pointsRevealed");
+
     this.updateGameState({
       teamsAndPoints: newTeamsAndPoints,
       modeStatus: "awarding_points",
@@ -528,8 +531,7 @@ export default class Game {
   requestNewQuestion() {
     if (!this.mode || this.mode === "indeterminate") return;
 
-    const newQuestionStateProps = this.getNewQuestionState(this.mode);
-    this.updateGameState(newQuestionStateProps);
+    this.setNewStateForMode(this.mode);
   }
 
   endGame() {

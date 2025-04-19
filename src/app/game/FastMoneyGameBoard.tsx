@@ -14,6 +14,7 @@ import {
   getFastMoneyStealPoints,
   getSortedTeamNames,
 } from "@/shared/utils";
+import { useSound } from "@/hooks/useSound";
 
 const BLANK_ANSWERS = new Array<FastMoneyAnswer>(5).fill({
   answerText: "",
@@ -30,17 +31,27 @@ export default function FastMoneyGameBoard({
 }) {
   const [timerSeconds, setTimerSeconds] = useState(0);
   const socket = useSocket();
+  const sounds = useSound();
 
   useEffect(() => {
     const onTimerStarted = (seconds: number) => setTimerSeconds(seconds);
     const onTimerCancelled = () => setTimerSeconds(0);
+    const onRequestStealQuestionAndAnswer = () => sounds.playYouSaid();
 
     socket?.on("timerStarted", onTimerStarted);
     socket?.on("timerCancelled", onTimerCancelled);
+    socket?.on(
+      "fastMoney:requestStealQuestionAndAnswer",
+      onRequestStealQuestionAndAnswer
+    );
 
     return () => {
       socket?.off("timerStarted", onTimerStarted);
       socket?.off("timerCancelled", onTimerCancelled);
+      socket?.off(
+        "fastMoney:requestStealQuestionAndAnswer",
+        onRequestStealQuestionAndAnswer
+      );
     };
   });
 

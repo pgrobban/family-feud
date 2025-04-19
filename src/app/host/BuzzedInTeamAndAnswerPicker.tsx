@@ -103,18 +103,20 @@ export default function BuzzedInTeamAndAnswerPicker({
         </Grid>
       )}
 
-      <Grid container size={6}>
-        <Grid spacing={2}>
-          <Button
-            variant="contained"
-            color={"primary"}
-            onClick={onSubmit}
-            disabled={submitDisabled}
-          >
-            Submit
-          </Button>
+      {answer && (
+        <Grid container size={6}>
+          <Grid spacing={2}>
+            <Button
+              variant="contained"
+              color={"primary"}
+              onClick={onSubmit}
+              disabled={submitDisabled}
+            >
+              Submit
+            </Button>
+          </Grid>
         </Grid>
-      </Grid>
+      )}
     </Grid>
   );
 }

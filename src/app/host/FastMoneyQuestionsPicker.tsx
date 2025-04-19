@@ -13,7 +13,7 @@ import { useState } from "react";
 import { FAST_MONEY_QUESTIONS } from "@/shared/utils";
 const storedQuestions: StoredQuestion[] = questions;
 
-export default function GameModePicker() {
+export default function FastMoneyQuestionsPicker() {
   const socket = useSocket();
   const [pickedQuestions, setPickedQuestions] = useState<string[]>([]);
 
@@ -47,9 +47,14 @@ export default function GameModePicker() {
             >
               <Box flex={4}>
                 <Typography>{questionText}</Typography>
-                <Typography fontSize={"small"}>({comment})</Typography>
               </Box>
-              <Box flex={1}>{answers.length} answers</Box>
+              <Box
+                flex={1}
+                sx={{ fontSize: "small", "& > *": { fontSize: "inherit" } }}
+              >
+                <Typography>({comment})</Typography>
+                <Typography>{answers.length} answers</Typography>
+              </Box>
               <Box>
                 <FormControlLabel
                   disabled={checkBoxesDisabled && !checked}

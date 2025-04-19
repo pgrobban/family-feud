@@ -16,7 +16,10 @@ export default function QuestionPicker() {
       {storedQuestions.map(({ questionText, answers, comment }) => (
         <Grid container key={questionText} spacing={2} mb={2}>
           <Box flex={2}>{questionText}</Box>
-          <Box flex={1} fontSize={16} sx={{ fontSize: "small" }}>
+          <Box
+            flex={1}
+            sx={{ fontSize: "small", "& > *": { fontSize: "inherit" } }}
+          >
             <Typography>{comment}</Typography>
             <Typography>{answers.length} answers</Typography>
           </Box>

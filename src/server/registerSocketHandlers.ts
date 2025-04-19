@@ -55,6 +55,7 @@ export default function registerSocketHandlers(
     if (game) {
       socket.leave(game.id);
       socket.broadcast.to(game.id).emit("hostLeft");
+      gameManager.deleteGame(game.id);
     }
   });
 
