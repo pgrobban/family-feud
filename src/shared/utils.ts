@@ -14,6 +14,7 @@ export const FAMILY_WARMUP_QUESTIONS = 3;
 export const FAMILY_WARMUP_TIMER_SECONDS = 60;
 export const MAX_FACE_OFF_STRIKES = 3;
 export const FAST_MONEY_QUESTIONS = 5;
+export const FAST_MONEY_WIN_THRESHOLD = 150;
 export const FAST_MONEY_TIMER_SECONDS = 25;
 export const FAST_MONEY_STEAL_BONUS = 50;
 
@@ -50,18 +51,18 @@ export const getPointsSum = (question: GameQuestion, answers: string[]) =>
 
 export const getFastMoneyStealPoints = (
   questions: GameQuestion[],
-  responses: GameAnswer[]
+  stealResponses: GameAnswer[]
 ) => {
   for (let i = 0; i < questions.length; i++) {
-    if (!responses[i]?.answerText) continue;
+    if (!stealResponses[i].answerText) continue;
 
     const isHighest =
       questions[i].answers[0].answerText.toLowerCase() ===
-      responses[i].answerText.toLowerCase();
+      stealResponses[i].answerText.toLowerCase();
 
     return {
       isHighest,
-      points: responses[i].points,
+      points: stealResponses[i].points,
     };
   }
 

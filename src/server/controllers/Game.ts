@@ -5,7 +5,6 @@ import type {
   FamilyWarmUpGameState,
   FastMoneyAnswer,
   FastMoneyGameState,
-  GameQuestion,
   GameState,
   IndeterminateGameState,
   Mode,
@@ -321,8 +320,12 @@ export default class Game {
       );
     }
 
+    const newState = this.getNewQuestionState(
+      "fast_money"
+    ) as FastMoneyGameState;
+
     const questions = questionTexts.map((questionText) => {
-      const stored = storedQuestions.find(
+      const stored = [...storedQuestions, TEST_QUESTION].find(
         ({ questionText: storedQuestionText }) =>
           storedQuestionText === questionText
       );
@@ -340,6 +343,7 @@ export default class Game {
     });
 
     this.updateGameState({
+      ...newState,
       questions,
       modeStatus: "questions_in_progress",
     });
@@ -486,8 +490,7 @@ export default class Game {
     if (
       !this.fastMoneyResponsesFirstTeam ||
       !this.currentTeam ||
-      !this.questions ||
-      !this.fastMoneyResponsesSecondTeam
+      !this.questions
     )
       return;
 
@@ -496,22 +499,26 @@ export default class Game {
       0
     );
 
-    const stolenPoints = getFastMoneyStealPoints(
-      this.questions,
-      this.fastMoneyResponsesSecondTeam
-    );
-    const pointsToAward =
-      firstTeamPoints +
-      (stolenPoints.isHighest
-        ? stolenPoints.points + FAST_MONEY_STEAL_BONUS
-        : 0);
-
     const newTeamsAndPoints = [...this.teamsAndPoints];
-    const teamToAwardPoints = stolenPoints.isHighest
-      ? this.currentTeam
-      : getOpposingTeam(this.currentTeam);
+    if (this.fastMoneyResponsesSecondTeam) {
+      const stolenPoints = getFastMoneyStealPoints(
+        this.questions,
+        this.fastMoneyResponsesSecondTeam
+      );
+      const pointsToAward =
+        firstTeamPoints +
+        (stolenPoints.isHighest
+          ? stolenPoints.points + FAST_MONEY_STEAL_BONUS
+          : 0);
 
-    newTeamsAndPoints[teamToAwardPoints - 1].points += pointsToAward;
+      const teamToAwardPoints = stolenPoints.isHighest
+        ? this.currentTeam
+        : getOpposingTeam(this.currentTeam);
+      newTeamsAndPoints[teamToAwardPoints - 1].points += pointsToAward;
+    } else {
+      newTeamsAndPoints[this.currentTeam - 1].points += firstTeamPoints;
+    }
+
     this.updateGameState({
       teamsAndPoints: newTeamsAndPoints,
       modeStatus: "awarding_points",

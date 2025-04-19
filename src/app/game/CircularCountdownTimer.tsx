@@ -23,7 +23,9 @@ const CircularCountdownOverlay: React.FC<CircularCountdownOverlayProps> = ({
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timerRef.current!);
-          onComplete?.();
+          setTimeout(() => {
+            onComplete?.();
+          }, 0);
           return 0;
         }
         return prev - 1;

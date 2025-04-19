@@ -26,7 +26,9 @@ export default function Create() {
     const handleHostLeft = () => {
       setStatusMessage("Host left. Returning to create game screen.");
       setTimeout(() => {
+        console.log("HOST LEFT");
         router.push("/create");
+        socket.disconnect();
       }, 1000);
     };
 

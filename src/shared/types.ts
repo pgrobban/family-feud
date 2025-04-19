@@ -80,7 +80,7 @@ export interface FastMoneyGameState extends BaseGameState {
   currentTeam: 1 | 2;
   questions?: GameQuestion[];
   responsesFirstTeam?: FastMoneyAnswer[];
-  responsesSecondTeam?: FastMoneyAnswer[];
+  responsesSecondTeam?: FastMoneyAnswer[]; // for steal round. currently only one element will be populated, with the index of a chosen question to steal.
 }
 
 export interface StoredQuestion {
