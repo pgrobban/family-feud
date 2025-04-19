@@ -4,27 +4,29 @@ import { Button } from "@mui/material";
 import AwardPointsButton from "./AwardPointsButton";
 
 export default function AfterStealAnswerReveal({
-	gameState,
-}: { gameState: FaceOffGameState }) {
-	const question = gameState.question;
+  gameState,
+}: {
+  gameState: FaceOffGameState;
+}) {
+  const question = gameState.question;
+  const socket = useSocket();
 
-	if (!question) {
-		return;
-	}
+  if (!question) {
+    return;
+  }
 
-	const answers = question.answers;
-	const socket = useSocket();
+  const answers = question.answers;
 
-	const onRevealRemainingAnswers = () =>
-		socket?.emit("faceOff:requestRevealStoredAnswers");
+  const onRevealRemainingAnswers = () =>
+    socket?.emit("faceOff:requestRevealStoredAnswers");
 
-	const allAnswersRevealed = answers.every((answer) => answer.answerRevealed);
-	if (!allAnswersRevealed) {
-		return (
-			<Button variant="contained" onClick={onRevealRemainingAnswers}>
-				Reveal remaining answers
-			</Button>
-		);
-	}
-	return <AwardPointsButton gameState={gameState} />;
+  const allAnswersRevealed = answers.every((answer) => answer.answerRevealed);
+  if (!allAnswersRevealed) {
+    return (
+      <Button variant="contained" onClick={onRevealRemainingAnswers}>
+        Reveal remaining answers
+      </Button>
+    );
+  }
+  return <AwardPointsButton gameState={gameState} />;
 }
