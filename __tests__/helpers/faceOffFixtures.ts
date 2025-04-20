@@ -1,4 +1,6 @@
+import Game from "@/server/controllers/Game";
 import { FaceOffScenario } from "./testHelpers";
+import { getOpposingTeam } from "@/shared/utils";
 
 export const question = {
   questionText: "Name a fruit that's red",
@@ -9,6 +11,8 @@ export const question = {
     { answerText: "raspberry", points: 10, answerRevealed: false },
   ],
 };
+
+const boardAnswers = question.answers.map((answer) => answer.answerText);
 
 export const familyWarmupState = {
   mode: "family_warm_up",
@@ -370,3 +374,82 @@ export const faceOffScenarios: FaceOffScenario[] = [
     expectedPoints: [100, 0],
   },
 ];
+
+export const runFaceOffScenario = (
+  game: Game,
+  scenario: FaceOffScenario,
+  keepPoints: boolean = false
+) => {
+  // Setup Face-Off question
+  const updatedGameState = structuredClone(
+    keepPoints
+      ? {
+          ...faceOffState,
+          mode: "face_off",
+          teamsAndPoints: game.toJson().teamsAndPoints,
+        }
+      : faceOffState
+  );
+
+  // @ts-expect-error private method
+  game.updateGameState(updatedGameState);
+  game.hostPickedQuestionForCurrentMode(question.questionText);
+
+  const unrevealedAtStart = new Set(boardAnswers);
+
+  // Buzz in
+  game.submitBuzzInAnswer(scenario.buzzedFirst, scenario.firstAnswer);
+  if (boardAnswers.includes(scenario.firstAnswer)) {
+    unrevealedAtStart.delete(scenario.firstAnswer);
+  }
+
+  jest.runAllTimers();
+
+  if (scenario.firstAnswer === boardAnswers[0]) {
+    // highest answer
+    game.requestAskTeamToPlayOrPass();
+  } else {
+    game.requestOtherTeamToBuzzInAnswer();
+    if (!scenario.secondAnswer) {
+      throw new Error(`Scenario needs second buzz in answer!`);
+    }
+
+    game.submitBuzzInAnswer(
+      getOpposingTeam(scenario.buzzedFirst),
+      scenario.secondAnswer
+    );
+    jest.runAllTimers();
+    game.requestAskTeamToPlayOrPass();
+  }
+
+  game.receivedPlayOrPass(scenario.controlChoice);
+
+  // Simulate control team guesses
+  for (const guess of scenario.controlGuesses) {
+    game.receivedFaceOffAnswer(guess);
+    jest.runAllTimers();
+    unrevealedAtStart.delete(guess);
+    if (unrevealedAtStart.size === 0) break; // all correct
+  }
+
+  if (unrevealedAtStart.size === 0) {
+    // board was cleared
+    // @ts-expect-error bypass for test
+    game.updateGameState({ modeStatus: "revealing_stored_answers" });
+    game.revealStoredAnswers();
+    game.awardPointsFaceOff();
+  } else {
+    // 3 strikes
+    // @ts-expect-error bypass for test
+    game.updateGameState({
+      modeStatus: "ask_other_team_for_guess_for_steal",
+    });
+
+    game.receivedStealAnswer(scenario.stealAttempt ?? "wrong answer");
+
+    jest.runAllTimers();
+    game.revealStoredAnswers();
+    game.awardPointsFaceOff();
+  }
+  return game.toJson();
+};

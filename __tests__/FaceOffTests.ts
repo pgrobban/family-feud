@@ -1,23 +1,19 @@
 import {
   faceOffScenarios,
-  faceOffState,
-  question,
+  runFaceOffScenario,
 } from "./helpers/faceOffFixtures";
 import Game from "@/server/controllers/Game";
 import {
   createMockSocketServerAndRoom,
   FaceOffScenario,
 } from "./helpers/testHelpers";
-import { getOpposingTeam } from "@/shared/utils";
-
-const boardAnswers = question.answers.map((answer) => answer.answerText);
 
 describe("Face-Off full paths", () => {
   let game: Game;
 
   beforeEach(() => {
     const { io, roomId } = createMockSocketServerAndRoom();
-    // @ts-expect-error mock IO
+    // @ts-expect-error mock io
     game = new Game(roomId, "testsocket", ["A", "B"], io);
 
     jest.useFakeTimers();
@@ -28,86 +24,8 @@ describe("Face-Off full paths", () => {
     jest.useRealTimers();
   });
 
-  const runScenario = (
-    scenario: FaceOffScenario,
-    keepPoints: boolean = false
-  ) => {
-    // Setup Face-Off question
-    const updatedGameState = structuredClone(
-      keepPoints
-        ? {
-            ...faceOffState,
-            mode: "face_off" as const, // make ts happy
-            teamsAndPoints: game.toJson().teamsAndPoints,
-          }
-        : faceOffState
-    );
-
-    // @ts-expect-error private method
-    game.updateGameState(updatedGameState);
-    game.hostPickedQuestionForCurrentMode(question.questionText);
-
-    const unrevealedAtStart = new Set(boardAnswers);
-
-    // Buzz in
-    game.submitBuzzInAnswer(scenario.buzzedFirst, scenario.firstAnswer);
-    if (boardAnswers.includes(scenario.firstAnswer)) {
-      unrevealedAtStart.delete(scenario.firstAnswer);
-    }
-
-    jest.runAllTimers();
-
-    if (scenario.firstAnswer === boardAnswers[0]) {
-      // highest answer
-      game.requestAskTeamToPlayOrPass();
-    } else {
-      game.requestOtherTeamToBuzzInAnswer();
-      if (!scenario.secondAnswer) {
-        throw new Error(`Scenario needs second buzz in answer!`);
-      }
-
-      game.submitBuzzInAnswer(
-        getOpposingTeam(scenario.buzzedFirst),
-        scenario.secondAnswer
-      );
-      jest.runAllTimers();
-      game.requestAskTeamToPlayOrPass();
-    }
-
-    game.receivedPlayOrPass(scenario.controlChoice);
-
-    // Simulate control team guesses
-    for (const guess of scenario.controlGuesses) {
-      game.receivedFaceOffAnswer(guess);
-      jest.runAllTimers();
-      unrevealedAtStart.delete(guess);
-      if (unrevealedAtStart.size === 0) break; // all correct
-    }
-
-    if (unrevealedAtStart.size === 0) {
-      // board was cleared
-      // @ts-expect-error bypass for test
-      game.updateGameState({ modeStatus: "revealing_stored_answers" });
-      game.revealStoredAnswers();
-      game.awardPointsFaceOff();
-    } else {
-      // 3 strikes
-      // @ts-expect-error bypass for test
-      game.updateGameState({
-        modeStatus: "ask_other_team_for_guess_for_steal",
-      });
-
-      game.receivedStealAnswer(scenario.stealAttempt ?? "wrong answer");
-
-      jest.runAllTimers();
-      game.revealStoredAnswers();
-      game.awardPointsFaceOff();
-    }
-    return game.toJson();
-  };
-
   test.each(faceOffScenarios)("$name", (scenario) => {
-    const result = runScenario(scenario);
+    const result = runFaceOffScenario(game, scenario);
     expect(result.teamsAndPoints[0].points).toBe(scenario.expectedPoints[0]);
     expect(result.teamsAndPoints[1].points).toBe(scenario.expectedPoints[1]);
     expect(result.modeStatus).toBe("awarding_points");
@@ -124,9 +42,9 @@ describe("Face-Off full paths", () => {
         expectedPoints: [300, 0], // Team 1 should earn 100 points per answer, so 300 in total
       };
 
-      let result = runScenario(scenario, true); // First game
-      result = runScenario(scenario, true); // Second game
-      result = runScenario(scenario, true); // Third game
+      let result = runFaceOffScenario(game, scenario, true); // First game
+      result = runFaceOffScenario(game, scenario, true); // Second game
+      result = runFaceOffScenario(game, scenario, true); // Third game
 
       expect(result.teamsAndPoints[0].points).toBe(scenario.expectedPoints[0]);
       expect(result.teamsAndPoints[1].points).toBe(scenario.expectedPoints[1]);
@@ -144,8 +62,8 @@ describe("Face-Off full paths", () => {
         expectedPoints: [0, 200],
       };
 
-      let result = runScenario(scenario, true); // First game
-      result = runScenario(scenario, true); // Second game
+      let result = runFaceOffScenario(game, scenario, true); // First game
+      result = runFaceOffScenario(game, scenario, true); // Second game
 
       expect(result.teamsAndPoints[0].points).toBe(scenario.expectedPoints[0]);
       expect(result.teamsAndPoints[1].points).toBe(scenario.expectedPoints[1]);
@@ -175,13 +93,13 @@ describe("Face-Off full paths", () => {
       };
 
       // Running the first game
-      let result = runScenario(scenario1, true); // First game (Team 1 wins)
+      let result = runFaceOffScenario(game, scenario1, true); // First game (Team 1 wins)
       expect(result.teamsAndPoints[0].points).toBe(100);
       expect(result.teamsAndPoints[1].points).toBe(0);
       expect(result.modeStatus).toBe("awarding_points");
 
       // Running the second game
-      result = runScenario(scenario2, true); // Second game (Team 2 wins)
+      result = runFaceOffScenario(game, scenario2, true); // Second game (Team 2 wins)
       expect(result.teamsAndPoints[0].points).toBe(100);
       expect(result.teamsAndPoints[1].points).toBe(70);
       expect(result.modeStatus).toBe("awarding_points");

@@ -1,4 +1,6 @@
+import Game from "@/server/controllers/Game";
 import { FamilyWarmupScenario } from "./testHelpers";
+import { question } from "./faceOffFixtures";
 
 export const familyWarmupState = {
   mode: "family_warm_up",
@@ -26,3 +28,31 @@ export const familyWarmupScenarios: FamilyWarmupScenario[] = [
     expectedPoints: [0, 0],
   },
 ];
+
+export const runFamilyWarmupScenario = (
+  game: Game,
+  scenario: FamilyWarmupScenario,
+  keepPoints: boolean = false
+) => {
+  const updatedGameState = structuredClone(
+    keepPoints
+      ? {
+          ...familyWarmupState,
+          mode: "family_warm_up",
+          teamsAndPoints: game.toJson().teamsAndPoints,
+        }
+      : familyWarmupState
+  );
+  // @ts-expect-error private method
+  game.updateGameState(updatedGameState);
+  game.hostPickedQuestionForCurrentMode(question.questionText);
+
+  game.hostRequestedTeamAnswers();
+  game.hostGatheredTeamAnswersFamilyWarmup(
+    scenario.team1Answers,
+    scenario.team2Answers
+  );
+  game.revealTeamAnswersFamilyWarmup();
+  game.awardPointsFamilyWarmup();
+  return game.toJson();
+};

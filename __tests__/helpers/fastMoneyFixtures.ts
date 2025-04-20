@@ -1,6 +1,7 @@
-import { FAST_MONEY_QUESTIONS } from "@/shared/utils";
+import { FAST_MONEY_QUESTIONS, FAST_MONEY_WIN_THRESHOLD } from "@/shared/utils";
 import { FastMoneyScenario } from "./testHelpers";
 import { question } from "./faceOffFixtures";
+import Game from "@/server/controllers/Game";
 
 export const fastMoneyState = {
   mode: "fast_money",
@@ -38,3 +39,54 @@ export const fastMoneyScenarios: FastMoneyScenario[] = [
     expectedPoints: [100, 0],
   },
 ];
+
+export const runFastMoneyScenario = (
+  game: Game,
+  scenario: FastMoneyScenario,
+  keepPoints: boolean = false
+) => {
+  const updatedGameState = structuredClone(
+    keepPoints
+      ? {
+          ...fastMoneyState,
+          mode: "fast_money",
+          teamsAndPoints: game.toJson().teamsAndPoints,
+        }
+      : fastMoneyState
+  );
+  // @ts-expect-error private method
+  game.updateGameState(updatedGameState);
+  game.hostPickedFastMoneyQuestions(scenario.questionTexts);
+
+  game.receivedFastMoneyResponses(scenario.answerTexts);
+  for (let i = 0; i < FAST_MONEY_QUESTIONS; i++) {
+    game.requestedFastMoneyAnswerReveal(i, "playing_team");
+  }
+  jest.runAllTimers();
+  const firstTeamPointsSum =
+    game.fastMoneyResponsesFirstTeam?.reduce(
+      (acc, { points }) => acc + points,
+      0
+    ) || 0;
+  if (firstTeamPointsSum >= FAST_MONEY_WIN_THRESHOLD) {
+    for (let i = 0; i < FAST_MONEY_QUESTIONS; i++) {
+      game.requestedFastMoneyPointsReveal(i, "playing_team");
+    }
+    jest.runAllTimers();
+  } else {
+    if (!scenario.stealQuestionText || !scenario.stealAnswerText) {
+      throw new Error("No steal question or answer");
+    }
+
+    game.requestedFastMoneyStealQuestionAndAnswer();
+    game.receivedFastMoneyStealQuestionAndAnswer(
+      scenario.stealQuestionText,
+      scenario.stealAnswerText
+    );
+    game.requestedRevealFastMoneyStealQuestionAndAnswer();
+  }
+  jest.runAllTimers();
+  game.awardPointsFastMoney();
+
+  return game.toJson();
+};
