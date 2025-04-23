@@ -9,13 +9,7 @@ import {
 } from "./helpers/testHelpers";
 
 describe("Face-Off full paths", () => {
-  let game: Game;
-
   beforeEach(() => {
-    const { io, roomId } = createMockSocketServerAndRoom();
-    // @ts-expect-error mock io
-    game = new Game(roomId, "testsocket", ["A", "B"], io);
-
     jest.useFakeTimers();
   });
 
@@ -25,6 +19,10 @@ describe("Face-Off full paths", () => {
   });
 
   test.each(faceOffScenarios)("$name", (scenario) => {
+    const { io, roomId } = createMockSocketServerAndRoom();
+    // @ts-expect-error mock io
+    const game = new Game(roomId, "testsocket", ["A", "B"], io);
+
     const result = runFaceOffScenario(game, scenario);
     expect(result.teamsAndPoints[0].points).toBe(scenario.expectedPoints[0]);
     expect(result.teamsAndPoints[1].points).toBe(scenario.expectedPoints[1]);
@@ -33,6 +31,10 @@ describe("Face-Off full paths", () => {
 
   describe("Multiple consecutive scenarios", () => {
     test("Team 1 keeps answering correctly", () => {
+      const { io, roomId } = createMockSocketServerAndRoom();
+      // @ts-expect-error mock io
+      const game = new Game(roomId, "testsocket", ["A", "B"], io);
+
       const scenario: FaceOffScenario = {
         name: "Team 1 keeps answering correctly",
         buzzedFirst: 1,
@@ -52,6 +54,10 @@ describe("Face-Off full paths", () => {
     });
 
     test("Team 1 answers correctly twice, Team 2 steals successfully", () => {
+      const { io, roomId } = createMockSocketServerAndRoom();
+      // @ts-expect-error mock io
+      const game = new Game(roomId, "testsocket", ["A", "B"], io);
+
       const scenario: FaceOffScenario = {
         name: "Team 1 answers correctly twice, Team 2 steals successfully",
         buzzedFirst: 1,
@@ -71,6 +77,10 @@ describe("Face-Off full paths", () => {
     });
 
     test("Two games with each team winning once", () => {
+      const { io, roomId } = createMockSocketServerAndRoom();
+      // @ts-expect-error mock io
+      const game = new Game(roomId, "testsocket", ["A", "B"], io);
+
       // First Game: Team 1 wins
       const scenario1: FaceOffScenario = {
         name: "Team 1 buzzes first, highest answer, chooses to play, clears board",
