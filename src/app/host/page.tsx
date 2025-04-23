@@ -2,7 +2,7 @@
 import useSocket from "@/hooks/useSocket";
 import { useEffect, useState } from "react";
 import { isSocketDefined } from "@/shared/utils";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import GameBoardWithScores from "../game/GameBoardWithScores";
 import GameModePicker from "./GameModePicker";
 import FamilyWarmupControls from "./FamilyWarmupControls";

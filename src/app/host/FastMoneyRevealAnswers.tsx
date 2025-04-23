@@ -2,7 +2,6 @@ import useSocket from "@/hooks/useSocket";
 import type { GameState, FastMoneyGameState } from "@/shared/types";
 import { Box, Button, Typography } from "@mui/material";
 import AwardPointsButton from "./AwardPointsButton";
-import { FAST_MONEY_WIN_THRESHOLD } from "@/shared/utils";
 
 export default function FastMoneyRevealAnswers({
 	gameState,
