@@ -16,11 +16,12 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
     origin: [
       "http://localhost:3001",
-      ...(CORS_ORIGIN ? [CORS_ORIGIN] : [])
+      ...(CORS_ORIGIN ? [...CORS_ORIGIN.split(",")] : [])
     ],
     methods: ["GET", "POST"],
   },
 });
+
 const gameManager = new GameManager(io);
 
 io.on(
