@@ -400,28 +400,6 @@
     ]
   },
   {
-    "questionText": "Name a bad job for someone who's afraid of heights.",
-    "comment": "Face off",
-    "answers": [
-      {
-        "answerText": "Window washer",
-        "points": 39
-      },
-      {
-        "answerText": "Pilot/flight attendant",
-        "points": 37
-      },
-      {
-        "answerText": "Construction worker",
-        "points": 16
-      },
-      {
-        "answerText": "Firefighter",
-        "points": 6
-      }
-    ]
-  },
-  {
     "questionText": "Tell me something you would never borrow from your close friend.",
     "comment": "Face off",
     "answers": [
@@ -448,6 +426,28 @@
       {
         "answerText": "Quit job",
         "points": 5
+      }
+    ]
+  },
+  {
+    "questionText": "Name a bad job for someone who's afraid of heights.",
+    "comment": "Face off",
+    "answers": [
+      {
+        "answerText": "Window washer",
+        "points": 39
+      },
+      {
+        "answerText": "Pilot/flight attendant",
+        "points": 37
+      },
+      {
+        "answerText": "Construction worker",
+        "points": 16
+      },
+      {
+        "answerText": "Firefighter",
+        "points": 6
       }
     ]
   },
