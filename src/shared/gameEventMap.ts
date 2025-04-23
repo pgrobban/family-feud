@@ -15,6 +15,7 @@ export interface ClientToServerEvents {
   hostRequestedQuit: () => void;
   requestStartTimer: (seconds: number) => void;
   requestCancelTimer: () => void;
+  requestUpdatePoints: (points: number[]) => void;
 
   "familyWarmup:hostRequestedTeamAnswers": () => void;
   "familyWarmup:hostGatheredTeamAnswers": (

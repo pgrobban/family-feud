@@ -63,6 +63,7 @@ export default class Game {
       id,
       teamNames,
       teamsAndPoints: teamNames.map((teamName) => ({ teamName, points: 0 })),
+      points: [0, 0],
       status: "waiting_for_host",
       mode: "indeterminate",
       modeStatus: null,
@@ -93,6 +94,10 @@ export default class Game {
   }
   get teamsAndPoints() {
     return this.gameState.teamsAndPoints;
+  }
+
+  get points() {
+    return this.gameState.teamsAndPoints.map((team) => team.points);
   }
 
   get status() {
@@ -305,6 +310,17 @@ export default class Game {
         modeStatus: "face_off_started",
       });
     }
+  }
+
+  hostRequestedUpdatePoints(newPoints: number[]) {
+    const newTeamsAndPoints = this.gameState.teamsAndPoints.map((team, i) => ({
+      ...team,
+      points: newPoints[i],
+    }));
+
+    this.updateGameState({
+      teamsAndPoints: newTeamsAndPoints
+    })
   }
 
   hostPickedFastMoneyQuestions(questionTexts: string[]) {

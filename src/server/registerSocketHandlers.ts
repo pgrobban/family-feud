@@ -96,4 +96,7 @@ export default function registerSocketHandlers(
   socket.on("questionPicked", (question) =>
     updateGame((game) => game.hostPickedQuestionForCurrentMode(question))
   );
+  socket.on("requestUpdatePoints", (newPoints) =>
+    updateGame((game) => game.hostRequestedUpdatePoints(newPoints))
+  );
 }

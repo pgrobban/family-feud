@@ -9,7 +9,7 @@ export default function GameModePicker() {
 		socket?.emit("modePicked", mode);
 
 	return (
-		<Box p={2}>
+		<Box mb={2}>
 			<Typography>Pick a game mode...</Typography>
 			<Grid container spacing={2}>
 				<Grid>
