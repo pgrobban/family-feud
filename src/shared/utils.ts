@@ -29,15 +29,23 @@ export const getAnswerIndex = (answers: StoredAnswer[], answerText: string) =>
     (a) => a.answerText.toLowerCase() === answerText.toLowerCase()
   );
 
-export const getSortedTeamNames = (teamsAndPoints: TeamAndPoints[]) => {
+export const getSortedTeamIndexes = (teamsAndPoints: TeamAndPoints[]) => {
   const leadingTeamIndex = teamsAndPoints.findIndex(
     (team) => team.points === Math.max(...teamsAndPoints.map((t) => t.points))
   );
   const opposingTeamIndex =
     getOpposingTeam((leadingTeamIndex + 1) as 1 | 2) - 1;
   return {
-    first: teamsAndPoints[leadingTeamIndex].teamName,
-    second: teamsAndPoints[opposingTeamIndex].teamName,
+    first: leadingTeamIndex,
+    second: opposingTeamIndex,
+  };
+};
+
+export const getSortedTeamNames = (teamsAndPoints: TeamAndPoints[]) => {
+  const indexes = getSortedTeamIndexes(teamsAndPoints);
+  return {
+    first: teamsAndPoints[indexes.first].teamName,
+    second: teamsAndPoints[indexes.second].teamName,
   };
 };
 

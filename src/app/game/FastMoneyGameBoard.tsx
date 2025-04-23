@@ -12,6 +12,7 @@ import FastMoneyAnswerCard from "./FastMoneyAnswerCard";
 import {
   FAST_MONEY_STEAL_BONUS,
   getFastMoneyStealPoints,
+  getSortedTeamIndexes,
   getSortedTeamNames,
 } from "@/shared/utils";
 import { useSound } from "@/hooks/useSound";
@@ -30,6 +31,11 @@ export default function FastMoneyGameBoard({
   gameState: GameState & FastMoneyGameState;
 }) {
   const [timerSeconds, setTimerSeconds] = useState(0);
+  const [startingOrder] = useState(
+    getSortedTeamIndexes(gameState.teamsAndPoints)
+  ); // only used to control column order
+  console.log("***", startingOrder);
+
   const socket = useSocket();
   const sounds = useSound();
 
@@ -136,7 +142,12 @@ export default function FastMoneyGameBoard({
         >
           <Typography variant="h3">{getPointsSum()}</Typography>
         </Box>
-        <Box display="flex" gap={4} justifyContent="center">
+        <Box
+          display="flex"
+          flexDirection={startingOrder.first === 0 ? "row" : "row-reverse"}
+          gap={4}
+          justifyContent="center"
+        >
           <Box display="flex" flexDirection="column" gap={2} flex={1}>
             {(gameState.responsesFirstTeam || BLANK_ANSWERS).map(
               (answer, index) => (
