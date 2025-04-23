@@ -48,20 +48,10 @@ export default function FastMoneyQuestionInProgressControls({
 						Cancel timer
 					</Button>
 				</Grid>
-				<Grid>
-					<Button
-						variant="contained"
-						color="success"
-						onClick={onSubmitAnswers}
-						disabled={submitDisabled}
-					>
-						Submit answers
-					</Button>
-				</Grid>
 			</Grid>
 			<Grid flexGrow={2}>
 				<TextField
-					label="Notes"
+					label="Write quick notes for answers here, click below when round is finished"
 					value={notes}
 					onChange={(e) => setNotes(e.target.value)}
 					fullWidth
@@ -115,6 +105,16 @@ export default function FastMoneyQuestionInProgressControls({
 						</Grid>
 					</Grid>
 				))}
+			</Grid>
+			<Grid>
+				<Button
+					variant="contained"
+					color="success"
+					onClick={onSubmitAnswers}
+					disabled={submitDisabled}
+				>
+					Submit answers
+				</Button>
 			</Grid>
 		</Grid>
 	);

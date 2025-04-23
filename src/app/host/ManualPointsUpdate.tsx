@@ -17,7 +17,7 @@ export default function ManualPointsUpdate({
 	const requestSetPoints = () => socket?.emit("requestUpdatePoints", points);
 
 	return (
-		<Box mt={5}>
+		<Box mt={5} border={"1px solid red"} p={2}>
 			<Typography mb={2}>Manually update points</Typography>
 			<Grid container spacing={2}>
 				<Grid flex={2}>

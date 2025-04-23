@@ -2,6 +2,7 @@ import useSocket from "@/hooks/useSocket";
 import type { GameState, FastMoneyGameState } from "@/shared/types";
 import { Box, Button, Typography } from "@mui/material";
 import AwardPointsButton from "./AwardPointsButton";
+import { FAST_MONEY_WIN_THRESHOLD } from "@/shared/utils";
 
 export default function FastMoneyRevealAnswers({
 	gameState,
@@ -25,9 +26,11 @@ export default function FastMoneyRevealAnswers({
 		);
 	}
 
-	const revealDisabled = gameState.responsesFirstTeam.some(
-		(response) => !response.answerRevealed,
-	);
+	const firstTeamOverThreshold = pointsToBeAwarded >= FAST_MONEY_WIN_THRESHOLD;
+
+	const revealFirstTeamPointsDisabled =
+		gameState.responsesFirstTeam.some((response) => !response.answerRevealed) ||
+		firstTeamOverThreshold;
 	const revealStealDisabled = gameState.responsesFirstTeam.some(
 		(response) => !response.answerRevealed || !response.pointsRevealed,
 	);
@@ -63,7 +66,11 @@ export default function FastMoneyRevealAnswers({
 									fullWidth
 									variant="contained"
 									onClick={() => requestRevealPoints(index)}
-									disabled={answer.pointsRevealed}
+									disabled={
+										!answer.answerRevealed ||
+										answer.pointsRevealed ||
+										(!firstTeamOverThreshold && !gameState.responsesSecondTeam)
+									}
 								>
 									Reveal points ({answer.points})
 								</Button>
@@ -78,9 +85,9 @@ export default function FastMoneyRevealAnswers({
 					<Button
 						variant="contained"
 						onClick={requestStealQuestionAndAnswer}
-						disabled={revealDisabled}
+						disabled={revealFirstTeamPointsDisabled}
 					>
-						Reveal point sum. <br />
+						Reveal first team point sum. <br />
 						Request other team to steal question and answer
 					</Button>
 					<AwardPointsButton gameState={gameState} />
