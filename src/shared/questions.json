@@ -404,28 +404,24 @@
     "comment": "Face off",
     "answers": [
       {
-        "answerText": "Buy a house",
-        "points": 48
+        "answerText": "Money",
+        "points": 42
       },
       {
-        "answerText": "Buy a car",
-        "points": 18
+        "answerText": "Underwear",
+        "points": 38
       },
       {
-        "answerText": "Vacation",
-        "points": 11
-      },
-      {
-        "answerText": "Shopping spree",
+        "answerText": "Toothbrush",
         "points": 8
       },
       {
-        "answerText": "Pay bills",
-        "points": 7
+        "answerText": "Mate",
+        "points": 5
       },
       {
-        "answerText": "Quit job",
-        "points": 5
+        "answerText": "Car",
+        "points": 4
       }
     ]
   },
